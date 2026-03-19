@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["ES2022"],
+    "baseUrl": ".",
+    "rootDir": "./src",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["src/*"],
+      "@config/*": ["src/config/*"],
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@services/*": ["src/services/*"],
+      "@middleware/*": ["src/middlewares/*"],
+      "@utils/*": ["src/utils/*"],
+      "@routes/*": ["src/routes/*"]
+    },
+    "types": ["node"],
+
+    "outDir": "./dist",
+
+    "allowSyntheticDefaultImports": true,
+
+    "esModuleInterop": true,
+
+    "strict": true,
+
+    "noUnusedLocals": true,
+
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
