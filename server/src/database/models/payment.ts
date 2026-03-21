@@ -55,13 +55,13 @@ Payment.init(
     },
     subscriptionId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: "subscriptions",
         key: "id",
       },
-      onDelete: "CASCADE",
       onUpdate: "CASCADE",
+      onDelete: "SET NULL",
     },
     stripeInvoiceId: {
       type: DataTypes.STRING,

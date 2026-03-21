@@ -5,7 +5,7 @@ import { sequelize } from "@/config/database";
 
 export class ProposalAttribute extends Model<InferAttributes<ProposalAttribute>, InferCreationAttributes<ProposalAttribute>> {
   declare id: CreationOptional<string>;
-  declare proposalId: ForeignKey<Proposal>;
+  declare proposalId: ForeignKey<Proposal["id"]>;
   declare fieldName: string;
   declare fieldValue: string;
 
@@ -58,7 +58,7 @@ ProposalAttribute.init(
   {
     sequelize,
     modelName: "ProposalAttribute",
-    tableName: "propsal_attributes",
+    tableName: "proposal_attributes",
   },
 );
 

@@ -3,7 +3,7 @@ import type { Association, CreationOptional, InferAttributes, InferCreationAttri
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
 
-export class Category extends Model<InferAttributes<Category>, InferCreationAttributes<Category>> {
+export class Role extends Model<InferAttributes<Role>, InferCreationAttributes<Role>> {
   declare id: CreationOptional<string>;
   declare name: string;
 
@@ -11,14 +11,14 @@ export class Category extends Model<InferAttributes<Category>, InferCreationAttr
   declare updatedAt: CreationOptional<Date>;
 
   // Associations
-  declare policyTemplate?: NonAttribute<PolicyTemplate>;
+  declare users?: NonAttribute<User[]>;
 
   declare static associations: {
-    policyTemplate: Association<Category, PolicyTemplate>;
+    users: Association<Role, User>;
   };
-};
+}
 
-Category.init(
+Role.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -26,7 +26,7 @@ Category.init(
       primaryKey: true,
     },
     name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: false,
       unique: true,
     },
@@ -43,9 +43,9 @@ Category.init(
   },
   {
     sequelize,
-    modelName: "Category",
-    tableName: "categories",
+    modelName: "Role",
+    tableName: "roles",
   },
 );
 
-import type { PolicyTemplate } from "./policy-template";
+import type { User } from "./user";

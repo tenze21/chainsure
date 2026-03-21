@@ -1,9 +1,13 @@
 import type { Request, Response } from "express";
+import { errorHandler, notFound } from "@middlewares/error-handler";
+import { pinoLogger } from "@middlewares/pino-logger";
+import { apiLimiter } from "@middlewares/rate-limit-middleware";
+import authRoutes from "@routes/auth-routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { pinoLogger } from "@/middlewares/pino-logger";
+import "@/database/models/index";
 
 const app = express();
 
@@ -18,6 +22,8 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+app.use(apiLimiter);
+
 app.get("/api", (_req: Request, res: Response) => {
   res.json({
     message: "Welcome to Chainsure API",
@@ -25,4 +31,10 @@ app.get("/api", (_req: Request, res: Response) => {
     documentation: "/api/docs",
   });
 });
+
+app.use("/api/auth", authRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
+
 export default app;
