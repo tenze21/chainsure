@@ -8,7 +8,7 @@ export class Policy extends Model<InferAttributes<Policy>, InferCreationAttribut
   declare id: CreationOptional<string>;
   declare templateId: ForeignKey<PolicyTemplate["id"]>;
   declare userId: ForeignKey<User["id"]>;
-  declare status: string;
+  declare status: CreationOptional<string>;
   declare transactionHash: string;
   declare stripePriceId: string;
   declare premium: number;
@@ -17,7 +17,7 @@ export class Policy extends Model<InferAttributes<Policy>, InferCreationAttribut
   declare tokenID: number;
   declare contractAddress: string;
   declare signature: string;
-  declare recvocationNote: string | null;
+  declare revocationNote: string | null;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -47,12 +47,12 @@ Policy.init(
     },
     templateId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: "policy_templates",
         key: "id",
       },
-      onDelete: "CASCADE",
+      onDelete: "SET NULL",
       onUpdate: "CASCADE",
     },
     userId: {
@@ -103,7 +103,7 @@ Policy.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    recvocationNote: {
+    revocationNote: {
       type: DataTypes.TEXT,
       allowNull: true,
     },

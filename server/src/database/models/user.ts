@@ -1,22 +1,24 @@
-/* eslint-disable ts/consistent-type-imports */
 /* eslint-disable perfectionist/sort-imports */
 /* eslint-disable import/first */
 import type { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, NonAttribute } from "sequelize";
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
+import type { Gender, MaritalStatus } from "@/lib/types";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<string>;
+  declare profilePicture: string | null;
   declare email: string;
   declare emailVerified: CreationOptional<boolean>;
   declare roleId: ForeignKey<Role["id"]>;
-  declare cid: CreationOptional<string>;
-  declare dob: CreationOptional<Date>;
-  declare gender: CreationOptional<string>;
-  declare contactNumber: CreationOptional<number>;
-  declare maritalStatus: CreationOptional<string>;
-  declare address: CreationOptional<string>;
+  declare cid: string | null;
+  declare dob: Date | null;
+  declare gender: Gender | null;
+  declare contactNumber: number | null;
+  declare maritalStatus: MaritalStatus | null;
+  declare address: string | null;
   declare passwordHash: string;
+  declare salt: string;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -48,6 +50,10 @@ User.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     email: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -66,8 +72,8 @@ User.init(
         model: "roles",
         key: "id",
       },
-      onDelete: "CASCADE",
       onUpdate: "CASCADE",
+      onDelete: "SET NULL",
     },
     cid: {
       type: DataTypes.STRING(11),
@@ -98,6 +104,10 @@ User.init(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    salt: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -113,6 +123,12 @@ User.init(
     sequelize,
     modelName: "User",
     tableName: "users",
+    indexes: [
+      {
+        unique: true,
+        fields: ["email"],
+      },
+    ],
   },
 );
 
