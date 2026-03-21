@@ -1,16 +1,17 @@
+/* eslint-disable perfectionist/sort-imports */
 /* eslint-disable import/first */
 import type { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, NonAttribute } from "sequelize";
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
 
-export class Subscription extends Model<InferAttributes<Subscription>, InferCreationAttributes<Subscription>> {
+export class Claim extends Model<InferAttributes<Claim>, InferCreationAttributes<Claim>> {
   declare id: CreationOptional<string>;
   declare userId: ForeignKey<User["id"]>;
   declare policyId: ForeignKey<Policy["id"]>;
-  declare stripeSubscriptionId: string;
-  declare status: string;
-  declare nextBillingDate: Date;
-  declare currentPeriodEnd: Date;
+  declare status: CreationOptional<string>;
+  declare priority: string | null;
+  declare description: string;
+  declare adminNote: string | null;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -20,12 +21,12 @@ export class Subscription extends Model<InferAttributes<Subscription>, InferCrea
   declare policy?: NonAttribute<Policy>;
 
   declare static associations: {
-    user: Association<Subscription, User>;
-    policy: Association<Subscription, Policy>;
+    user: Association<Claim, User>;
+    policy: Association<Claim, Policy>;
   };
 }
 
-Subscription.init(
+Claim.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -53,20 +54,21 @@ Subscription.init(
       onUpdate: "CASCADE",
     },
     status: {
-      type: DataTypes.ENUM("paid", "pending", "lasped"),
+      type: DataTypes.ENUM("pending", "approved", "rejected"),
+      defaultValue: "pending",
       allowNull: false,
     },
-    stripeSubscriptionId: {
-      type: DataTypes.STRING,
+    priority: {
+      type: DataTypes.ENUM("low", "medium", "high"),
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.TEXT,
       allowNull: false,
     },
-    nextBillingDate: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    currentPeriodEnd: {
-      type: DataTypes.DATE,
-      allowNull: false,
+    adminNote: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -81,10 +83,10 @@ Subscription.init(
   },
   {
     sequelize,
-    modelName: "Subscription",
-    tableName: "subscriptions",
+    modelName: "Claim",
+    tableName: "claims",
   },
 );
 
-import type { Policy } from "./policy";
 import type { User } from "./user";
+import type { Policy } from "./policy";

@@ -1,10 +1,15 @@
+import { testConnection } from "@/config/database";
+import env from "@/config/env";
 import app from "./app";
 
 async function startServer() {
   try {
-    app.listen(3000, () => {
+    // test database connection
+    testConnection();
+
+    app.listen(env.PORT, () => {
       // eslint-disable-next-line no-console
-      console.log("server running on port 3000");
+      console.log(`Chainsure API\nEnvironment: ${env.NODE_ENV.padEnd(24)}\nPort: ${env.PORT.toString().padEnd(32)}\nURL: http://localhost:${env.PORT.toString().padEnd(18)}`);
     });
   }
   catch (err) {

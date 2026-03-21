@@ -19,11 +19,13 @@ export class PolicyTemplate extends Model<InferAttributes<PolicyTemplate>, Infer
   declare updatedAt: CreationOptional<Date>;
 
   declare category: NonAttribute<Category>;
-  declare proposal: NonAttribute<Proposal>;
+  declare proposals: NonAttribute<Proposal[]>;
+  declare policies: NonAttribute<Policy[]>;
 
   declare static associations: {
     category: Association<PolicyTemplate, Category>;
-    proposal: Association<PolicyTemplate, Proposal>;
+    proposals: Association<PolicyTemplate, Proposal>;
+    policies: Association<PolicyTemplate, Policy>;
   };
 }
 
@@ -40,12 +42,12 @@ PolicyTemplate.init(
     },
     categoryId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: "categories",
         key: "id",
       },
-      onDelete: "CASCADE",
+      onDelete: "SET NULL",
       onUpdate: "CASCADE",
     },
     description: {
@@ -74,7 +76,7 @@ PolicyTemplate.init(
     },
     duration: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -95,4 +97,5 @@ PolicyTemplate.init(
 );
 
 import type { Category } from "./category";
+import type { Policy } from "./policy";
 import type { Proposal } from "./proposal";

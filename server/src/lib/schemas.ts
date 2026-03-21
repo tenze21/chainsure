@@ -35,17 +35,21 @@ export const Base64WithIvSchema = z
 export const Base64Schema = z
   .string()
   // eslint-disable-next-line regexp/use-ignore-case
-  .regex(/^[A-Za-z0-9+/]+=*$/, "Invalid base64 format");
+  .regex(/^[A-Za-z0-9+/]+=*$/, "Invalid base64 format.");
 
 export const PasswordHashSchema = z
   .string()
-  .min(32, "Invalid password hash format");
+  .min(32, "Invalid password hash format.");
+
+export const ContactNumberSchema = z
+  .string()
+  .regex(/\b(17|77)\d{6}\b/, "Invalid contact number.");
 
 export const RegisterSchema = z.object({
   email: EmailSchema,
   passwordHash: PasswordHashSchema,
-  encryptedPrivateKey: Base64WithIvSchema,
   walletAddress: WalletAddressSchema,
+  encryptedPrivateKey: Base64WithIvSchema,
   salt: Base64Schema,
 });
 

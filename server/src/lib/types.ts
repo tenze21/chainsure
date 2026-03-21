@@ -4,11 +4,6 @@ export enum Gender {
   OTHER = "other",
 }
 
-export enum Role {
-  ADMIN = "admin",
-  USER = "user",
-}
-
 export enum MaritalStatus {
   SINGLE = "single",
   MARRIED = "married",
@@ -38,7 +33,7 @@ export interface User {
   dob: Date;
   gender: Gender;
   passwordHash: string;
-  role: Role;
+  role: string;
   contactNumber: number;
   maritalStatus: MaritalStatus;
   address: string;
@@ -51,13 +46,13 @@ export interface SafeUserData {
   id: string;
   email: string;
   emailVerified: boolean;
-  cid: string;
-  age: number;
-  gender: Gender;
-  role: Role;
-  contactNumber: number;
-  maritalStatus: MaritalStatus;
-  address: string;
+  cid: string | null;
+  dob: Date | null;
+  gender: Gender | null;
+  role: string;
+  contactNumber: number | null;
+  maritalStatus: MaritalStatus | null;
+  address: string | null;
   walletAddress: string;
   createdAt: Date;
   updatedAt: Date;
@@ -100,15 +95,16 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   email: string;
-  CID: string;
   passwordHash: string;
   walletAddress: string;
   encryptedPrivateKey: string;
+  salt: string;
 }
 
 export interface AuthResponse {
   user: SafeUserData;
   jwtToken: string;
+  salt: string;
 }
 
 export interface ApiSuccessResponse<T = any> {

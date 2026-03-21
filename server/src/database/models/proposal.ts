@@ -8,7 +8,7 @@ export class Proposal extends Model<InferAttributes<Proposal>, InferCreationAttr
   declare id: CreationOptional<string>;
   declare userId: ForeignKey<User["id"]>;
   declare templateId: ForeignKey<PolicyTemplate["id"]>;
-  declare status: string;
+  declare status: CreationOptional<string>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -16,12 +16,12 @@ export class Proposal extends Model<InferAttributes<Proposal>, InferCreationAttr
   // Associations
   declare user?: NonAttribute<User>;
   declare policyTemplate?: NonAttribute<PolicyTemplate>;
-  declare proposalAttribute?: NonAttribute<ProposalAttribute>;
+  declare proposalAttributes?: NonAttribute<ProposalAttribute[]>;
 
   declare static associations: {
     user: Association<Proposal, User>;
     policyTemplate: Association<Proposal, PolicyTemplate>;
-    proposalAttribute: Association<Proposal, ProposalAttribute>;
+    proposalAttributes: Association<Proposal, ProposalAttribute>;
   };
 }
 
