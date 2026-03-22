@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import env from "@config/env";
 import { errorHandler, notFound } from "@middlewares/error-handler";
 import { pinoLogger } from "@middlewares/pino-logger";
 import { apiLimiter } from "@middlewares/rate-limit-middleware";
@@ -16,7 +17,10 @@ app.use(helmet());
 const logger = pinoLogger();
 app.use(logger);
 
-app.use(cors());
+app.use(cors({
+  origin: env.CORS_ORIGIN,
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
