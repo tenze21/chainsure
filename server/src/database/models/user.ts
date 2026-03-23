@@ -11,10 +11,12 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare email: string;
   declare emailVerified: CreationOptional<boolean>;
   declare roleId: ForeignKey<Role["id"]>;
+  declare fullName: string;
   declare cid: string | null;
+  declare occupation: string | null;
   declare dob: Date | null;
   declare gender: Gender | null;
-  declare contactNumber: number | null;
+  declare contactNumber: string | null;
   declare maritalStatus: MaritalStatus | null;
   declare address: string | null;
   declare passwordHash: string;
@@ -43,6 +45,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   };
 }
 
+/** add user full name */
 User.init(
   {
     id: {
@@ -67,7 +70,7 @@ User.init(
     },
     roleId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: "roles",
         key: "id",
@@ -75,10 +78,18 @@ User.init(
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
+    fullName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     cid: {
       type: DataTypes.STRING(11),
       allowNull: true,
       unique: true,
+    },
+    occupation: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     dob: {
       type: DataTypes.DATEONLY,
@@ -89,7 +100,7 @@ User.init(
       allowNull: true,
     },
     contactNumber: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.STRING(100),
       allowNull: true,
     },
     maritalStatus: {
