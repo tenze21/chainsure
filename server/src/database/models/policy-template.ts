@@ -3,6 +3,7 @@ import type { Association, CreationOptional, ForeignKey, InferAttributes, InferC
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
 
+/** Include billing cycle */
 export class PolicyTemplate extends Model<InferAttributes<PolicyTemplate>, InferCreationAttributes<PolicyTemplate>> {
   declare id: CreationOptional<string>;
   declare name: string;
@@ -20,12 +21,10 @@ export class PolicyTemplate extends Model<InferAttributes<PolicyTemplate>, Infer
 
   declare category: NonAttribute<Category>;
   declare proposals: NonAttribute<Proposal[]>;
-  declare policies: NonAttribute<Policy[]>;
 
   declare static associations: {
     category: Association<PolicyTemplate, Category>;
     proposals: Association<PolicyTemplate, Proposal>;
-    policies: Association<PolicyTemplate, Policy>;
   };
 }
 

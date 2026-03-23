@@ -4,6 +4,7 @@ import { errorHandler, notFound } from "@middlewares/error-handler";
 import { pinoLogger } from "@middlewares/pino-logger";
 import { apiLimiter } from "@middlewares/rate-limit-middleware";
 import authRoutes from "@routes/auth-routes";
+import templateRoutes from "@routes/policy-template-routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -37,6 +38,7 @@ app.get("/api", (_req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/template", templateRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

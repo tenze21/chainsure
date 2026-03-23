@@ -6,8 +6,26 @@ import { sequelize } from "@/config/database";
 
 export class Policy extends Model<InferAttributes<Policy>, InferCreationAttributes<Policy>> {
   declare id: CreationOptional<string>;
-  declare templateId: ForeignKey<PolicyTemplate["id"]>;
   declare userId: ForeignKey<User["id"]>;
+  declare holderCid: string;
+  declare holderName: string;
+  declare holderEmail: string;
+  declare holderContactNumber: string;
+  declare holderDob: Date;
+  declare holderGender: string;
+  declare holderMaritalStatus: string;
+  declare holderAddress: string;
+  declare holderOccupation: string;
+  declare name: string;
+  declare category: string;
+  declare description: string;
+  declare paymentType: string;
+  declare billingCycle: string;
+  declare coverageAmount: number;
+  declare coverageDetails: string;
+  declare eligibility: string;
+  declare limitations: string;
+  declare duration: number | null;
   declare status: CreationOptional<string>;
   declare transactionHash: string;
   declare stripePriceId: string;
@@ -24,14 +42,12 @@ export class Policy extends Model<InferAttributes<Policy>, InferCreationAttribut
 
   // Associations
   declare user?: NonAttribute<User>;
-  declare template?: NonAttribute<PolicyTemplate>;
   declare claim?: NonAttribute<Claim>;
   declare subscription?: NonAttribute<Subscription>;
   declare payments?: NonAttribute<Payment[]>;
 
   declare static associations: {
     user: Association<Policy, User>;
-    template: Association<Policy, PolicyTemplate>;
     claim: Association<Policy, Claim>;
     subscription: Association<Policy, Subscription>;
     payments: Association<Policy, Payment>;
@@ -45,16 +61,6 @@ Policy.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    templateId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: "policy_templates",
-        key: "id",
-      },
-      onDelete: "SET NULL",
-      onUpdate: "CASCADE",
-    },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -65,13 +71,89 @@ Policy.init(
       onDelete: "CASCADE",
       onUpdate: "CASCADE",
     },
+    holderCid: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    holderName: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    holderEmail: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    holderContactNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    holderDob: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
+    holderGender: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    holderMaritalStatus: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    holderAddress: {
+      type: DataTypes.STRING(500),
+      allowNull: false,
+    },
+    holderOccupation: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    paymentType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    billingCycle: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    coverageAmount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+    },
+    coverageDetails: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    eligibility: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    limitations: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     status: {
       type: DataTypes.ENUM("active", "pending", "expired", "claimed", "cancelled", "invalidated"),
       defaultValue: "active",
       allowNull: false,
     },
     transactionHash: {
-      type: DataTypes.STRING(66),
+      type: DataTypes.STRING(255),
       allowNull: false,
       unique: true,
     },
@@ -96,7 +178,7 @@ Policy.init(
       allowNull: false,
     },
     contractAddress: {
-      type: DataTypes.STRING(42),
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     signature: {
@@ -125,7 +207,6 @@ Policy.init(
   },
 );
 
-import type { PolicyTemplate } from "./policy-template";
 import type { User } from "./user";
 import type { Claim } from "./claim";
 import type { Subscription } from "./subscription";

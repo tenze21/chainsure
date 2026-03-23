@@ -34,7 +34,7 @@ export interface User {
   gender: Gender;
   passwordHash: string;
   role: string;
-  contactNumber: number;
+  contactNumber: string;
   maritalStatus: MaritalStatus;
   address: string;
   walletAddress: string;
@@ -44,16 +44,36 @@ export interface User {
 
 export interface SafeUserData {
   id: string;
+  fullName: string;
   email: string;
   emailVerified: boolean;
   cid: string | null;
   dob: Date | null;
   gender: Gender | null;
   role: string;
-  contactNumber: number | null;
+  contactNumber: string | null;
   maritalStatus: MaritalStatus | null;
   address: string | null;
   walletAddress: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AdminData {
+  id: string;
+  fullName: string;
+  email: string;
+  emailVerified: boolean;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RequestUserData {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  role: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -94,6 +114,7 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
+  fullName: string;
   email: string;
   passwordHash: string;
   walletAddress: string;
@@ -103,6 +124,12 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   user: SafeUserData;
+  jwtToken: string;
+  salt: string;
+}
+
+export interface AdminAuthResponse {
+  user: AdminData;
   jwtToken: string;
   salt: string;
 }
