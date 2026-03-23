@@ -10,18 +10,7 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
       },
-      template_id: {
-        type: Sequelize.UUID,
-        // allowNull: true — an issued policy must survive template deletion.
-        // A policy is a legal contract; it cannot vanish because a template was retired.
-        allowNull: true,
-        references: {
-          model: "policy_templates",
-          key: "id",
-        },
-        onDelete: "SET NULL",
-        onUpdate: "CASCADE",
-      },
+      // Holder details
       user_id: {
         type: Sequelize.UUID,
         allowNull: false,
@@ -32,17 +21,89 @@ module.exports = {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
+      holder_cid: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      holder_name: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      holder_email: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      holder_contact_number: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      holder_dob: {
+        type: Sequelize.DATEONLY,
+        allowNull: false,
+      },
+      holder_gender: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      holder_marital_status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      holder_address: {
+        type: Sequelize.STRING(500),
+        allowNull: false,
+      },
+      holder_occupation: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      // Policy details
+      name: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      category: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      payment_type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      billing_cycle: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      coverage_amount: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      coverage_details: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      eligibility: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      limitations: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      duration: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       status: {
         type: Sequelize.ENUM("active", "pending", "expired", "claimed", "cancelled", "invalidated"),
         allowNull: false,
         defaultValue: "active",
       },
-      transaction_hash: {
-        // Ethereum tx hashes are always 66 chars: "0x" + 64 hex chars
-        type: Sequelize.STRING(66),
-        allowNull: false,
-        unique: true,
-      },
+      // Financial details
       stripe_price_id: {
         type: Sequelize.STRING(255),
         allowNull: false,
@@ -59,14 +120,20 @@ module.exports = {
         type: Sequelize.DECIMAL(10, 2),
         allowNull: true,
       },
+
+      // Blockchain / NFT
+
+      transaction_hash: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        unique: true,
+      },
       token_id: {
-        // The NFT token ID on the blockchain — INTEGER is fine for most ERC-721 contracts
         type: Sequelize.INTEGER,
         allowNull: false,
       },
       contract_address: {
-        // Ethereum contract addresses: "0x" + 40 hex chars = 42 chars
-        type: Sequelize.STRING(42),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       signature: {
@@ -77,6 +144,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      // Timestamps
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -92,6 +160,7 @@ module.exports = {
 
   async down(queryInterface, _Sequelize) {
     await queryInterface.dropTable("policies");
+    // Clean up the ENUM type that Postgres creates as a standalone DB object
     await queryInterface.sequelize.query("DROP TYPE IF EXISTS \"enum_policies_status\";");
   },
 };

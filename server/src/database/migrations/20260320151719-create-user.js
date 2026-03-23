@@ -20,15 +20,17 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
+      profile_picture: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       role_id: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "roles",
           key: "id",
         },
-        // SET NULL: deleting a role should not wipe out users — just clear the FK
-        // NOTE: if you change this to SET NULL, also set allowNull: true above
         onDelete: "SET NULL",
         onUpdate: "CASCADE",
       },
@@ -37,8 +39,11 @@ module.exports = {
         allowNull: true,
         unique: true,
       },
+      occupation: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       dob: {
-        // DATEONLY stores as DATE in postgres (no time component)
         type: Sequelize.DATEONLY,
         allowNull: true,
       },
@@ -47,8 +52,7 @@ module.exports = {
         allowNull: true,
       },
       contact_number: {
-        // BIGINT because phone numbers can exceed 32-bit integer range
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
         allowNull: true,
       },
       marital_status: {
@@ -61,6 +65,10 @@ module.exports = {
       },
       password_hash: {
         type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      salt: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       created_at: {

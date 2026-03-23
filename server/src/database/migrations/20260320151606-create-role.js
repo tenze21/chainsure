@@ -11,8 +11,7 @@ module.exports = {
         allowNull: false,
       },
       name: {
-        // ENUM is a named type in postgres — sequelize-cli manages it automatically
-        type: Sequelize.ENUM("admin", "user"),
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
@@ -31,7 +30,5 @@ module.exports = {
 
   async down(queryInterface, _Sequelize) {
     await queryInterface.dropTable("roles");
-    // Drop the ENUM type postgres created — otherwise re-running up() will fail
-    await queryInterface.sequelize.query("DROP TYPE IF EXISTS \"enum_roles_name\";");
   },
 };

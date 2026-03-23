@@ -10,11 +10,15 @@ const router: Router = Router();
 */
 router.post("/register", authLimiter, authController.register);
 
+router.post("/register/admin", authLimiter, authController.registerAdmin);
+
 /**
  * POST /api/auth/login
  * Login user
 */
 router.post("/login", authLimiter, authController.login);
+
+router.post("/login/admin", authLimiter, authController.loginAdmin);
 
 /**
  * POST /api/auth/logout
