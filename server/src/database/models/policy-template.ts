@@ -10,6 +10,7 @@ export class PolicyTemplate extends Model<InferAttributes<PolicyTemplate>, Infer
   declare categoryId: ForeignKey<Category["id"]>;
   declare description: string;
   declare paymentType: string;
+  declare billingCycle: string | null;
   declare coverageAmount: number;
   declare coverageDetails: string;
   declare eligibility: string;
@@ -56,6 +57,10 @@ PolicyTemplate.init(
     paymentType: {
       type: DataTypes.ENUM("fixed", "recurring"),
       allowNull: false,
+    },
+    billingCycle: {
+      type: DataTypes.ENUM("yearly", "monthly"),
+      allowNull: true,
     },
     coverageAmount: {
       type: DataTypes.DECIMAL(10, 2),

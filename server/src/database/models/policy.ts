@@ -20,21 +20,21 @@ export class Policy extends Model<InferAttributes<Policy>, InferCreationAttribut
   declare category: string;
   declare description: string;
   declare paymentType: string;
-  declare billingCycle: string;
+  declare billingCycle: string | null;
   declare coverageAmount: number;
   declare coverageDetails: string;
   declare eligibility: string;
   declare limitations: string;
   declare duration: number | null;
   declare status: CreationOptional<string>;
-  declare transactionHash: string;
-  declare stripePriceId: string;
+  declare transactionHash: string | null;
+  declare stripePriceId: string | null;
   declare premium: number;
   declare deductible: number;
   declare payoutAmount: number | null;
-  declare tokenID: number;
-  declare contractAddress: string;
-  declare signature: string;
+  declare tokenId: number | null;
+  declare contractAddress: string | null;
+  declare signature: string | null;
   declare revocationNote: string | null;
 
   declare createdAt: CreationOptional<Date>;
@@ -125,7 +125,7 @@ Policy.init(
     },
     billingCycle: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     coverageAmount: {
       type: DataTypes.DECIMAL(10, 2),
@@ -148,18 +148,18 @@ Policy.init(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM("active", "pending", "expired", "claimed", "cancelled", "invalidated"),
-      defaultValue: "active",
+      type: DataTypes.ENUM("active", "pending", "payment_confirmed", "expired", "claimed", "cancelled", "invalidated"),
+      defaultValue: "pending",
       allowNull: false,
     },
     transactionHash: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     stripePriceId: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     premium: {
       type: DataTypes.DECIMAL(10, 2),
@@ -173,17 +173,17 @@ Policy.init(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
     },
-    tokenID: {
+    tokenId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     contractAddress: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     signature: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     revocationNote: {
       type: DataTypes.TEXT,

@@ -3,7 +3,6 @@
 import type { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, NonAttribute } from "sequelize";
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
-import type { Gender, MaritalStatus } from "@/lib/types";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<string>;
@@ -15,12 +14,13 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare cid: string | null;
   declare occupation: string | null;
   declare dob: Date | null;
-  declare gender: Gender | null;
+  declare gender: string | null;
   declare contactNumber: string | null;
-  declare maritalStatus: MaritalStatus | null;
+  declare maritalStatus: string | null;
   declare address: string | null;
   declare passwordHash: string;
   declare salt: string;
+  declare stripeCustomerId: string | null;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -118,6 +118,10 @@ User.init(
     salt: {
       type: DataTypes.STRING(255),
       allowNull: false,
+    },
+    stripeCustomerId: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
