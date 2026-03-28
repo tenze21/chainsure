@@ -1,0 +1,342 @@
+/* Proposal Form Layout */
+.proposal-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 0;
+}
+
+.proposal-page__back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 32px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  transition: color 0.15s;
+}
+
+.proposal-page__back:hover {
+  color: var(--text-primary);
+}
+
+.proposal-form-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 32px 60px;
+}
+
+/* Header */
+.proposal-form__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.proposal-form__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.proposal-form__logo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--sidebar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-teal);
+}
+
+.proposal-form__logo-text {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.proposal-form__title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Important notice */
+.proposal-form__notice {
+  background: #EAF6FF;
+  border: 1px solid #b3d9f5;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #1a4a6e;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.proposal-form__notice strong {
+  font-weight: 600;
+}
+
+/* Sections */
+.form-section {
+  margin-bottom: 28px;
+}
+
+.form-section__title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.form-section__subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  margin-top: -8px;
+}
+
+/* Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-grid--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-grid--full {
+  grid-template-columns: 1fr;
+}
+
+/* Field */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-field--full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--text-primary);
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: var(--accent-teal);
+}
+
+.form-textarea {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--text-primary);
+  background: #ffffff;
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.form-textarea:focus {
+  border-color: var(--accent-teal);
+}
+
+/* Checkbox groups */
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 16px;
+  margin-bottom: 10px;
+}
+
+.checkbox-group--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.checkbox-group--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--sidebar-bg);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Declaration box */
+.form-declaration {
+  background: #AEFFF7;
+  border: 1px solid #7ef0e5;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 12.5px;
+  color: #0a4a42;
+  line-height: 1.6;
+}
+
+.form-declaration input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #009956;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Submit button */
+.form-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--sidebar-bg);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.2px;
+}
+
+.form-submit-btn:hover {
+  background: #012d57;
+}
+
+.form-submit-btn:active {
+  transform: scale(0.99);
+}
+
+.form-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Inline label row (label above a row of checkboxes) */
+.inline-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Success Screen */
+.success-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.success-card {
+  background: #CEECDF;
+  border-radius: 18px;
+  padding: 52px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+}
+
+.success-card__icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2.5px solid #66FF3C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #66FF3C;
+}
+
+.success-card__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a7a3a;
+}
+
+.success-card__subtitle {
+  font-size: 14px;
+  color: #2d6b4a;
+}
+
+.success-card__back {
+  margin-top: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  text-decoration: underline;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+}
+
+.success-card__back:hover {
+  color: #009956;
+}

@@ -1,0 +1,126 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 16px;
+}
+
+/* Search */
+.topbar__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  width: 260px;
+  transition: border-color 0.15s;
+}
+
+.topbar__search:focus-within {
+  border-color: var(--accent-teal);
+}
+
+.topbar__search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.topbar__search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.topbar__search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Actions */
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Bell */
+.topbar__bell {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.topbar__bell:hover {
+  background: var(--bg-card);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+
+.topbar__bell-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #EF4444;
+  border: 1.5px solid white;
+}
+
+/* User */
+.topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 5px 10px 5px 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-main);
+  transition: border-color 0.15s;
+}
+
+.topbar__user:hover {
+  border-color: var(--accent-teal);
+}
+
+.topbar__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--accent-teal);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+}
+
+.topbar__username {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
