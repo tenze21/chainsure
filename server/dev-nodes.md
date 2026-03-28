@@ -25,7 +25,6 @@
     # JWT
     JWT_SECRET=12ef92443facccc398ae2c34fc75521942df95762fa42083
 
-
     # CORS
     CORS_ORIGIN=http://localhost:5173/
 
@@ -35,5 +34,13 @@
 
     # Logging
     LOG_LEVEL=debug
+
+    # Stripe
+    STRIPE_SECRET_KEY=
+    STRIPE_WEBHOOK_SECRET=
+
+    # Crypto
+    PRIVATE_KEY=
+    PUBLIC_KEY=
   ```
 3. execute `pnpm dev` to start server.

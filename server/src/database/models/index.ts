@@ -116,21 +116,6 @@ Payment.belongsTo(User, {
 });
 
 /**
- * template <-> policy  (one to many)
- * one template can be used to generate many policies
- */
-PolicyTemplate.hasMany(Policy, {
-  foreignKey: "templateId",
-  as: "policies",
-  onDelete: "SET NULL",
-});
-
-Policy.belongsTo(PolicyTemplate, {
-  foreignKey: "templateId",
-  as: "template",
-});
-
-/**
  * category <-> template (one to many)
  * One category can have many templates
  */

@@ -49,10 +49,10 @@ export interface SafeUserData {
   emailVerified: boolean;
   cid: string | null;
   dob: Date | null;
-  gender: Gender | null;
+  gender: string | null;
   role: string;
   contactNumber: string | null;
-  maritalStatus: MaritalStatus | null;
+  maritalStatus: string | null;
   address: string | null;
   walletAddress: string;
   createdAt: Date;
@@ -147,6 +147,28 @@ export interface ApiErrorResponse {
     message: string;
     details?: any;
   };
+}
+
+export interface InitiatePaymentResponse {
+  clientSecret: string;
+  type: "payment_intent" | "subscription";
+}
+
+export interface PolicySignatureInput {
+  id: string;
+  userId: string;
+  holderCid: string;
+  holderName: string;
+  name: string;
+  category: string;
+  coverageAmount: number;
+  premium: number;
+  deductible: number;
+  coverageDetails: string;
+  eligibility: string;
+  limitations: string;
+  duration: number | null;
+  createdAt: Date;
 }
 
 export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
