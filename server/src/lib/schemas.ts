@@ -72,9 +72,24 @@ export const CreateTemplateSchema = z.object({
   duration: z.number().int().positive().optional(),
 });
 
-export const UpdateTemplateSchema = CreateTemplateSchema.partial();
+export const CreatePolicySchema = z.object({
+  premium: z.number().positive("Invalid premium amount"),
+  deductable: z.number().positive("Invalid deductable amount"),
+});
+
+export const updateProfileSchema = z.object({
+  profilePicture: z.string().optional(),
+  fullName: z.string().min(2).max(255).optional(),
+  cid: z.string().min(11).max(11).optional(),
+  occupation: z.string().max(255).optional(),
+  dob: z.string().date().pipe(z.coerce.date()).optional(),
+  gender: z.string().optional(),
+  contactNumber: z.string().min(8).max(8).optional(),
+  maritalStatus: z.string().optional(),
+  address: z.string().max(500).optional(),
+}).strict();
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
-export type CreateTemplateSchemaInput = z.infer<typeof CreateTemplateSchema>;
-export type UpdateTemplateSchemaInput = z.infer<typeof UpdateTemplateSchema>;
+export type CreateTemplateInput = z.infer<typeof CreateTemplateSchema>;
+export type updateProfileInput = z.infer<typeof updateProfileSchema>;

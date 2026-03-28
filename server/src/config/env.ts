@@ -23,6 +23,10 @@ const EnvSchema = z.object({
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
   JWT_SECRET: z.string(),
   CORS_ORIGIN: z.string().default("*"),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
+  PRIVATE_KEY: z.string(),
+  PUBLIC_KEY: z.string(),
 });
 
 export type env = z.infer<typeof EnvSchema>;
