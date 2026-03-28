@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { Category, PolicyTemplate } from "@/database/models";
+import { Category, PolicyTemplate } from "@/database/models/index";
 import { ERROR_CODES } from "@/lib/constants";
 import { CreateTemplateSchema, UpdateTemplateSchema } from "@/lib/schemas";
 import asyncHandler from "@/middlewares/async-handler";

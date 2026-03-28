@@ -8,8 +8,10 @@ export class Payment extends Model<InferAttributes<Payment>, InferCreationAttrib
   declare userId: ForeignKey<User["id"]>;
   declare policyId: ForeignKey<Policy["id"]>;
   declare subscriptionId: ForeignKey<Subscription["id"]>;
-  declare stripeInvoiceId: string;
   declare amount: number;
+  declare stripePaymentIntentId: string | null; // for fixed payments
+  declare stripeInvoiceId: string | null; // for recurring payments
+  declare status: CreationOptional<string>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -63,13 +65,22 @@ Payment.init(
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
-    stripeInvoiceId: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     amount: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
+    },
+    stripePaymentIntentId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    stripeInvoiceId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "succeeded", "failed"),
+      allowNull: false,
+      defaultValue: "pending",
     },
     createdAt: {
       type: DataTypes.DATE,

@@ -8,6 +8,7 @@ export class Subscription extends Model<InferAttributes<Subscription>, InferCrea
   declare userId: ForeignKey<User["id"]>;
   declare policyId: ForeignKey<Policy["id"]>;
   declare stripeSubscriptionId: string;
+  declare stripePriceId: string;
   declare status: string;
   declare nextBillingDate: Date;
   declare currentPeriodEnd: Date;
@@ -55,10 +56,14 @@ Subscription.init(
       onUpdate: "CASCADE",
     },
     status: {
-      type: DataTypes.ENUM("paid", "pending", "lapsed"),
+      type: DataTypes.ENUM("active", "past_due", "canceled", "pending"),
       allowNull: false,
     },
     stripeSubscriptionId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    stripePriceId: {
       type: DataTypes.STRING,
       allowNull: false,
     },
