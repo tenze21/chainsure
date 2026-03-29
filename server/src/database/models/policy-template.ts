@@ -3,12 +3,14 @@ import type { Association, CreationOptional, ForeignKey, InferAttributes, InferC
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
 
+/** Include billing cycle */
 export class PolicyTemplate extends Model<InferAttributes<PolicyTemplate>, InferCreationAttributes<PolicyTemplate>> {
   declare id: CreationOptional<string>;
   declare name: string;
   declare categoryId: ForeignKey<Category["id"]>;
   declare description: string;
   declare paymentType: string;
+  declare billingCycle: string | null;
   declare coverageAmount: number;
   declare coverageDetails: string;
   declare eligibility: string;
@@ -20,12 +22,10 @@ export class PolicyTemplate extends Model<InferAttributes<PolicyTemplate>, Infer
 
   declare category: NonAttribute<Category>;
   declare proposals: NonAttribute<Proposal[]>;
-  declare policies: NonAttribute<Policy[]>;
 
   declare static associations: {
     category: Association<PolicyTemplate, Category>;
     proposals: Association<PolicyTemplate, Proposal>;
-    policies: Association<PolicyTemplate, Policy>;
   };
 }
 
@@ -57,6 +57,10 @@ PolicyTemplate.init(
     paymentType: {
       type: DataTypes.ENUM("fixed", "recurring"),
       allowNull: false,
+    },
+    billingCycle: {
+      type: DataTypes.ENUM("yearly", "monthly"),
+      allowNull: true,
     },
     coverageAmount: {
       type: DataTypes.DECIMAL(10, 2),

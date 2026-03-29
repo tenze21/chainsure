@@ -84,6 +84,45 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Verify Policy */}
+        <section id="verify" className="py-20 px-6 bg-gray-50">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Verify a Policy</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Instantly validate NFT-backed coverage. Enter a policy ID or wallet address to view verification status.
+              </p>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-end gap-4">
+                <div className="flex-1">
+                  <label className="text-sm text-gray-600">Policy ID or Wallet Address</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., POL-1042 or 0x1234...abcd"
+                    className="w-full mt-2 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729]"
+                  />
+                </div>
+                <button className="w-full md:w-auto px-6 py-3 bg-[#0f1729] text-white rounded-lg hover:bg-[#1e293b] transition-colors font-medium">
+                  Verify Policy
+                </button>
+              </div>
+              <div className="mt-6 grid gap-4 text-sm text-gray-600 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  { label: 'Status', value: 'Pending verification' },
+                  { label: 'Network', value: 'Ethereum Mainnet' },
+                  { label: 'Last Updated', value: 'Just now' },
+                ].map((item) => (
+                  <div key={item.label} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="text-xs text-gray-500">{item.label}</div>
+                    <div className="font-medium text-gray-900 mt-1">{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Built on Trust */}
         <section className="py-20 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">

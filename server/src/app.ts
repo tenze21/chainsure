@@ -4,10 +4,15 @@ import { errorHandler, notFound } from "@middlewares/error-handler";
 import { pinoLogger } from "@middlewares/pino-logger";
 import { apiLimiter } from "@middlewares/rate-limit-middleware";
 import authRoutes from "@routes/auth-routes";
+import policyRoutes from "@routes/policy-routes";
+import templateRoutes from "@routes/policy-template-routes";
+import proposalRoutes from "@routes/proposal-routes";
+import userRoutes from "@routes/user-routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { authenticate } from "@/middlewares/auth-middleware";
 import "@/database/models/index";
 
 const app = express();
@@ -37,6 +42,10 @@ app.get("/api", (_req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/template", templateRoutes);
+app.use("/api/proposal", authenticate, proposalRoutes);
+app.use("/api/policy", authenticate, policyRoutes);
+app.use("/api/user", authenticate, userRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

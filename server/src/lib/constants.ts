@@ -66,6 +66,8 @@ export const ERROR_CODES = {
   // Validation errors
   VALIDATION_ERROR: "VALIDATION_ERROR",
   EMAIL_ALREADY_EXISTS: "EMAIL_ALREADY_EXISTS",
+  CATEGORY_ALREADY_EXIST: "CATEGORY_ALREADY_EXIST",
+  BAD_REQUEST: "BAD_REQUEST",
 
   // Resource errors
   NOT_FOUND: "NOT_FOUND",
@@ -74,6 +76,14 @@ export const ERROR_CODES = {
   // Server errors
   INTERNAL_ERROR: "INTERNAL_ERROR",
   DATABASE_ERROR: "DATABASE_ERROR",
+
+  // Status errors
+  INVALID_STATE: "INVALID_STATE",
+
+  // Payment errors
+  PAYMENT_ERROR: "PAYMENT_ERROR",
+
+  MISSING_REQUIRED_DATA: "MISSING_REQUIRED_DATA",
 } as const;
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];

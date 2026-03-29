@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
-const ADMIN_EMAIL = 'admin@gmail.com'
-const ADMIN_PASSWORD = 'admin@123'
+import { loginUser } from '../lib/auth'
 
 export default function SignIn() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -19,13 +17,22 @@ export default function SignIn() {
       return
     }
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      navigate('/admin')
-      return
+    setIsSubmitting(true)
+    try {
+      const user = await loginUser({
+        email: email.trim().toLowerCase(),
+        password,
+      })
+      if (user?.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/dashboard')
+      }
+    } catch (err) {
+      setError(err?.message || 'Invalid email or password.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Regular users - redirect to dashboard (user dashboard UI coming later)
-    setError('Invalid email or password.')
   }
 
   return (
@@ -63,6 +70,7 @@ export default function SignIn() {
                   placeholder="john@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729]"
                 />
               </div>
@@ -79,6 +87,7 @@ export default function SignIn() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729]"
                 />
               </div>
@@ -90,8 +99,12 @@ export default function SignIn() {
               </label>
               <Link to="/forgot-password" className="text-sm text-[#0f1729] hover:underline">Forgot Password?</Link>
             </div>
-            <button type="submit" className="w-full py-3 bg-[#0f1729] text-white font-medium rounded-lg hover:bg-[#1e293b] transition-colors">
-              Sign In
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full py-3 font-medium rounded-lg transition-colors ${isSubmitting ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#0f1729] text-white hover:bg-[#1e293b]'}`}
+            >
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-gray-600">

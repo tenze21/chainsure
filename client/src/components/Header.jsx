@@ -11,10 +11,10 @@ export default function Header() {
           <span className="font-semibold text-xl text-gray-900">ChainSure</span>
         </Link>
         <div className="hidden md:flex items-center gap-8">
-          <a href="#products" className="text-gray-600 hover:text-gray-900 transition-colors">Products</a>
-          <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">How it Works</a>
-          <a href="#verify" className="text-gray-600 hover:text-gray-900 transition-colors">Verify Policy</a>
-          <a href="#about" className="text-gray-600 hover:text-gray-900 transition-colors">About</a>
+          <Link to="/#products" className="text-gray-600 hover:text-gray-900 transition-colors">Products</Link>
+          <Link to="/#how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">How it Works</Link>
+          <Link to="/#verify" className="text-gray-600 hover:text-gray-900 transition-colors">Verify Policy</Link>
+          <Link to="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
         </div>
         <div className="flex items-center gap-4">
           <Link to="/signin" className="text-gray-600 hover:text-gray-900 transition-colors">Sign In</Link>

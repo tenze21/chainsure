@@ -14,7 +14,9 @@
       "@services/*": ["src/services/*"],
       "@middlewares/*": ["src/middlewares/*"],
       "@utils/*": ["src/utils/*"],
-      "@routes/*": ["src/routes/*"]
+      "@routes/*": ["src/routes/*"],
+      "@database/*": ["src/database/*"],
+      "@lib/*": ["src/lib/*"]
     },
     "types": ["node"],
 
