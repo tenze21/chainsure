@@ -32,7 +32,7 @@ const CB = ({ label, checked, onChange }) => (
   </label>
 )
 
-export default function MotorProposalForm({ onBack, onNavigate }) {
+export default function MotorProposalForm({ onBack, onNavigate, templateId }) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [declared, setDeclared] = useState(false)
@@ -59,25 +59,45 @@ export default function MotorProposalForm({ onBack, onNavigate }) {
     }))
 
   const handleSubmit = async () => {
+    if (!templateId) {
+      alert('Missing policy template. Return to the marketplace and open this form again.')
+      return
+    }
     if (!declared) { alert('Please accept the declaration before submitting.'); return }
     setLoading(true)
     try {
-      const payload = { type: 'motor', ...form, declared: true }
-      const res = await fetch(`${API_BASE}/api/proposals`, {
+      const attributes = {
+        licenseNumber: form.licenseNumber,
+        licenseIssueDate: form.licenseIssueDate,
+        purchaseDate: form.purchaseDate,
+        vehicleState: form.vehicleState,
+        goodCondition: form.goodCondition,
+        fuelType: form.fuelType,
+        antiTheft: form.antiTheft,
+        dayParking: form.dayParking.join(', '),
+        nightParking: form.nightParking.join(', '),
+        pastAccidents: form.pastAccidents,
+        declared: 'true',
+      }
+      const res = await fetch(`${API_BASE}/api/proposal/${templateId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ attributes }),
       })
-      if (res.ok || res.status === 404 || res.status === 405) {
+      if (res.ok) {
         setSubmitted(true)
       } else {
-        const data = await res.json()
-        alert(data?.message || 'Submission failed.')
+        let msg = 'Submission failed.'
+        try {
+          const data = await res.json()
+          msg = data?.error?.message || data?.message || msg
+        } catch (_) {}
+        alert(msg)
       }
     } catch (err) {
       console.warn('API not reachable:', err.message)
-      setSubmitted(true)
+      alert(`Could not connect to the server (${API_BASE}). Check that the server is running and VITE_API_URL is correct.`)
     } finally {
       setLoading(false)
     }

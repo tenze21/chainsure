@@ -97,11 +97,14 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-main);
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: var(--font-body);
+  text-decoration: none;
 }
 
 .topbar__user:hover {
-  border-color: var(--accent-teal);
+  border-color: var(--sidebar-bg);
+  box-shadow: 0 2px 8px rgba(1,27,53,0.10);
 }
 
 .topbar__avatar {

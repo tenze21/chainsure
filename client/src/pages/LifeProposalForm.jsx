@@ -52,7 +52,7 @@ const MEDICAL_HISTORY = [
   { key: 'neurological', label: 'Neurological disorders' },
 ]
 
-export default function LifeProposalForm({ onBack, onNavigate }) {
+export default function LifeProposalForm({ onBack, onNavigate, templateId }) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [declared, setDeclared] = useState(false)
@@ -76,25 +76,37 @@ export default function LifeProposalForm({ onBack, onNavigate }) {
   const set = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
 
   const handleSubmit = async () => {
+    if (!templateId) {
+      alert('Missing policy template. Return to the marketplace and open this form again.')
+      return
+    }
     if (!declared) { alert('Please accept the declaration before submitting.'); return }
     setLoading(true)
     try {
-      const payload = { type: 'life', ...form, declared: true }
-      const res = await fetch(`${API_BASE}/api/proposals`, {
+      const res = await fetch(`${API_BASE}/api/proposal/${templateId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          attributes: {
+            ...form,
+            declared: 'true',
+          }
+        }),
       })
-      if (res.ok || res.status === 404 || res.status === 405) {
+      if (res.ok) {
         setSubmitted(true)
       } else {
-        const data = await res.json()
-        alert(data?.message || 'Submission failed.')
+        let msg = 'Submission failed.'
+        try {
+          const data = await res.json()
+          msg = data?.error?.message || data?.message || msg
+        } catch (_) {}
+        alert(msg)
       }
     } catch (err) {
       console.warn('API not reachable:', err.message)
-      setSubmitted(true)
+      alert(`Could not connect to the server (${API_BASE}). Check that the server is running and VITE_API_URL is correct.`)
     } finally {
       setLoading(false)
     }

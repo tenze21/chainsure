@@ -6,6 +6,7 @@ import Policies from './pages/Policies'
 import TravelProposalForm from './pages/TravelProposalForm'
 import MotorProposalForm from './pages/MotorProposalForm'
 import LifeProposalForm from './pages/LifeProposalForm'
+import UserProfile from './pages/UserProfile'
 
 function App() {
   const [page, setPage] = useState('overview')
@@ -18,6 +19,8 @@ function App() {
         return <Marketplace onNavigate={setPage} />
       case 'policies':
         return <Policies onNavigate={setPage} />
+      case 'profile':
+        return <UserProfile onNavigate={setPage} />
       case 'proposal-travel':
         return <TravelProposalForm onBack={() => setPage('marketplace')} onNavigate={setPage} />
       case 'proposal-motor':

@@ -1,7 +1,7 @@
 import React from 'react'
 import './Topbar.css'
 
-export default function Topbar() {
+export default function Topbar({ onNavigate }) {
   return (
     <header className="topbar">
       <div className="topbar__search">
@@ -9,11 +9,7 @@ export default function Topbar() {
           <circle cx="11" cy="11" r="8"/>
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input
-          type="text"
-          placeholder="Search policies, claims..."
-          className="topbar__search-input"
-        />
+        <input type="text" placeholder="Search policies, claims..." className="topbar__search-input" />
       </div>
 
       <div className="topbar__actions">
@@ -25,13 +21,17 @@ export default function Topbar() {
           <span className="topbar__bell-dot" />
         </button>
 
-        <div className="topbar__user">
+        <button
+          className="topbar__user"
+          onClick={() => onNavigate && onNavigate('profile')}
+          title="View Profile"
+        >
           <div className="topbar__avatar">TC</div>
           <span className="topbar__username">Tenzin Choda</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
-        </div>
+        </button>
       </div>
     </header>
   )

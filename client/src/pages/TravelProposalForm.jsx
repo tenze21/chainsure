@@ -27,7 +27,7 @@ function SuccessScreen({ onBack }) {
   )
 }
 
-export default function TravelProposalForm({ onBack, onNavigate }) {
+export default function TravelProposalForm({ onBack, onNavigate, templateId }) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [declared, setDeclared] = useState(false)
@@ -48,40 +48,42 @@ export default function TravelProposalForm({ onBack, onNavigate }) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
   const handleSubmit = async () => {
+    if (!templateId) {
+      alert('Missing policy template. Return to the marketplace and open this form again.')
+      return
+    }
     if (!declared) { alert('Please accept the declaration before submitting.'); return }
     setLoading(true)
     try {
-      const payload = {
-        type: 'travel',
-        travelPurpose: purposes,
+      const attributes = {
+        travelPurpose: purposes.join(', '),
         specifyOther: specifyText,
         travelDestination: form.destination,
         numberOfTravelers: form.travelers,
         departureDate: form.departureDate,
         travelDuration: form.duration,
         healthCondition: form.healthCondition,
-        declared: true,
+        declared: 'true',
       }
-
-      // POST to backend proposals endpoint
-      const res = await fetch(`${API_BASE}/api/proposals`, {
+      const res = await fetch(`${API_BASE}/api/proposal/${templateId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ attributes }),
       })
-
-      // If endpoint not yet live, we still show success
-      if (res.ok || res.status === 404 || res.status === 405) {
+      if (res.ok) {
         setSubmitted(true)
       } else {
-        const data = await res.json()
-        alert(data?.message || 'Submission failed. Please try again.')
+        let msg = 'Submission failed. Please try again.'
+        try {
+          const data = await res.json()
+          msg = data?.error?.message || data?.message || msg
+        } catch (_) {}
+        alert(msg)
       }
     } catch (err) {
-      // Network error — still show success in dev
-      console.warn('API not reachable, showing success anyway:', err.message)
-      setSubmitted(true)
+      console.warn('API not reachable:', err.message)
+      alert(`Could not connect to the server (${API_BASE}). Check that the server is running and VITE_API_URL is correct.`)
     } finally {
       setLoading(false)
     }
