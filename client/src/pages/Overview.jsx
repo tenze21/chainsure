@@ -133,7 +133,7 @@ export default function Overview({ onNavigate }) {
                 key={item.id}
                 className="quick-link-card"
                 onClick={() => {
-                  if (item.id === 'browse') onNavigate('marketplace')
+                  if (item.id === 'browse') onNavigate('policies')
                   else if (item.id === 'claim') onNavigate('claims')
                   else if (item.id === 'proposals') onNavigate('proposals')
                 }}
