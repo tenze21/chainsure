@@ -36,8 +36,12 @@ html, body, #root {
 }
 
 body {
-  font-family: var(--font-body);
-  background: var(--bg-main);
-  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+}
+
+.layout,
+.proposal-page,
+.profile-page {
+  font-family: var(--font-body);
+  color: var(--text-primary);
 }
