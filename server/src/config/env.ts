@@ -27,6 +27,7 @@ const EnvSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string(),
   PRIVATE_KEY: z.string(),
   PUBLIC_KEY: z.string(),
+  RPC_URL: z.string(),
 });
 
 export type env = z.infer<typeof EnvSchema>;

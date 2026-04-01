@@ -14,6 +14,9 @@ import express from "express";
 import helmet from "helmet";
 import { authenticate } from "@/middlewares/auth-middleware";
 import "@/database/models/index";
+// import { startMintingJob } from "@jobs/nft-minting-job";
+
+// startMintingJob();
 
 const app = express();
 
