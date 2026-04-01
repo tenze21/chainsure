@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-access */
 import type { Request, Response } from "express";
 import type { Hex } from "viem";
 import { Category, Policy, PolicyTemplate, Proposal, sequelize, User } from "@database/models";
