@@ -95,6 +95,10 @@ export async function loginUser(data: LoginRequest): Promise<AuthResponse> {
     throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, "Invalid email or password", 401);
   }
 
+  if (user.status === "suspended") {
+    throw new AppError(ERROR_CODES.FORBIDDEN, "Account suspended", 403);
+  }
+
   const isPasswordValid = await verifyPassword(data.passwordHash, user.passwordHash);
   if (!isPasswordValid) {
     throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, "Invalid email or password", 401);
@@ -180,6 +184,10 @@ export async function loginAdminUser(data: LoginRequest): Promise<AdminAuthRespo
 
   if (!user) {
     throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, "Invalid email or password", 401);
+  }
+
+  if (user.status === "suspended") {
+    throw new AppError(ERROR_CODES.FORBIDDEN, "Account suspended", 403);
   }
 
   const isPasswordValid = await verifyPassword(data.passwordHash, user.passwordHash);

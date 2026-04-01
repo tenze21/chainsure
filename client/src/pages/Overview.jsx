@@ -77,6 +77,8 @@ export default function Overview({
   proposalsLoading,
   proposalsError,
   products,
+  profileReady,
+  missingProfileFields,
 }) {
   const firstName = getFirstName(user?.fullName)
   const recentProposals = proposals.slice(0, 3)
@@ -94,6 +96,11 @@ export default function Overview({
             <p className="overview__subtitle">
               {proposalsError || 'This branch can load live proposal activity and template metadata without changing the server.'}
             </p>
+            {!profileReady && (
+              <p className="overview__subtitle">
+                Complete your profile before applying. Missing: {missingProfileFields.join(', ')}.
+              </p>
+            )}
           </div>
 
           <div className="stats">
@@ -105,7 +112,7 @@ export default function Overview({
             <div className="stat-card">
               <p className="stat-card__label">Connected Templates</p>
               <p className="stat-card__value stat-card__value--dark">{connectedTemplates}</p>
-              <p className="stat-card__note">Driven by the `VITE_TEMPLATE_ID_*` values</p>
+              <p className="stat-card__note">Resolved from live backend templates where possible</p>
             </div>
             <div className="stat-card">
               <p className="stat-card__label">Pending Review</p>
@@ -141,7 +148,7 @@ export default function Overview({
                     </div>
                     <div className="policy-item__info">
                       <p className="policy-item__name">{proposal.name}</p>
-                      <p className="policy-item__meta">{proposal.category} · Submitted {formatDate(proposal.createdAt)}</p>
+                      <p className="policy-item__meta">{proposal.category} - Submitted {formatDate(proposal.createdAt)}</p>
                     </div>
                     <div className="policy-item__actions">
                       <span className={getBadgeClass(proposal.status)}>

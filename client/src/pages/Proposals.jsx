@@ -46,6 +46,15 @@ const XIcon = ({ size = 16 }) => (
   </svg>
 )
 
+function formatAttributeLabel(key) {
+  return String(key || '')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, (character) => character.toUpperCase())
+}
+
 function getProposalVisual(proposal) {
   const source = `${proposal?.category || ''} ${proposal?.name || ''}`.toLowerCase()
 
@@ -161,9 +170,23 @@ function ProposalDetail({ proposal }) {
       <div className="proposals__section">
         <p className="proposals__section-title">Backend Contract On This Branch</p>
         <div className="proposals__integration-note">
-          The current `GET /api/proposal/user` response only returns status, template name, category, and created date. It does not return proposal IDs, submitted attributes, premium, deductible, or policy IDs, so this dashboard cannot show a deeper review panel or start checkout without new server routes.
+          The current `GET /api/proposal/user` response only returns status, template name, category, and created date. Proposal details shown below are recovered only for submissions made from this client session, where the create response returned the proposal metadata once.
         </div>
       </div>
+
+      {proposal.hasTrackedDetails && Object.keys(proposal.attributes).length > 0 && (
+        <div className="proposals__section">
+          <p className="proposals__section-title">Submitted Details</p>
+          <div className="proposals__info-grid proposals__info-grid--2">
+            {Object.entries(proposal.attributes).map(([key, value]) => (
+              <div key={key} className="proposals__info-cell proposals__info-cell--filled">
+                <p className="proposals__info-label">{formatAttributeLabel(key)}</p>
+                <p className="proposals__info-value">{value || 'Not provided'}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!isApproved && !isRejected && (
         <div className="proposals__under-review">
@@ -172,7 +195,7 @@ function ProposalDetail({ proposal }) {
           </div>
           <p className="proposals__under-review-title">Application Under Review</p>
           <p className="proposals__under-review-text">
-            The proposal is live and coming from the backend, but the server only exposes a summary status here. More detail would require the list endpoint to return proposal IDs.
+            The proposal is live and coming from the backend. Status updates are real, while older submissions without stored IDs will stay summary-only on this branch.
           </p>
         </div>
       )}

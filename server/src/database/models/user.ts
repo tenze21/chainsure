@@ -9,6 +9,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare profilePicture: string | null;
   declare email: string;
   declare emailVerified: CreationOptional<boolean>;
+  declare status: CreationOptional<string>;
   declare roleId: ForeignKey<Role["id"]>;
   declare fullName: string;
   declare cid: string | null;
@@ -66,6 +67,11 @@ User.init(
     emailVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("active", "suspended"),
+      defaultValue: "active",
       allowNull: false,
     },
     roleId: {

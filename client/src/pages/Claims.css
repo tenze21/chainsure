@@ -45,30 +45,27 @@
 }
 
 /* ── Reset / Base ──────────────────────────────────────────── */
-*,
-*::before,
-*::after {
+.claims,
+.claims * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
-body {
+.claims,
+.claims button,
+.claims input,
+.claims select,
+.claims textarea {
   font-family: var(--font);
+}
+
+.claims {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
 }
 
-button {
-  font-family: var(--font);
+.claims button {
   cursor: pointer;
-}
-
-input,
-select,
-textarea {
-  font-family: var(--font);
 }
 
 /* ── Content (shared scroll wrapper) ──────────────────────── */

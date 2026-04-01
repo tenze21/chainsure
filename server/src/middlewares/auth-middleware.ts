@@ -36,6 +36,10 @@ export const authenticate = asyncHandler(async (req: Request, res: Response, nex
     return;
   }
 
+  if (user.status === "suspended") {
+    throw new AppError(ERROR_CODES.FORBIDDEN, "Account suspended", 403);
+  }
+
   const role = await Role.findByPk(user.roleId);
   if (!role) {
     throw new AppError(ERROR_CODES.INTERNAL_ERROR, "User role not found", 500);

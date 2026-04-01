@@ -74,6 +74,10 @@ export function getTemplateById(templateId) {
   return apiRequest(`/api/template/${templateId}`)
 }
 
+export function getTemplates() {
+  return apiRequest('/api/template')
+}
+
 export function getUserProposals() {
   return apiRequest('/api/proposal/user')
 }
@@ -94,6 +98,13 @@ export function loginAdmin(payload) {
 
 export function registerUser(payload) {
   return apiRequest('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function registerAdmin(payload) {
+  return apiRequest('/api/auth/register/admin', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

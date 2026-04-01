@@ -1,11 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 :root {
   --sidebar-bg: #011B35;
   --sidebar-hover: #012d57;
@@ -30,12 +24,25 @@
   --font-body: 'DM Sans', sans-serif;
 }
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
+.layout,
+.layout *,
+.layout *::before,
+.layout *::after,
+.proposal-page,
+.proposal-page *,
+.proposal-page *::before,
+.proposal-page *::after,
+.profile-page,
+.profile-page *,
+.profile-page *::before,
+.profile-page *::after {
+  box-sizing: border-box;
 }
 
-body {
+.layout,
+.proposal-page,
+.profile-page {
+  min-height: 100%;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -44,4 +51,19 @@ body {
 .profile-page {
   font-family: var(--font-body);
   color: var(--text-primary);
+}
+
+.layout button,
+.layout input,
+.layout select,
+.layout textarea,
+.proposal-page button,
+.proposal-page input,
+.proposal-page select,
+.proposal-page textarea,
+.profile-page button,
+.profile-page input,
+.profile-page select,
+.profile-page textarea {
+  font: inherit;
 }

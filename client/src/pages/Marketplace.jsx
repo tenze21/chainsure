@@ -54,8 +54,11 @@ export default function Marketplace({
   products,
   catalogLoading,
   catalogError,
+  profileReady,
+  missingProfileFields,
 }) {
   const connectedCount = products.filter((product) => product.templateStatus === 'ready').length
+  const missingFieldsLabel = missingProfileFields.join(', ')
 
   return (
     <div className="layout">
@@ -75,6 +78,11 @@ export default function Marketplace({
             </button>
           </div>
 
+          {!profileReady && (
+            <div className="marketplace__notice">
+              Complete your profile before applying. The backend requires {missingFieldsLabel}.
+            </div>
+          )}
           {catalogError && <div className="marketplace__notice">{catalogError}</div>}
 
           <div className="marketplace__grid">
@@ -96,16 +104,28 @@ export default function Marketplace({
                 </ul>
                 <button
                   className="product-card__btn"
-                  onClick={() => onNavigate(product.route)}
+                  onClick={() => {
+                    if (!profileReady) {
+                      onNavigate('profile')
+                      return
+                    }
+
+                    onNavigate(product.route)
+                  }}
                   disabled={catalogLoading || product.templateStatus !== 'ready'}
                 >
-                  {getButtonLabel(product, catalogLoading)}
+                  {!profileReady && product.templateStatus === 'ready'
+                    ? 'Complete Profile'
+                    : getButtonLabel(product, catalogLoading)}
                 </button>
+                {product.templateStatus === 'ready' && product.templateSource === 'auto' && (
+                  <p className="product-card__note">Matched automatically from the live backend template list.</p>
+                )}
                 {product.templateStatus === 'error' && (
                   <p className="product-card__note">{product.templateError}</p>
                 )}
                 {product.templateStatus === 'missing' && (
-                  <p className="product-card__note">Add a template UUID in `client/.env` for this card.</p>
+                  <p className="product-card__note">No matching backend template exists for this form yet.</p>
                 )}
               </div>
             ))}

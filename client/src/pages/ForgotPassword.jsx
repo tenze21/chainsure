@@ -17,19 +17,15 @@ export default function ForgotPassword() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-[#0f1729] mb-1">Forgot Password</h1>
-          <p className="text-gray-500 text-sm mb-6">Enter your email to reset your password</p>
-          <form className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-500 mb-1">Email</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                </span>
-                <input type="email" name="email" placeholder="john@example.com" className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729]" />
-              </div>
+          <p className="text-gray-500 text-sm mb-6">Password reset is not exposed by the current backend.</p>
+          <div className="space-y-4">
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+              This branch has working sign-in, sign-up, logout, proposal submission, and profile updates, but it does not have a reset-password route on the server. This page is intentionally informational only.
             </div>
-            <button type="submit" className="w-full py-3 bg-[#0f1729] text-white font-medium rounded-lg hover:bg-[#1e293b] transition-colors">Send Reset Link</button>
-          </form>
+            <Link to="/signin" className="block w-full py-3 bg-[#0f1729] text-white font-medium rounded-lg hover:bg-[#1e293b] transition-colors text-center">
+              Return to Sign In
+            </Link>
+          </div>
           <p className="mt-6 text-center text-sm text-gray-600">
             Remember your password?{' '}
             <Link to="/signin" className="text-[#0f1729] font-medium hover:underline">Sign In</Link>

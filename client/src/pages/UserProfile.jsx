@@ -43,6 +43,31 @@ function buildPayload(form) {
   return payload
 }
 
+function ProfileField({
+  label,
+  field,
+  form,
+  type = 'text',
+  readOnly = false,
+  onChange,
+  children,
+}) {
+  return (
+    <div className="pf-field">
+      <label className="pf-field__label">{label}</label>
+      {children || (
+        <input
+          className="pf-field__input"
+          type={type}
+          value={form[field]}
+          readOnly={readOnly}
+          onChange={(event) => onChange(field, event.target.value)}
+        />
+      )}
+    </div>
+  )
+}
+
 function PersonalTab({ user, onSaveProfile }) {
   const [form, setForm] = useState(() => buildFormState(user))
   const [dirty, setDirty] = useState(false)
@@ -103,21 +128,6 @@ function PersonalTab({ user, onSaveProfile }) {
     }
   }
 
-  const Field = ({ label, field, type = 'text', readOnly = false, children }) => (
-    <div className="pf-field">
-      <label className="pf-field__label">{label}</label>
-      {children || (
-        <input
-          className="pf-field__input"
-          type={type}
-          value={form[field]}
-          readOnly={readOnly}
-          onChange={(event) => setField(field, event.target.value)}
-        />
-      )}
-    </div>
-  )
-
   return (
     <div className="pf-card">
       <div className="profile-inline-note">
@@ -127,21 +137,21 @@ function PersonalTab({ user, onSaveProfile }) {
       <div className="pf-card__section">
         <h3 className="pf-card__section-title">Profile Details</h3>
         <div className="pf-grid">
-          <Field label="Full Name" field="fullName" />
-          <Field label="CID" field="cid" />
-          <Field label="Email Address" field="email" readOnly />
-          <Field label="Contact Number" field="contactNumber" />
-          <Field label="Date of Birth" field="dob" type="date" />
-          <Field label="Occupation" field="occupation" />
-          <Field label="Gender" field="gender">
+          <ProfileField label="Full Name" field="fullName" form={form} onChange={setField} />
+          <ProfileField label="CID" field="cid" form={form} onChange={setField} />
+          <ProfileField label="Email Address" field="email" form={form} onChange={setField} readOnly />
+          <ProfileField label="Contact Number" field="contactNumber" form={form} onChange={setField} />
+          <ProfileField label="Date of Birth" field="dob" form={form} onChange={setField} type="date" />
+          <ProfileField label="Occupation" field="occupation" form={form} onChange={setField} />
+          <ProfileField label="Gender" field="gender" form={form} onChange={setField}>
             <select className="pf-field__input" value={form.gender} onChange={(event) => setField('gender', event.target.value)}>
               <option value="">Select gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-          </Field>
-          <Field label="Marital Status" field="maritalStatus">
+          </ProfileField>
+          <ProfileField label="Marital Status" field="maritalStatus" form={form} onChange={setField}>
             <select className="pf-field__input" value={form.maritalStatus} onChange={(event) => setField('maritalStatus', event.target.value)}>
               <option value="">Select status</option>
               <option value="single">Single</option>
@@ -149,7 +159,7 @@ function PersonalTab({ user, onSaveProfile }) {
               <option value="divorced">Divorced</option>
               <option value="widowed">Widowed</option>
             </select>
-          </Field>
+          </ProfileField>
         </div>
         <div className="pf-field" style={{ marginTop: 14 }}>
           <label className="pf-field__label">Address</label>
@@ -288,6 +298,7 @@ export default function UserProfile({
   proposals,
   products,
   onSaveProfile,
+  missingProfileFields,
 }) {
   const [tab, setTab] = useState('personal')
   const initials = getInitials(user?.fullName)
@@ -362,6 +373,11 @@ export default function UserProfile({
             </div>
 
             <div className="profile-tab-content">
+              {missingProfileFields.length > 0 && (
+                <div className="profile-inline-note" style={{ marginBottom: 16 }}>
+                  Proposal submission is blocked until you add: {missingProfileFields.join(', ')}.
+                </div>
+              )}
               {tab === 'personal' && <PersonalTab user={user} onSaveProfile={onSaveProfile} />}
               {tab === 'policies' && <PoliciesTab proposals={proposals} onNavigate={onNavigate} />}
               {tab === 'security' && <SecurityTab user={user} onSignOut={onSignOut} />}

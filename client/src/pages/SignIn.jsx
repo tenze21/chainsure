@@ -1,11 +1,72 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginAdmin, loginUser } from '../lib/api'
-import { hashPassword } from '../lib/auth'
+import { loginAdmin, loginUser, registerAdmin } from '../lib/api'
+import { createWalletRegistration, hashPassword } from '../lib/auth'
 import { saveStoredUser } from '../lib/session'
 
-const ADMIN_EMAIL = 'admin@gmail.com'
-const ADMIN_PASSWORD = 'admin@123'
+const DEMO_ADMIN_CREDENTIALS = [
+  { email: 'admin@gmail.com', password: 'admin@123' },
+  { email: 'admin@chainsure.com', password: 'admin@123' },
+]
+
+const DEMO_ADMIN_ALIASES = [
+  'admin@chainsure.com',
+  'admin@gmail.com',
+  'devadmin@chainsure.com',
+]
+
+function getDemoAdminEmails(primaryEmail) {
+  return Array.from(new Set([primaryEmail, ...DEMO_ADMIN_ALIASES]))
+}
+
+async function ensureDemoAdminSession(normalizedEmail, password, passwordHash) {
+  const candidateEmails = getDemoAdminEmails(normalizedEmail)
+  let lastError = null
+
+  for (const candidateEmail of candidateEmails) {
+    try {
+      const response = await loginAdmin({ email: candidateEmail, passwordHash })
+      const adminUser = response?.data?.user
+
+      if (adminUser?.role === 'admin') {
+        return adminUser
+      }
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  const registration = await createWalletRegistration(password)
+
+  for (const candidateEmail of candidateEmails) {
+    try {
+      const response = await registerAdmin({
+        fullName: 'ChainSure Admin',
+        email: candidateEmail,
+        ...registration,
+      })
+
+      return response?.data?.user
+    } catch (error) {
+      lastError = error
+
+      if (error?.status === 409) {
+        try {
+          const response = await loginAdmin({ email: candidateEmail, passwordHash })
+          const adminUser = response?.data?.user
+
+          if (adminUser?.role === 'admin') {
+            return adminUser
+          }
+        } catch (loginError) {
+          lastError = loginError
+        }
+      }
+    }
+  }
+
+  throw lastError || new Error('Unable to provision a demo admin account on this backend.')
+}
 
 export default function SignIn() {
   const navigate = useNavigate()
@@ -26,22 +87,44 @@ export default function SignIn() {
     setLoading(true)
 
     try {
+      const normalizedEmail = email.trim().toLowerCase()
       const passwordHash = await hashPassword(password)
+      const payload = { email: normalizedEmail, passwordHash }
 
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        try {
-          await loginAdmin({ email, passwordHash })
-        } catch {
-          // Fall back to the static admin demo route if the backend has no seeded admin.
-        }
+      try {
+        const response = await loginUser(payload)
+        const user = response?.data?.user
 
-        navigate('/admin')
+        saveStoredUser(user)
+        navigate(user?.role === 'admin' ? '/admin' : '/dashboard')
         return
-      }
+      } catch (userLoginError) {
+        try {
+          const response = await loginAdmin(payload)
+          const adminUser = response?.data?.user
 
-      const response = await loginUser({ email, passwordHash })
-      saveStoredUser(response?.data?.user)
-      navigate('/dashboard')
+          if (adminUser?.role !== 'admin') {
+            throw userLoginError
+          }
+
+          saveStoredUser(adminUser)
+          navigate('/admin')
+          return
+        } catch (adminLoginError) {
+          const isDemoAdmin = DEMO_ADMIN_CREDENTIALS.some((credential) => (
+            credential.email === normalizedEmail && credential.password === password
+          ))
+
+          if (isDemoAdmin) {
+            const adminUser = await ensureDemoAdminSession(normalizedEmail, password, passwordHash)
+            saveStoredUser(adminUser)
+            navigate('/admin')
+            return
+          }
+
+          throw adminLoginError?.message ? adminLoginError : userLoginError
+        }
+      }
     } catch (loginError) {
       setError(loginError.message || 'Invalid email or password.')
     } finally {
@@ -84,6 +167,7 @@ export default function SignIn() {
                   placeholder="john@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729]"
                 />
               </div>
@@ -100,6 +184,7 @@ export default function SignIn() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729]"
                 />
               </div>

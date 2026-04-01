@@ -1,10 +1,19 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import ScrollToHash from './components/ScrollToHash'
+import AdminLayout from './components/admin/AdminLayout'
 import HomePage from './pages/HomePage'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import ForgotPassword from './pages/ForgotPassword'
 import AccountCreated from './pages/AccountCreated'
+import About from './pages/About'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminClaimsReview from './pages/admin/AdminClaimsReview'
+import AdminCustomMinting from './pages/admin/AdminCustomMinting'
+import AdminPolicyProposals from './pages/admin/AdminPolicyProposals'
+import AdminPolicyTemplates from './pages/admin/AdminPolicyTemplates'
+import AdminRevocation from './pages/admin/AdminRevocation'
+import AdminUsers from './pages/admin/AdminUsers'
 import Overview from './pages/Overview'
 import Marketplace from './pages/Marketplace'
 import Policies from './pages/Policies'
@@ -49,6 +58,8 @@ function DashboardRouter() {
     products,
     catalogLoading,
     catalogError,
+    profileReady,
+    missingProfileFields,
     proposals,
     proposalsLoading,
     proposalsError,
@@ -72,6 +83,10 @@ function DashboardRouter() {
     currentPageLabel: getCurrentPageLabel(location.pathname),
   }
 
+  if (!user) {
+    return <Navigate to="/signin" replace />
+  }
+
   return (
     <Routes>
       <Route
@@ -83,6 +98,8 @@ function DashboardRouter() {
             proposalsLoading={proposalsLoading}
             proposalsError={proposalsError}
             products={products}
+            profileReady={profileReady}
+            missingProfileFields={missingProfileFields}
           />
         )}
       />
@@ -94,6 +111,8 @@ function DashboardRouter() {
             products={products}
             catalogLoading={catalogLoading}
             catalogError={catalogError}
+            profileReady={profileReady}
+            missingProfileFields={missingProfileFields}
           />
         )}
       />
@@ -137,6 +156,7 @@ function DashboardRouter() {
             proposals={proposals}
             products={products}
             onSaveProfile={saveProfile}
+            missingProfileFields={missingProfileFields}
           />
         )}
       />
@@ -146,7 +166,11 @@ function DashboardRouter() {
           <TravelProposalForm
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
-            templateId={findProduct(products, 'travel')?.templateId}
+            user={user}
+            product={findProduct(products, 'travel')}
+            templateId={findProduct(products, 'travel')?.template?.id || findProduct(products, 'travel')?.templateId}
+            missingProfileFields={missingProfileFields}
+            onProposalSubmitted={refreshProposals}
           />
         )}
       />
@@ -156,7 +180,11 @@ function DashboardRouter() {
           <MotorProposalForm
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
-            templateId={findProduct(products, 'motor')?.templateId}
+            user={user}
+            product={findProduct(products, 'motor')}
+            templateId={findProduct(products, 'motor')?.template?.id || findProduct(products, 'motor')?.templateId}
+            missingProfileFields={missingProfileFields}
+            onProposalSubmitted={refreshProposals}
           />
         )}
       />
@@ -166,7 +194,11 @@ function DashboardRouter() {
           <LifeProposalForm
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
-            templateId={findProduct(products, 'life')?.templateId}
+            user={user}
+            product={findProduct(products, 'life')}
+            templateId={findProduct(products, 'life')?.template?.id || findProduct(products, 'life')?.templateId}
+            missingProfileFields={missingProfileFields}
+            onProposalSubmitted={refreshProposals}
           />
         )}
       />
@@ -178,13 +210,25 @@ function DashboardRouter() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToHash />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/register" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/account-created" element={<AccountCreated />} />
-        <Route path="/admin/*" element={<AdminDashboard />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="templates" element={<AdminPolicyTemplates />} />
+          <Route path="claims" element={<AdminClaimsReview />} />
+          <Route path="minting" element={<AdminCustomMinting />} />
+          <Route path="revocation" element={<AdminRevocation />} />
+          <Route path="proposals" element={<AdminPolicyProposals />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
+        </Route>
         <Route path="/dashboard/*" element={<DashboardRouter />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
