@@ -1,21 +1,6 @@
 import { createEncryptedWallet, deriveMasterPasswordHash, generateSalt } from './crypto'
 import { apiRequest } from './api'
-const SALT_KEY_PREFIX = 'chainsure.salt.'
 const USER_KEY = 'chainsure.user'
-
-function getSaltKey(email) {
-  return `${SALT_KEY_PREFIX}${email.toLowerCase()}`
-}
-
-export function storeSaltForEmail(email, salt) {
-  if (!email || !salt) return
-  localStorage.setItem(getSaltKey(email), salt)
-}
-
-export function getSaltForEmail(email) {
-  if (!email) return null
-  return localStorage.getItem(getSaltKey(email))
-}
 
 export function storeUser(user) {
   if (!user) return
@@ -35,6 +20,12 @@ export function getStoredUser() {
   }
 }
 
+async function fetchSaltForEmail(email) {
+  const query = new URLSearchParams({ email })
+  const data = await apiRequest(`/api/auth/salt?${query.toString()}`)
+  return data?.salt
+}
+
 export async function registerUser({ fullName, email, password }) {
   const salt = generateSalt()
   const passwordHash = await deriveMasterPasswordHash(password, salt)
@@ -52,16 +43,15 @@ export async function registerUser({ fullName, email, password }) {
     },
   })
 
-  storeSaltForEmail(email, data?.salt || salt)
   storeUser(data?.user)
 
   return data?.user
 }
 
 export async function loginUser({ email, password }) {
-  const salt = getSaltForEmail(email)
+  const salt = await fetchSaltForEmail(email)
   if (!salt) {
-    throw new Error('No saved salt for this email on this device. Please register here first or sign in on a device where you already logged in.')
+    throw new Error('Unable to retrieve the salt for this account.')
   }
 
   const passwordHash = await deriveMasterPasswordHash(password, salt)
@@ -70,9 +60,6 @@ export async function loginUser({ email, password }) {
     body: { email, passwordHash },
   })
 
-  if (data?.salt) {
-    storeSaltForEmail(email, data.salt)
-  }
   storeUser(data?.user)
 
   return data?.user

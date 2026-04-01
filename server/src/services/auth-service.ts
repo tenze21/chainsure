@@ -130,6 +130,19 @@ export async function loginUser(data: LoginRequest): Promise<AuthResponse> {
   };
 }
 
+export async function getSaltByEmail(email: string): Promise<string> {
+  const user = await User.findOne({
+    where: { email },
+    attributes: ["salt"],
+  });
+
+  if (!user) {
+    throw new AppError(ERROR_CODES.INVALID_CREDENTIALS, "Invalid email or password", 401);
+  }
+
+  return user.salt;
+}
+
 export async function registerAdminUser(data: RegisterRequest): Promise<AdminAuthResponse> {
   const isExistingUser = await User.findOne({ where: { email: data.email } });
   if (isExistingUser) {

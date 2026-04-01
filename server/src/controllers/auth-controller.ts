@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import env from "@/config/env";
-import { LoginSchema, RegisterSchema } from "@/lib/schemas";
+import { EmailSchema, LoginSchema, RegisterSchema } from "@/lib/schemas";
 import asyncHandler from "@/middlewares/async-handler";
-import { loginAdminUser, loginUser, registerAdminUser, registerUser } from "@/services/auth-service";
+import { getSaltByEmail, loginAdminUser, loginUser, registerAdminUser, registerUser } from "@/services/auth-service";
 
 /**
  * @desc Register user
@@ -53,6 +53,21 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       user: authResponse.user,
       salt: authResponse.salt,
     },
+  });
+});
+
+/**
+ * @desc Get stored login salt by email
+ * @route GET /api/auth/salt
+ * @access Public
+ */
+export const getSalt = asyncHandler(async (req: Request, res: Response) => {
+  const email = EmailSchema.parse(req.query.email);
+  const salt = await getSaltByEmail(email);
+
+  res.status(200).json({
+    success: true,
+    data: { salt },
   });
 });
 

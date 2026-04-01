@@ -17,6 +17,7 @@ router.post("/register/admin", authLimiter, authController.registerAdmin);
  * Login user
 */
 router.post("/login", authLimiter, authController.login);
+router.get("/salt", authLimiter, authController.getSalt);
 
 router.post("/login/admin", authLimiter, authController.loginAdmin);
 
