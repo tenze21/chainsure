@@ -1,0 +1,511 @@
+/* ─────────────────────────────────────────────────────────────
+   Proposals page  –  layout shell
+───────────────────────────────────────────────────────────── */
+.proposals {
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 100%;
+  background: #f5f7fa;
+}
+
+/* ─── Page header ─────────────────────────────────────────── */
+.proposals__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.proposals__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.proposals__badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.proposals__header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.proposals__header-badge--pending {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.proposals__header-badge--approved {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+/* ─── Two-column body ─────────────────────────────────────── */
+.proposals__body {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ─── Left list ───────────────────────────────────────────── */
+.proposals__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.proposals__list-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin: 0 0 2px;
+}
+
+/* ─── Application card ────────────────────────────────────── */
+.proposals__card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.proposals__card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.proposals__card--selected {
+  border-color: #00c8a0;
+  box-shadow: 0 0 0 2px rgba(0, 200, 160, 0.18);
+}
+
+.proposals__card--approved-border {
+  /* only shown when not selected; selected overrides */
+}
+
+.proposals__card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.proposals__card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.proposals__card-icon--health {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.proposals__card-icon--vehicle {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.proposals__card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.proposals__card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__card-meta {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 2px 0 0;
+}
+
+.proposals__card-bottom {
+  font-size: 0.78rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.proposals__card-dot {
+  color: #cbd5e1;
+}
+
+/* ─── Status badges ───────────────────────────────────────── */
+.proposals__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.proposals__badge--pending {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.proposals__badge--approved {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* ─── Detail panel (shared shell) ────────────────────────── */
+.proposals__detail {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* empty state */
+.proposals__detail--empty {
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  text-align: center;
+}
+
+.proposals__empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.proposals__empty-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__empty-sub {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 6px 0 0;
+  max-width: 300px;
+}
+
+/* ─── Detail header ───────────────────────────────────────── */
+.proposals__detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.proposals__detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.proposals__detail-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.proposals__detail-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__detail-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 2px 0 0;
+}
+
+/* ─── Info grids ──────────────────────────────────────────── */
+.proposals__info-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.proposals__info-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.proposals__info-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.proposals__info-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+.proposals__info-cell {
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.proposals__info-cell--filled {
+  background: #f8fafc;
+}
+
+.proposals__info-cell--bordered {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.proposals__info-cell--white {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.proposals__info-label {
+  font-size: 0.73rem;
+  color: #94a3b8;
+  margin: 0 0 4px;
+}
+
+.proposals__info-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__info-value--mono {
+  font-family: monospace;
+}
+
+/* ─── Section with title ──────────────────────────────────── */
+.proposals__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.proposals__section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* ─── Pending: under review box ───────────────────────────── */
+.proposals__under-review {
+  border: 1.5px solid #fde68a;
+  background: #fffdf0;
+  border-radius: 12px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.proposals__under-review-icon {
+  color: #d97706;
+}
+
+.proposals__under-review-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__under-review-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  max-width: 420px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.proposals__under-review-note {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ─── Approved: approved box ──────────────────────────────── */
+.proposals__approved-box {
+  border: 1.5px solid #bbf7d0;
+  background: #f0fdf4;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.proposals__approved-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proposals__approved-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.proposals__approved-box-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__approved-box-sub {
+  font-size: 0.83rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.proposals__premium-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__premium-period {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+.proposals__admin-notes {
+  border-top: 1px solid #d1fae5;
+  padding-top: 12px;
+}
+
+.proposals__admin-notes-text {
+  font-size: 0.85rem;
+  color: #374151;
+  margin: 4px 0 0;
+}
+
+/* ─── Offer expires row ───────────────────────────────────── */
+.proposals__offer-expires {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  background: #f8fafc;
+}
+
+.proposals__offer-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.proposals__offer-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 2px 0 0;
+}
+
+.proposals__offer-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* ─── Purchase button ─────────────────────────────────────── */
+.proposals__purchase-btn {
+  width: 100%;
+  padding: 14px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.proposals__purchase-btn:hover {
+  background: #1e293b;
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .proposals__body {
+    grid-template-columns: 1fr;
+  }
+
+  .proposals__info-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .proposals__info-grid--3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

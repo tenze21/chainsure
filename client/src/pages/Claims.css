@@ -1,0 +1,609 @@
+/* ============================================================
+   ChainSure Insurance Dashboard — Stylesheet
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --color-bg: #f8fafc;
+  --color-white: #ffffff;
+  --color-navy: #0f172a;
+  --color-teal: #14b8a6;
+
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  --color-border: #f1f5f9;
+  --color-border-input: #e2e8f0;
+  --color-surface: #f8fafc;
+
+  --color-approved: #10b981;
+  --color-approved-bg: #d1fae5;
+  --color-review: #f59e0b;
+  --color-review-bg: #fef3c7;
+  --color-denied: #ef4444;
+  --color-denied-bg: #fee2e2;
+
+  --color-info-bg: #eff6ff;
+  --color-info-border: #bfdbfe;
+  --color-info-text: #3b82f6;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --shadow-btn: 0 2px 8px rgba(15, 23, 42, 0.25);
+
+  --transition-fast: 0.15s ease;
+  --font: 'DM Sans', 'Segoe UI', sans-serif;
+}
+
+/* ── Reset / Base ──────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font);
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font);
+}
+
+/* ── Content (shared scroll wrapper) ──────────────────────── */
+.content {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+  min-height: 100%;
+}
+
+.claims {
+  padding: 32px;
+  overflow-y: auto;
+  min-height: 100%;
+}
+
+/* ── Page Header ───────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.page-header__title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.page-header__sub {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* ── Primary Button ────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background-color: var(--color-navy);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-btn);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  background-color: #1e293b;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ── Claims Card ───────────────────────────────────────────── */
+.claims-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+/* Blue-bordered variant used on the application page */
+.claims-card--history {
+  border: 2px solid #3b82f6;
+  margin-top: 20px;
+}
+
+.claims-card__header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.claims-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.claims-empty {
+  padding: 48px;
+  text-align: left;
+  color: var(--color-text-muted);
+  font-size: 15px;
+}
+
+/* ── Claim Row ─────────────────────────────────────────────── */
+.claim-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  background-color: var(--color-white);
+  transition: background var(--transition-fast);
+}
+
+.claim-row:last-child {
+  border-bottom: none;
+}
+
+.claim-row:hover {
+  background-color: var(--color-surface);
+}
+
+.claim-row__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.claim-row__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.claim-row__type {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-text-primary);
+}
+
+.claim-row__meta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* ── Status Badge ──────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 13px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.status-badge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.status-badge--review {
+  background-color: var(--color-review-bg);
+  color: var(--color-review);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.status-badge--review .status-badge__dot { background-color: var(--color-review); }
+
+.status-badge--approved {
+  background-color: var(--color-approved-bg);
+  color: var(--color-approved);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.status-badge--approved .status-badge__dot { background-color: var(--color-approved); }
+
+.status-badge--denied {
+  background-color: var(--color-denied-bg);
+  color: var(--color-denied);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.status-badge--denied .status-badge__dot { background-color: var(--color-denied); }
+
+/* ── Stats Grid (list page) ────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background-color: var(--color-white);
+  border-radius: 12px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-card__value {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.stat-card__value--navy  { color: var(--color-navy); }
+.stat-card__value--green { color: var(--color-approved); }
+.stat-card__value--amber { color: var(--color-review); }
+
+/* ════════════════════════════════════════════════════════════
+   CLAIM APPLICATION PAGE
+════════════════════════════════════════════════════════════ */
+
+/* Submission card wrapper */
+.submission-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 28px 28px 24px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.submission-card__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.2px;
+}
+
+/* Form primitives */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: var(--color-white);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.12);
+}
+
+textarea.form-control {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.submission-textarea {
+  min-height: 110px;
+}
+
+/* Custom select wrapper (hides native arrow, shows custom chevron) */
+.select-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.form-control--select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 36px;
+  width: auto;
+  min-width: 180px;
+  cursor: pointer;
+}
+
+.select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+/* Upload / drag-and-drop zone */
+.upload-zone {
+  border: 1.5px dashed var(--color-border-input);
+  border-radius: var(--radius-md);
+  padding: 28px 24px;
+  text-align: center;
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-zone:hover,
+.upload-zone--active {
+  border-color: var(--color-teal);
+  background-color: rgba(20, 184, 166, 0.04);
+}
+
+.upload-zone__icon {
+  color: var(--color-text-muted);
+}
+
+.upload-zone__text {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.upload-zone__link {
+  color: var(--color-teal);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.upload-zone__files {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.upload-zone__file {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  background: var(--color-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  text-align: left;
+}
+
+/* Info banner */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-info-border);
+  border-radius: var(--radius-sm);
+}
+
+.info-banner__icon {
+  color: var(--color-info-text);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.info-banner__text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Submission action row */
+.submission-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.btn-cancel {
+  padding: 11px 20px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-cancel:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* ════════════════════════════════════════════════════════════
+   MODALS  (detail pop-up)
+════════════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal {
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-modal);
+  animation: slideUp 0.2s ease;
+}
+
+.modal--detail { width: 440px; }
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.modal__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.modal__subtitle {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.modal__close {
+  border: none;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.modal__close:hover {
+  background: var(--color-border-input);
+}
+
+.detail-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-row__label {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.detail-row__value {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+.btn-close-modal {
+  margin-top: 24px;
+  width: 100%;
+  padding: 12px 0;
+  background-color: var(--color-navy);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background var(--transition-fast);
+}
+
+.btn-close-modal:hover {
+  background-color: #1e293b;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr; }
+
+  .modal--detail { width: calc(100vw - 32px); margin: 16px; }
+
+  .search-input { width: 180px; }
+
+  .submission-card { padding: 20px 16px; }
+
+  .submission-actions { flex-direction: column-reverse; }
+  .submission-actions .btn-cancel,
+  .submission-actions .btn-primary { width: 100%; justify-content: center; }
+}

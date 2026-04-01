@@ -3,6 +3,8 @@ import './App.css'
 import Overview from './pages/Overview'
 import Marketplace from './pages/Marketplace'
 import Policies from './pages/Policies'
+import Claims from './pages/Claims'
+import Proposals from './pages/Proposals'
 import TravelProposalForm from './pages/TravelProposalForm'
 import MotorProposalForm from './pages/MotorProposalForm'
 import LifeProposalForm from './pages/LifeProposalForm'
@@ -19,6 +21,10 @@ function App() {
         return <Marketplace onNavigate={setPage} />
       case 'policies':
         return <Policies onNavigate={setPage} />
+      case 'claims':
+        return <Claims onNavigate={setPage} />
+      case 'proposals':
+        return <Proposals onNavigate={setPage} />
       case 'profile':
         return <UserProfile onNavigate={setPage} />
       case 'proposal-travel':
