@@ -89,6 +89,19 @@ export const updateProfileSchema = z.object({
   address: z.string().max(500).optional(),
 }).strict();
 
+export const UpdateTemplateSchema = z.object({
+  name: z.string().optional(),
+  category: z.string().optional(),
+  description: z.string().min(50, "A suitable template description is required").optional(),
+  paymentType: z.enum(PaymentType).optional(),
+  coverageAmount: z.number().positive("Coverage amount can't be negative").optional(),
+  coverageDetails: z.string().min(50, "A suitable coverage details is required").optional(),
+  eligibility: z.string().min(50, "A suitable eligibility details is required").optional(),
+  limitations: z.string().min(50, "A suitable limitation details is required").optional(),
+  duration: z.number().int().positive().optional(),
+  categoryId: z.string().optional(),
+}).strict();
+
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
 export type CreateTemplateInput = z.infer<typeof CreateTemplateSchema>;

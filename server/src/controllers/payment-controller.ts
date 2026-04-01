@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-access */
 import type { Request, Response } from "express";
 import { constructStripeEvent, handleStripeWebhook } from "@services/webhook-service";
 import { Policy, User } from "@/database/models/index";

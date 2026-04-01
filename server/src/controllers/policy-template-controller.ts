@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
+import { CreateTemplateSchema, UpdateTemplateSchema } from "@lib/schemas";
 import { Category, PolicyTemplate } from "@/database/models/index";
 import { ERROR_CODES } from "@/lib/constants";
-import { CreateTemplateSchema, UpdateTemplateSchema } from "@/lib/schemas";
 import asyncHandler from "@/middlewares/async-handler";
 import { AppError } from "@/middlewares/error-handler";
 
@@ -78,7 +78,7 @@ export const createTemplate = asyncHandler(async (req: Request, res: Response): 
  * @access Public
  */
 export const getTemplates = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
-  const templates = await PolicyTemplate.findAll({ order: ["name"] });
+  const templates = await PolicyTemplate.findAll({ order: ["name"], include: [{ model: Category, as: "category" }] });
   res.status(200).json({
     success: true,
     data: { templates },
@@ -93,7 +93,7 @@ export const getTemplates = asyncHandler(async (_req: Request, res: Response): P
 export const getTemplateById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  const template = await PolicyTemplate.findOne({ where: { id } });
+  const template = await PolicyTemplate.findOne({ where: { id }, include: [{ model: Category, as: "category" }] });
   if (!template) {
     throw new AppError(ERROR_CODES.NOT_FOUND, "Policy template not found", 404);
   }
@@ -112,11 +112,19 @@ export const getTemplateById = asyncHandler(async (req: Request, res: Response):
 export const updateTemplate = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  const validatedData = UpdateTemplateSchema.parse(req.body);
+  let validatedData = UpdateTemplateSchema.parse(req.body);
 
   const template = await PolicyTemplate.findOne({ where: { id } });
   if (!template) {
     throw new AppError(ERROR_CODES.NOT_FOUND, "Policy template not found", 404);
+  }
+
+  if (validatedData.category) {
+    const categoryExist = await Category.findOne({ where: { name: validatedData.category } });
+    if (!categoryExist) {
+      throw new AppError(ERROR_CODES.BAD_REQUEST, `category ${validatedData.category} doesn't exist`, 400);
+    }
+    validatedData = { ...validatedData, categoryId: categoryExist.id };
   }
 
   const updatedTemplate = await template.update(validatedData);
