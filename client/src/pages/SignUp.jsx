@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { registerUser, updateUserProfile } from '../lib/api'
+import { createWalletRegistration, normalizeDob } from '../lib/auth'
+import { saveStoredUser } from '../lib/session'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DOB_REGEX = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/
@@ -17,6 +20,7 @@ export default function SignUp() {
   })
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({})
+  const [submitting, setSubmitting] = useState(false)
 
   const validateField = (name, value) => {
     switch (name) {
@@ -26,6 +30,7 @@ export default function SignUp() {
         return ''
       case 'nin':
         if (!value.trim()) return 'CID is required'
+        if (value.trim().length !== 11) return 'CID must be 11 characters'
         return ''
       case 'email':
         if (!value.trim()) return 'Email is required'
@@ -95,11 +100,56 @@ export default function SignUp() {
     setErrors((prev) => ({ ...prev, [name]: validateField(name, formData[name]) }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setTouched({ fullName: true, nin: true, email: true, dob: true, gender: true, password: true, confirmPassword: true })
     if (!validateForm()) return
-    navigate('/account-created', { state: { walletAddress: '0x7b2b...Cbe' } })
+
+    setSubmitting(true)
+
+    try {
+      const walletRegistration = await createWalletRegistration(formData.password)
+      const registerResponse = await registerUser({
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        passwordHash: walletRegistration.passwordHash,
+        walletAddress: walletRegistration.walletAddress,
+        encryptedPrivateKey: walletRegistration.encryptedPrivateKey,
+        salt: walletRegistration.salt,
+      })
+
+      let userSnapshot = registerResponse?.data?.user
+
+      try {
+        const profileResponse = await updateUserProfile({
+          cid: formData.nin.trim(),
+          dob: normalizeDob(formData.dob),
+          gender: formData.gender,
+        })
+
+        userSnapshot = {
+          ...userSnapshot,
+          ...profileResponse?.data,
+        }
+      } catch {
+        userSnapshot = {
+          ...userSnapshot,
+          cid: formData.nin.trim(),
+          dob: normalizeDob(formData.dob),
+          gender: formData.gender,
+        }
+      }
+
+      saveStoredUser(userSnapshot)
+      navigate('/account-created', { state: { walletAddress: walletRegistration.walletAddress } })
+    } catch (submitError) {
+      setErrors((previous) => ({
+        ...previous,
+        submit: submitError.message || 'Could not create your account.',
+      }))
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -120,6 +170,11 @@ export default function SignUp() {
           <h1 className="text-2xl font-bold text-[#0f1729] mb-1">Create Account</h1>
           <p className="text-gray-500 text-sm mb-6">Set up your profile</p>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.submit && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {errors.submit}
+              </div>
+            )}
             <div>
               <label className="block text-sm text-gray-500 mb-1">Full Name</label>
               <div className="relative">
@@ -251,10 +306,10 @@ export default function SignUp() {
             </div>
             <button
               type="submit"
-              disabled={!isFormValid()}
-              className={`w-full py-3 font-medium rounded-lg transition-colors ${isFormValid() ? 'bg-[#0f1729] text-white hover:bg-[#1e293b] cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+              disabled={!isFormValid() || submitting}
+              className={`w-full py-3 font-medium rounded-lg transition-colors ${isFormValid() && !submitting ? 'bg-[#0f1729] text-white hover:bg-[#1e293b] cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
             >
-              Continue
+              {submitting ? 'Creating Account...' : 'Continue'}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-gray-600">

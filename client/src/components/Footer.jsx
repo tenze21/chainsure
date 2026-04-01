@@ -12,9 +12,9 @@ export default function Footer() {
           PU-303, Spring 2025 - Outstanding College of Information Technology, RUB.
         </p>
         <div className="flex gap-6">
-          <a href="/privacy" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Privacy</a>
-          <a href="/terms" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Terms</a>
-          <a href="/contact" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Contact</a>
+          <a href="#verify" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Privacy</a>
+          <a href="#about" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Terms</a>
+          <a href="mailto:support@chainsure.local" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">Contact</a>
         </div>
       </div>
     </footer>

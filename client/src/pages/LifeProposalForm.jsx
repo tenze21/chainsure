@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import './ProposalForm.css'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { submitProposal } from '../lib/api'
 
 function SuccessScreen({ onBack }) {
   return (
@@ -83,30 +82,13 @@ export default function LifeProposalForm({ onBack, onNavigate, templateId }) {
     if (!declared) { alert('Please accept the declaration before submitting.'); return }
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/api/proposal/${templateId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          attributes: {
-            ...form,
-            declared: 'true',
-          }
-        }),
+      await submitProposal(templateId, {
+        ...form,
+        declared: 'true',
       })
-      if (res.ok) {
-        setSubmitted(true)
-      } else {
-        let msg = 'Submission failed.'
-        try {
-          const data = await res.json()
-          msg = data?.error?.message || data?.message || msg
-        } catch (_) {}
-        alert(msg)
-      }
+      setSubmitted(true)
     } catch (err) {
-      console.warn('API not reachable:', err.message)
-      alert(`Could not connect to the server (${API_BASE}). Check that the server is running and VITE_API_URL is correct.`)
+      alert(err.message || 'Submission failed.')
     } finally {
       setLoading(false)
     }

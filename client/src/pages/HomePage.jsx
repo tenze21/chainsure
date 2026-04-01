@@ -77,7 +77,7 @@ export default function HomePage() {
                       </li>
                     ))}
                   </ul>
-                  <a href={`/products/${p.id}`} className={`inline-flex items-center justify-center w-full py-3 rounded-lg font-medium transition-colors ${p.popular ? 'bg-[#0f1729] text-white hover:bg-[#1e293b]' : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300'}`}>View Details</a>
+                  <Link to="/signup" className={`inline-flex items-center justify-center w-full py-3 rounded-lg font-medium transition-colors ${p.popular ? 'bg-[#0f1729] text-white hover:bg-[#1e293b]' : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300'}`}>View Details</Link>
                 </div>
               ))}
             </div>
@@ -85,7 +85,7 @@ export default function HomePage() {
         </section>
 
         {/* Built on Trust */}
-        <section className="py-20 px-6 bg-gray-50">
+        <section id="verify" className="py-20 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Built on Trust</h2>
@@ -109,7 +109,7 @@ export default function HomePage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 px-6 bg-[#0f1729]">
+        <section id="about" className="py-20 px-6 bg-[#0f1729]">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Secure Your Future?</h2>
             <p className="text-gray-400 text-lg mb-8">Join thousands of users who have secured their coverage on the blockchain. Get started in minutes with no crypto knowledge required.</p>

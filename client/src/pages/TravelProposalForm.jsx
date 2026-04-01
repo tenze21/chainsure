@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import './ProposalForm.css'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { submitProposal } from '../lib/api'
 
 const TRAVEL_PURPOSES = ['Business', 'Vacation', 'Sports', 'Adventure', 'Pilgrimage', 'Pleasure', 'Others(Specify)']
 
@@ -65,25 +64,10 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId }) {
         healthCondition: form.healthCondition,
         declared: 'true',
       }
-      const res = await fetch(`${API_BASE}/api/proposal/${templateId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ attributes }),
-      })
-      if (res.ok) {
-        setSubmitted(true)
-      } else {
-        let msg = 'Submission failed. Please try again.'
-        try {
-          const data = await res.json()
-          msg = data?.error?.message || data?.message || msg
-        } catch (_) {}
-        alert(msg)
-      }
+      await submitProposal(templateId, attributes)
+      setSubmitted(true)
     } catch (err) {
-      console.warn('API not reachable:', err.message)
-      alert(`Could not connect to the server (${API_BASE}). Check that the server is running and VITE_API_URL is correct.`)
+      alert(err.message || 'Submission failed. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -1,49 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
-import StripeCheckoutModal from './StripeCheckoutModal'
 import './Proposals.css'
-
-const APPLICATIONS = [
-  {
-    id: 'APP-001',
-    type: 'Life Insurance',
-    applicationType: 'health',
-    submittedDate: 'Feb 28, 2026',
-    requestedCoverage: 'Nu. 50,00,000',
-    term: '20 Years',
-    status: 'Pending',
-    healthInfo: {
-      age: 35,
-      bmi: '24.9',
-      smoking: 'Never',
-      conditions: 'None',
-    },
-  },
-  {
-    id: 'APP-002',
-    type: 'Motor Insurance',
-    applicationType: 'vehicle',
-    submittedDate: 'Mar 01, 2026',
-    requestedCoverage: 'Nu. 25,00,000',
-    coverageType: 'Comprehensive',
-    status: 'Approved',
-    vehicleInfo: {
-      make: 'Toyota',
-      model: 'Corolla',
-      year: '2022',
-      registration: 'BT-1-A-5678',
-    },
-    approvedPremium: 'Nu.450',
-    premiumPeriod: '/month',
-    approvedDeductible: 'Nu.15,000',
-    approvedCoverage: 'Nu.25,00,000',
-    adminNotes: 'Standard premium applied. Zero depreciation add-on included',
-    offerExpires: 'Mar 15, 2026',
-  },
-]
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
+import { formatDate } from '../lib/formatters'
 
 const HeartIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -60,6 +19,13 @@ const CarIcon = () => (
   </svg>
 )
 
+const FileIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+  </svg>
+)
+
 const ClockIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -73,268 +39,210 @@ const CheckIcon = ({ size = 16 }) => (
   </svg>
 )
 
-const ClipboardIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="9" y="2" width="6" height="4" rx="1" ry="1" />
-    <path d="M17 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-    <path d="M9 12h6M9 16h4" />
+const XIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 )
 
-// ─── Status Badge ─────────────────────────────────────────────────────────────
+function getProposalVisual(proposal) {
+  const source = `${proposal?.category || ''} ${proposal?.name || ''}`.toLowerCase()
+
+  if (source.includes('vehicle') || source.includes('motor')) {
+    return { icon: <CarIcon />, className: 'proposals__card-icon--vehicle' }
+  }
+
+  if (source.includes('health') || source.includes('life')) {
+    return { icon: <HeartIcon />, className: 'proposals__card-icon--health' }
+  }
+
+  return { icon: <FileIcon />, className: 'proposals__card-icon--document' }
+}
 
 function StatusBadge({ status }) {
-  if (status === 'Pending') {
+  if (status === 'approved') {
     return (
-      <span className="proposals__badge proposals__badge--pending">
-        <ClockIcon size={12} />
-        Pending
+      <span className="proposals__badge proposals__badge--approved">
+        <CheckIcon size={12} />
+        Approved
       </span>
     )
   }
+
+  if (status === 'rejected') {
+    return (
+      <span className="proposals__badge proposals__badge--rejected">
+        <XIcon size={12} />
+        Rejected
+      </span>
+    )
+  }
+
   return (
-    <span className="proposals__badge proposals__badge--approved">
-      <CheckIcon size={12} />
-      Approved
+    <span className="proposals__badge proposals__badge--pending">
+      <ClockIcon size={12} />
+      Pending
     </span>
   )
 }
 
-// ─── Application Card (left list) ────────────────────────────────────────────
+function ProposalCard({ proposal, isSelected, onClick }) {
+  const visual = getProposalVisual(proposal)
 
-function AppCard({ app, isSelected, onClick }) {
   return (
     <div
-      className={`proposals__card ${isSelected ? 'proposals__card--selected' : ''} ${app.status === 'Approved' ? 'proposals__card--approved-border' : ''}`}
+      className={`proposals__card ${isSelected ? 'proposals__card--selected' : ''}`}
       onClick={onClick}
     >
       <div className="proposals__card-top">
-        <div className={`proposals__card-icon ${app.applicationType === 'health' ? 'proposals__card-icon--health' : 'proposals__card-icon--vehicle'}`}>
-          {app.applicationType === 'health' ? <HeartIcon /> : <CarIcon />}
+        <div className={`proposals__card-icon ${visual.className}`}>
+          {visual.icon}
         </div>
         <div className="proposals__card-info">
-          <p className="proposals__card-name">{app.type}</p>
-          <p className="proposals__card-meta">{app.id} · {app.submittedDate}</p>
+          <p className="proposals__card-name">{proposal.name}</p>
+          <p className="proposals__card-meta">{formatDate(proposal.createdAt)}</p>
         </div>
-        <StatusBadge status={app.status} />
+        <StatusBadge status={proposal.status} />
       </div>
       <div className="proposals__card-bottom">
-        <span>{app.requestedCoverage}</span>
-        {app.term && <><span className="proposals__card-dot">·</span><span>{app.term}</span></>}
-        {app.coverageType && <><span className="proposals__card-dot">·</span><span>{app.coverageType}</span></>}
+        <span>{proposal.category}</span>
       </div>
     </div>
   )
 }
 
-// ─── Empty Detail Panel ───────────────────────────────────────────────────────
-
-function EmptyDetail() {
+function EmptyDetail({ message, onNavigate }) {
   return (
     <div className="proposals__detail proposals__detail--empty">
       <div className="proposals__empty-icon">
-        <ClipboardIcon />
+        <FileIcon />
       </div>
-      <p className="proposals__empty-title">Select an Application</p>
-      <p className="proposals__empty-sub">Choose an application from the list to review health details and premium.</p>
+      <p className="proposals__empty-title">No Live Proposal Detail Available</p>
+      <p className="proposals__empty-sub">{message}</p>
+      <button className="proposals__empty-action" onClick={() => onNavigate('marketplace')}>
+        Browse Marketplace
+      </button>
     </div>
   )
 }
 
-// ─── Pending Detail Panel ─────────────────────────────────────────────────────
+function ProposalDetail({ proposal }) {
+  const visual = getProposalVisual(proposal)
+  const isApproved = proposal.status === 'approved'
+  const isRejected = proposal.status === 'rejected'
 
-function PendingDetail({ app }) {
   return (
     <div className="proposals__detail">
       <div className="proposals__detail-header">
         <div className="proposals__detail-title-row">
-          <div className={`proposals__detail-icon ${app.applicationType === 'health' ? 'proposals__card-icon--health' : 'proposals__card-icon--vehicle'}`}>
-            {app.applicationType === 'health' ? <HeartIcon /> : <CarIcon />}
+          <div className={`proposals__detail-icon ${visual.className}`}>
+            {visual.icon}
           </div>
           <div>
-            <p className="proposals__detail-name">{app.type}</p>
-            <p className="proposals__detail-sub">{app.id} · Submitted {app.submittedDate}</p>
+            <p className="proposals__detail-name">{proposal.name}</p>
+            <p className="proposals__detail-sub">Submitted {formatDate(proposal.createdAt)}</p>
           </div>
         </div>
-        <StatusBadge status={app.status} />
+        <StatusBadge status={proposal.status} />
       </div>
 
       <div className="proposals__info-grid proposals__info-grid--2">
         <div className="proposals__info-cell proposals__info-cell--filled">
-          <p className="proposals__info-label">Requested Coverage</p>
-          <p className="proposals__info-value">{app.requestedCoverage}</p>
+          <p className="proposals__info-label">Template Name</p>
+          <p className="proposals__info-value">{proposal.name}</p>
         </div>
         <div className="proposals__info-cell proposals__info-cell--filled">
-          <p className="proposals__info-label">Term</p>
-          <p className="proposals__info-value">{app.term}</p>
+          <p className="proposals__info-label">Category</p>
+          <p className="proposals__info-value">{proposal.category}</p>
         </div>
       </div>
 
       <div className="proposals__section">
-        <p className="proposals__section-title">Your Submitted Health Info</p>
-        <div className="proposals__info-grid proposals__info-grid--4">
-          <div className="proposals__info-cell proposals__info-cell--bordered">
-            <p className="proposals__info-label">Age</p>
-            <p className="proposals__info-value">{app.healthInfo.age} years</p>
-          </div>
-          <div className="proposals__info-cell proposals__info-cell--bordered">
-            <p className="proposals__info-label">BMI</p>
-            <p className="proposals__info-value">{app.healthInfo.bmi}</p>
-          </div>
-          <div className="proposals__info-cell proposals__info-cell--bordered">
-            <p className="proposals__info-label">Smoking</p>
-            <p className="proposals__info-value">{app.healthInfo.smoking}</p>
-          </div>
-          <div className="proposals__info-cell proposals__info-cell--bordered">
-            <p className="proposals__info-label">Conditions</p>
-            <p className="proposals__info-value">{app.healthInfo.conditions}</p>
-          </div>
+        <p className="proposals__section-title">Backend Contract On This Branch</p>
+        <div className="proposals__integration-note">
+          The current `GET /api/proposal/user` response only returns status, template name, category, and created date. It does not return proposal IDs, submitted attributes, premium, deductible, or policy IDs, so this dashboard cannot show a deeper review panel or start checkout without new server routes.
         </div>
       </div>
 
-      <div className="proposals__under-review">
-        <div className="proposals__under-review-icon">
-          <ClockIcon size={36} />
-        </div>
-        <p className="proposals__under-review-title">Application Under Review</p>
-        <p className="proposals__under-review-text">
-          Our team is reviewing your application. Once approved, you will see the premium and deductible set by the admin. You can then proceed to purchase the policy.
-        </p>
-        <p className="proposals__under-review-note">Typical review time: 1-2 business days</p>
-      </div>
-    </div>
-  )
-}
-
-// ─── Approved Detail Panel ────────────────────────────────────────────────────
-
-function ApprovedDetail({ app, onPurchase }) {
-  return (
-    <div className="proposals__detail">
-      <div className="proposals__detail-header">
-        <div className="proposals__detail-title-row">
-          <div className={`proposals__detail-icon ${app.applicationType === 'health' ? 'proposals__card-icon--health' : 'proposals__card-icon--vehicle'}`}>
-            {app.applicationType === 'health' ? <HeartIcon /> : <CarIcon />}
+      {!isApproved && !isRejected && (
+        <div className="proposals__under-review">
+          <div className="proposals__under-review-icon">
+            <ClockIcon size={36} />
           </div>
-          <div>
-            <p className="proposals__detail-name">{app.type}</p>
-            <p className="proposals__detail-sub">{app.id} · Submitted {app.submittedDate}</p>
-          </div>
-        </div>
-        <StatusBadge status={app.status} />
-      </div>
-
-      <div className="proposals__info-grid proposals__info-grid--2">
-        <div className="proposals__info-cell proposals__info-cell--filled">
-          <p className="proposals__info-label">Requested Coverage</p>
-          <p className="proposals__info-value">{app.requestedCoverage}</p>
-        </div>
-        <div className="proposals__info-cell proposals__info-cell--filled">
-          <p className="proposals__info-label">Term</p>
-          <p className="proposals__info-value">{app.coverageType}</p>
-        </div>
-      </div>
-
-      {app.vehicleInfo && (
-        <div className="proposals__section">
-          <p className="proposals__section-title">Your Submitted Vehicle Info</p>
-          <div className="proposals__info-grid proposals__info-grid--4">
-            <div className="proposals__info-cell proposals__info-cell--bordered">
-              <p className="proposals__info-label">Make</p>
-              <p className="proposals__info-value">{app.vehicleInfo.make}</p>
-            </div>
-            <div className="proposals__info-cell proposals__info-cell--bordered">
-              <p className="proposals__info-label">Model</p>
-              <p className="proposals__info-value">{app.vehicleInfo.model}</p>
-            </div>
-            <div className="proposals__info-cell proposals__info-cell--bordered">
-              <p className="proposals__info-label">Year</p>
-              <p className="proposals__info-value">{app.vehicleInfo.year}</p>
-            </div>
-            <div className="proposals__info-cell proposals__info-cell--bordered">
-              <p className="proposals__info-label">Registration</p>
-              <p className="proposals__info-value proposals__info-value--mono">{app.vehicleInfo.registration}</p>
-            </div>
-          </div>
+          <p className="proposals__under-review-title">Application Under Review</p>
+          <p className="proposals__under-review-text">
+            The proposal is live and coming from the backend, but the server only exposes a summary status here. More detail would require the list endpoint to return proposal IDs.
+          </p>
         </div>
       )}
 
-      <div className="proposals__approved-box">
-        <div className="proposals__approved-box-header">
-          <span className="proposals__approved-check"><CheckIcon size={16} /></span>
-          <p className="proposals__approved-box-title">Application Approved</p>
+      {isApproved && (
+        <div className="proposals__approved-box">
+          <div className="proposals__approved-box-header">
+            <span className="proposals__approved-check"><CheckIcon size={16} /></span>
+            <p className="proposals__approved-box-title">Approved, But Not Purchasable Here</p>
+          </div>
+          <p className="proposals__approved-box-sub">
+            Admin approval is visible, but the backend does not expose a user policy feed or a way to discover the policy ID required by `/api/payments/initiate/:policyId`.
+          </p>
         </div>
-        <p className="proposals__approved-box-sub">
-          Great news! Your application has been approved. Review the policy terms below and proceed to purchase.
-        </p>
-        <div className="proposals__info-grid proposals__info-grid--3">
-          <div className="proposals__info-cell proposals__info-cell--white">
-            <p className="proposals__info-label">Your Premium</p>
-            <p className="proposals__premium-value">{app.approvedPremium}<span className="proposals__premium-period">{app.premiumPeriod}</span></p>
-          </div>
-          <div className="proposals__info-cell proposals__info-cell--white">
-            <p className="proposals__info-label">Deductible</p>
-            <p className="proposals__premium-value">{app.approvedDeductible}</p>
-          </div>
-          <div className="proposals__info-cell proposals__info-cell--white">
-            <p className="proposals__info-label">Coverage Amount</p>
-            <p className="proposals__premium-value">{app.approvedCoverage}</p>
-          </div>
-        </div>
-        {app.adminNotes && (
-          <div className="proposals__admin-notes">
-            <p className="proposals__info-label">Admin Notes</p>
-            <p className="proposals__admin-notes-text">{app.adminNotes}</p>
-          </div>
-        )}
-      </div>
+      )}
 
-      <div className="proposals__offer-expires">
-        <div>
-          <p className="proposals__offer-label">Offer Expires</p>
-          <p className="proposals__offer-sub">Complete your purchase before this date</p>
+      {isRejected && (
+        <div className="proposals__rejected-box">
+          <div className="proposals__approved-box-header">
+            <span className="proposals__rejected-check"><XIcon size={16} /></span>
+            <p className="proposals__approved-box-title">Rejected By Admin</p>
+          </div>
+          <p className="proposals__approved-box-sub">
+            The rejection status is live from the backend. This branch does not expose a rejection note or proposal detail payload from the summary endpoint.
+          </p>
         </div>
-        <span className="proposals__offer-date">
-          <ClockIcon size={13} />
-          {app.offerExpires}
-        </span>
-      </div>
-
-      <button className="proposals__purchase-btn" onClick={onPurchase}>Purchase Policy</button>
+      )}
     </div>
   )
 }
 
-// ─── Main Export ──────────────────────────────────────────────────────────────
+export default function Proposals({
+  onNavigate,
+  onSignOut,
+  user,
+  currentPageLabel,
+  proposals,
+  proposalsLoading,
+  proposalsError,
+  onRefresh,
+}) {
+  const [selectedKey, setSelectedKey] = useState(null)
+  const selected = proposals.find((proposal) => proposal.key === selectedKey) || null
+  const pendingCount = proposals.filter((proposal) => proposal.status === 'pending').length
+  const approvedCount = proposals.filter((proposal) => proposal.status === 'approved').length
 
-export default function Proposals({ onNavigate }) {
-  const [selectedId, setSelectedId]       = useState(null)
-  const [showCheckout, setShowCheckout]   = useState(false)
+  useEffect(() => {
+    if (!proposals.length) {
+      setSelectedKey(null)
+      return
+    }
 
-  const selected = APPLICATIONS.find((a) => a.id === selectedId) || null
-
-  const pendingCount  = APPLICATIONS.filter((a) => a.status === 'Pending').length
-  const approvedCount = APPLICATIONS.filter((a) => a.status === 'Approved').length
-
-  const handlePaymentSuccess = () => {
-    setShowCheckout(false)
-    alert('Payment successful! Your policy NFT has been minted to your wallet.')
-  }
+    if (!selectedKey || !proposals.some((proposal) => proposal.key === selectedKey)) {
+      setSelectedKey(proposals[0].key)
+    }
+  }, [proposals, selectedKey])
 
   return (
     <div className="layout">
-      <Sidebar activePage="proposals" onNavigate={onNavigate} />
+      <Sidebar activePage="proposals" onNavigate={onNavigate} onSignOut={onSignOut} />
       <div className="layout__main">
-        <Topbar onNavigate={onNavigate} />
+        <Topbar onNavigate={onNavigate} user={user} currentPageLabel={currentPageLabel} />
         <main className="proposals">
-
-          {/* Header */}
           <div className="proposals__header">
             <div>
               <h1 className="proposals__title">My Proposals</h1>
-              <p className="proposals__subtitle">Track your insurance applications and view admin decisions.</p>
+              <p className="proposals__subtitle">Live summaries from the backend proposal endpoint.</p>
             </div>
             <div className="proposals__badges">
+              <button className="proposals__refresh-btn" onClick={onRefresh}>Refresh</button>
               {pendingCount > 0 && (
                 <span className="proposals__header-badge proposals__header-badge--pending">
                   {pendingCount} Pending
@@ -342,44 +250,42 @@ export default function Proposals({ onNavigate }) {
               )}
               {approvedCount > 0 && (
                 <span className="proposals__header-badge proposals__header-badge--approved">
-                  {approvedCount} Ready to Purchase
+                  {approvedCount} Approved
                 </span>
               )}
             </div>
           </div>
 
-          {/* Body */}
           <div className="proposals__body">
-            {/* Left — application list */}
             <div className="proposals__list">
-              <p className="proposals__list-label">All Applications</p>
-              {APPLICATIONS.map((app) => (
-                <AppCard
-                  key={app.id}
-                  app={app}
-                  isSelected={selectedId === app.id}
-                  onClick={() => setSelectedId(app.id)}
+              <p className="proposals__list-label">Application Summaries</p>
+
+              {proposalsLoading && <p className="proposals__list-helper">Loading backend proposal data.</p>}
+              {!proposalsLoading && proposalsError && <p className="proposals__list-helper">{proposalsError}</p>}
+              {!proposalsLoading && !proposalsError && !proposals.length && (
+                <p className="proposals__list-helper">No proposals found for the current session.</p>
+              )}
+
+              {!proposalsLoading && !proposalsError && proposals.map((proposal) => (
+                <ProposalCard
+                  key={proposal.key}
+                  proposal={proposal}
+                  isSelected={selectedKey === proposal.key}
+                  onClick={() => setSelectedKey(proposal.key)}
                 />
               ))}
             </div>
 
-            {/* Right — detail panel */}
-            {!selected && <EmptyDetail />}
-            {selected && selected.status === 'Pending'  && <PendingDetail  app={selected} />}
-            {selected && selected.status === 'Approved' && <ApprovedDetail app={selected} onPurchase={() => setShowCheckout(true)} />}
+            {!selected && (
+              <EmptyDetail
+                message={proposalsError || 'Open the marketplace and submit a proposal to start seeing live summaries here.'}
+                onNavigate={onNavigate}
+              />
+            )}
+            {selected && <ProposalDetail proposal={selected} />}
           </div>
-
         </main>
       </div>
-
-      {showCheckout && (
-        <StripeCheckoutModal
-          app={selected}
-          onClose={() => setShowCheckout(false)}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
-
     </div>
   )
 }

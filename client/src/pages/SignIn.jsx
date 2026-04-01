@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loginAdmin, loginUser } from '../lib/api'
+import { hashPassword } from '../lib/auth'
+import { saveStoredUser } from '../lib/session'
 
 const ADMIN_EMAIL = 'admin@gmail.com'
 const ADMIN_PASSWORD = 'admin@123'
@@ -9,8 +12,9 @@ export default function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -19,13 +23,30 @@ export default function SignIn() {
       return
     }
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      navigate('/admin')
-      return
-    }
+    setLoading(true)
 
-    // Regular users - redirect to dashboard (user dashboard UI coming later)
-    setError('Invalid email or password.')
+    try {
+      const passwordHash = await hashPassword(password)
+
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        try {
+          await loginAdmin({ email, passwordHash })
+        } catch {
+          // Fall back to the static admin demo route if the backend has no seeded admin.
+        }
+
+        navigate('/admin')
+        return
+      }
+
+      const response = await loginUser({ email, passwordHash })
+      saveStoredUser(response?.data?.user)
+      navigate('/dashboard')
+    } catch (loginError) {
+      setError(loginError.message || 'Invalid email or password.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -90,8 +111,8 @@ export default function SignIn() {
               </label>
               <Link to="/forgot-password" className="text-sm text-[#0f1729] hover:underline">Forgot Password?</Link>
             </div>
-            <button type="submit" className="w-full py-3 bg-[#0f1729] text-white font-medium rounded-lg hover:bg-[#1e293b] transition-colors">
-              Sign In
+            <button type="submit" disabled={loading} className="w-full py-3 bg-[#0f1729] text-white font-medium rounded-lg hover:bg-[#1e293b] transition-colors disabled:cursor-not-allowed disabled:opacity-70">
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-gray-600">
