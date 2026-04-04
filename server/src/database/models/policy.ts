@@ -32,7 +32,7 @@ export class Policy extends Model<InferAttributes<Policy>, InferCreationAttribut
   declare premium: number;
   declare deductible: number;
   declare payoutAmount: number | null;
-  declare tokenId: number | null;
+  declare tokenId: bigint | null;
   declare contractAddress: string | null;
   declare signature: string | null;
   declare revocationNote: string | null;

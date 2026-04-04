@@ -171,6 +171,28 @@ export interface PolicySignatureInput {
   createdAt: Date;
 }
 
+export interface MintResult {
+  tokenId: bigint;
+  transactionHash: string;
+  contractAddress: string;
+}
+
+export interface NFTMetadata {
+  name: string;
+  description: string;
+  image: string;
+  attributes: Array<{
+    trait_type: string;
+    value: string;
+  }>;
+}
+
+export interface PinataResponse {
+  IpfsHash: string;
+  PinSize: number; // in bytes
+  TimeStamp: string;
+}
+
 export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 export type LoginResponse = AuthResponse;

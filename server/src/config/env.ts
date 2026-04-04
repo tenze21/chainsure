@@ -1,6 +1,7 @@
 import path from "node:path";
 import { config } from "dotenv";
 import { z } from "zod";
+import { EthereumAddress } from "@/lib/schemas";
 
 config({
   path: path.resolve(
@@ -27,6 +28,15 @@ const EnvSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string(),
   PRIVATE_KEY: z.string(),
   PUBLIC_KEY: z.string(),
+  RPC_URL: z.string(),
+  PINATA_API_KEY: z.string(),
+  PINATA_API_SECRET: z.string(),
+  PINATA_JWT: z.string(),
+  PINATA_GATEWAY: z.string(),
+  CONTRACT_ADDRESS: EthereumAddress,
+  HEALTH_INSURANCE_IMAGE_CID: z.string(),
+  PROPERTY_INSURANCE_IMAGE_CID: z.string(),
+  VEHICLE_INSURANCE_IMAGE_CID: z.string(),
 });
 
 export type env = z.infer<typeof EnvSchema>;

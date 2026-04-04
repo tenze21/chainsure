@@ -18,7 +18,8 @@
     "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "db:migrate:status": "sequelize-cli db:migrate:status",
     "db:seed:all": "sequelize-cli db:seed:all",
-    "db:seed:undo": "sequelize-cli db:seed:undo:all"
+    "db:seed:undo:all": "sequelize-cli db:seed:undo:all",
+    "db:seed:undo": "sequelize-cli db:seed:undo"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

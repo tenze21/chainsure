@@ -1,3 +1,4 @@
+import type { Hex } from "viem";
 import { PaymentType } from "@lib/types";
 import { z } from "zod";
 
@@ -19,6 +20,11 @@ export const WalletAddressSchema = z
   .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum wallet address format")
   .toLowerCase()
   .trim();
+
+export const EthereumAddress = z
+  .string()
+  .regex(/^0x[a-fA-F0-9]{40}$/, "Must be a 0x-prefixed 40-hex address")
+  .transform(addr => addr as Hex);
 
 export const CIDSchema = z
   .string()
