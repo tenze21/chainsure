@@ -17,7 +17,8 @@
       "@routes/*": ["src/routes/*"],
       "@database/*": ["src/database/*"],
       "@lib/*": ["src/lib/*"],
-      "@jobs/*": ["src/jobs/*"]
+      "@jobs/*": ["src/jobs/*"],
+      "@contract/*": ["src/contract/*"]
     },
     "types": ["node"],
 

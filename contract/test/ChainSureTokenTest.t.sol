@@ -21,12 +21,17 @@ contract ChainSureTokenTest is Test{
 
     modifier issuePolicy(){
         vm.prank(chainSureToken.owner());
-        chainSureToken.issuePolicy(user, "SampleSignature");
+        chainSureToken.issuePolicy(user, "SampleSignature", "https://mypinata.cloud/ipfs/example");
         _;
     }
 
     function testPolicyGetsIssuedToUser() public issuePolicy{
         assertEq(chainSureToken.ownerOf(0), user);
+    }
+
+    function testTokenUriIsSetOnIssue() public issuePolicy{
+        string memory tokenURI= chainSureToken.tokenURI(0);
+        assertEq(tokenURI, "https://mypinata.cloud/ipfs/example");
     }
 
     function testPolicySignatureIsStored() public issuePolicy{
@@ -54,7 +59,7 @@ contract ChainSureTokenTest is Test{
         vm.expectEmit(true, true, true, true);
         emit ChainSureToken.PolicyIssued(user, 0);
         vm.prank(chainSureToken.owner());
-        chainSureToken.issuePolicy(user, "SampleSignature");
+        chainSureToken.issuePolicy(user, "SampleSignature", "https://mypinata.cloud/ipfs/example");
     }
 
     function testInvalidatePolicyEmitsEvent() public issuePolicy{

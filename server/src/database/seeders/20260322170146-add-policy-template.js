@@ -37,6 +37,7 @@ module.exports = {
         description:
           "An affordable entry-level health insurance plan designed for young adults and individuals with low medical risk. Covers routine checkups, emergency visits, and common outpatient procedures with a straightforward claims process.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 25000.00,
         coverage_details:
           "Covers outpatient consultations, emergency room visits, basic diagnostic tests (blood work, X-rays), generic prescription medications, and one annual preventive health screening. Hospitalization covered up to 10 days per year.",
@@ -55,6 +56,7 @@ module.exports = {
         description:
           "A comprehensive family health insurance plan that extends protection to a policyholder and up to four dependents. Designed to handle both routine medical needs and unexpected major health events for households of all sizes.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 100000.00,
         coverage_details:
           "Covers inpatient hospitalization, ICU stays, specialist consultations, surgeries, maternity care (from week 20 of pregnancy), newborn care for the first 90 days, diagnostic imaging (MRI, CT scans), and prescribed medications. Includes a $500 annual dental allowance per member.",
@@ -73,6 +75,7 @@ module.exports = {
         description:
           "A specialized health insurance plan tailored for senior citizens aged 60 and above. Provides extensive coverage for age-related illnesses, chronic disease management, and long-term care needs, giving seniors and their families peace of mind.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 75000.00,
         coverage_details:
           "Covers hospitalization, chronic disease management visits (diabetes, hypertension, arthritis), specialist consultations, physiotherapy (up to 20 sessions/year), prescription medications for chronic conditions, ambulance services, and one annual full-body health assessment.",
@@ -111,6 +114,7 @@ module.exports = {
         description:
           "A legally mandated minimum motor insurance plan providing coverage for liability to third parties. Suitable for older vehicles or budget-conscious drivers who need to meet regulatory requirements without paying for comprehensive coverage.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 15000.00,
         coverage_details:
           "Covers legal liability for bodily injury or death of a third party and damage to third-party property arising from an accident involving the insured vehicle. Includes legal defense costs up to $2,000 per incident.",
@@ -129,6 +133,7 @@ module.exports = {
         description:
           "A full-spectrum vehicle insurance plan offering the broadest protection available for private passenger vehicles. Covers your vehicle, third-party liabilities, and personal accident benefits in a single consolidated policy.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 80000.00,
         coverage_details:
           "Covers accidental damage to the insured vehicle, total loss and theft, third-party bodily injury and property damage, natural disasters (flood, storm, earthquake), fire damage, windshield replacement, 24/7 roadside assistance, and personal accident benefits of up to $10,000 for the driver.",
@@ -147,6 +152,7 @@ module.exports = {
         description:
           "Designed for businesses operating a fleet of commercial vehicles, this plan covers multiple vehicles under a single policy with consolidated premium billing. Ideal for logistics companies, delivery services, and transport operators.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 500000.00,
         coverage_details:
           "Covers all registered fleet vehicles for third-party liability, accidental damage, theft, fire, and cargo loss up to $10,000 per vehicle per incident. Includes driver personal accident cover and 24/7 breakdown assistance for the entire fleet. Fleet size must be declared at inception.",
@@ -167,6 +173,7 @@ module.exports = {
         description:
           "A foundational home insurance plan for residential property owners. Covers the structure of the home and attached fixtures against common perils, giving homeowners basic financial protection against unexpected damage or loss.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 150000.00,
         coverage_details:
           "Covers structural damage from fire, lightning, explosion, storm, and burst pipes. Includes loss or damage to permanently installed fixtures and fittings, external gates and walls, and temporary relocation costs of up to $3,000 if the home becomes uninhabitable due to a covered event.",
@@ -185,6 +192,7 @@ module.exports = {
         description:
           "Specifically designed for property owners who rent out residential units. Protects against structural damage, loss of rental income, and liability claims from tenants, ensuring landlords are financially secure even during difficult tenancy situations.",
         payment_type: "recurring",
+        billing_cycle: "monthly",
         coverage_amount: 200000.00,
         coverage_details:
           "Covers structural and fixture damage caused by tenants, fire, natural disasters, and vandalism. Includes loss of rental income for up to 6 months if the property becomes uninhabitable due to a covered event. Landlord liability cover of up to $50,000 for bodily injury or property damage claims by third parties on the premises.",

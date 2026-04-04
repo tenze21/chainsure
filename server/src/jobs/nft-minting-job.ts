@@ -1,6 +1,10 @@
+import type { MintResult } from "@/lib/types";
 import { logger } from "@config/logger";
-import { Policy } from "@database/models/index";
+import { Policy, Wallet } from "@database/models/index";
 import { mintPolicyNFT } from "@services/blockchain-service";
+import { ERROR_CODES } from "@/lib/constants";
+import { AppError } from "@/middlewares/error-handler";
+import { pinPolicyMetadata } from "@/services/pinata-service";
 
 export function startMintingJob(): void {
   setInterval(async () => {
@@ -11,7 +15,13 @@ export function startMintingJob(): void {
 
     for (const policy of pendingPolicies) {
       try {
-        const mintResult = await mintPolicyNFT(policy);
+        const wallet = await Wallet.findOne({ where: { userId: policy.userId } });
+        if (!wallet) {
+          throw new AppError(ERROR_CODES.NOT_FOUND, "No wallet associated with user", 404);
+        }
+        const cid = await pinPolicyMetadata(policy);
+
+        const mintResult: MintResult = await mintPolicyNFT(policy, wallet, cid);
 
         await policy.update({
           status: "active",
@@ -26,5 +36,5 @@ export function startMintingJob(): void {
         logger.error({ err: error, policyId: policy.id }, "NFT minting failed for policy");
       }
     }
-  }, 10_000); // runs every 10 seconds
+  }, 30_000); // runs every 30 seconds
 }

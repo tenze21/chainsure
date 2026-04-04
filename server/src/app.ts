@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import env from "@config/env";
+import { startMintingJob } from "@jobs/nft-minting-job";
 import { errorHandler, notFound } from "@middlewares/error-handler";
 import { pinoLogger } from "@middlewares/pino-logger";
 import { apiLimiter } from "@middlewares/rate-limit-middleware";
@@ -14,9 +15,12 @@ import express from "express";
 import helmet from "helmet";
 import { authenticate } from "@/middlewares/auth-middleware";
 import "@/database/models/index";
-// import { startMintingJob } from "@jobs/nft-minting-job";
 
-// startMintingJob();
+/*
+  A background job that queries the database for policies with `payment_confirmed`
+  status and mints an associted NFT for the policy.
+*/
+startMintingJob();
 
 const app = express();
 
