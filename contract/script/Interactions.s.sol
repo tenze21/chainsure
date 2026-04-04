@@ -13,7 +13,7 @@ contract IssuePolicy is Script{
     function issuePolicyOnContract(address contractAddress) public {
         ChainSureToken chainSureToken= ChainSureToken(contractAddress);
         vm.startBroadcast();
-        chainSureToken.issuePolicy(0x70997970C51812dc3A010C7d01b50e0d17dc79C8, "SampleSignature");
+        chainSureToken.issuePolicy(0x70997970C51812dc3A010C7d01b50e0d17dc79C8, "SampleSignature", "https://pink-charming-whale-541.mypinata.cloud/ipfs/bafkreidto6c5lbpvpsgql3yusjcetom4n25q3xkztz7n2fwywxzj6vei4q");
         vm.stopBroadcast();
     }
 }

@@ -2,13 +2,14 @@
 pragma solidity ^0.8.20;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ChainSureToken
  * @dev ERC721 token representing insurance policies, with minting and invalidation controlled by the contract owner.
 */
-contract ChainSureToken is ERC721, Ownable{
+contract ChainSureToken is ERC721URIStorage, Ownable{
     /**
     * @dev Error thrown when an invalid token ID is accessed.
     * @param tokenId The invalid token ID that was accessed.
@@ -39,20 +40,15 @@ contract ChainSureToken is ERC721, Ownable{
     mapping(uint256 => bool) private invalidPolicies;
 
     uint256 private _nextTokenID;
-    string private _baseTokenURI;
 
-    constructor(string memory baseURI) ERC721("Insurance Policy", "CIP") Ownable(msg.sender){
+    constructor() ERC721("Chainsure Policy Token", "CPT") Ownable(msg.sender){
         _nextTokenID=0;
-        _baseTokenURI=baseURI;
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return _baseTokenURI;
-    }
-
-    function issuePolicy(address to, string memory signature) external onlyOwner{
+    function issuePolicy(address to, string memory signature, string memory tokenURI) external onlyOwner{
         uint256 tokenId = _nextTokenID++;
         _safeMint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
         policySignatures[tokenId] = signature;
         emit PolicyIssued(to, tokenId);
     }

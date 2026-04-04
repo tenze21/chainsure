@@ -1,12 +1,13 @@
 /* eslint-disable import/first */
 import type { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, NonAttribute } from "sequelize";
+import type { Hex } from "viem";
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "@/config/database";
 
 export class Wallet extends Model<InferAttributes<Wallet>, InferCreationAttributes<Wallet>> {
   declare id: CreationOptional<string>;
   declare userId: ForeignKey<User["id"]>;
-  declare walletAddress: string;
+  declare walletAddress: Hex;
   declare encryptedPrivateKey: string;
 
   declare createdAt: CreationOptional<Date>;

@@ -4,6 +4,7 @@ import env from "@config/env";
 import bcrypt from "bcrypt";
 import { encodeAbiParameters, keccak256, toBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { account } from "@/config/ethereum-client";
 
 /**
  * Hash a password using bcrypt
@@ -78,10 +79,6 @@ export function buildPolicyHash(policy: PolicySignatureInput): Hex {
  * @returns signature of the hash
  */
 export async function signPolicyHash(policyHash: Hex): Promise<Hex> {
-  const privateKey = env.PRIVATE_KEY as Hex;
-
-  const account = privateKeyToAccount(privateKey);
-
   const signature = await account.signMessage({
     message: { raw: toBytes(policyHash) },
   });
