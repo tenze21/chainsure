@@ -120,25 +120,25 @@ export default function SignUp() {
 
       let userSnapshot = registerResponse?.data?.user
 
-      try {
-        const profileResponse = await updateUserProfile({
-          cid: formData.nin.trim(),
-          dob: normalizeDob(formData.dob),
-          gender: formData.gender,
-        })
+      // try {
+      //   const profileResponse = await updateUserProfile({
+      //     cid: formData.nin.trim(),
+      //     dob: normalizeDob(formData.dob),
+      //     gender: formData.gender,
+      //   })
 
-        userSnapshot = {
-          ...userSnapshot,
-          ...profileResponse?.data,
-        }
-      } catch {
-        userSnapshot = {
-          ...userSnapshot,
-          cid: formData.nin.trim(),
-          dob: normalizeDob(formData.dob),
-          gender: formData.gender,
-        }
-      }
+      //   userSnapshot = {
+      //     ...userSnapshot,
+      //     ...profileResponse?.data,
+      //   }
+      // } catch {
+      //   userSnapshot = {
+      //     ...userSnapshot,
+      //     cid: formData.nin.trim(),
+      //     dob: normalizeDob(formData.dob),
+      //     gender: formData.gender,
+      //   }
+      // }
 
       saveStoredUser(userSnapshot)
       navigate('/account-created', { state: { walletAddress: walletRegistration.walletAddress } })

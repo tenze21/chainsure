@@ -241,6 +241,13 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
+.stripe-modal__payment-element {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
 /* Card number field (top of card group) */
 .stripe-modal__card-fields {
   display: flex;

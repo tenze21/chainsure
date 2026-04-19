@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { loginAdmin, loginUser, registerAdmin } from '../lib/api'
+import { hydrateCurrentUserProfile, loginAdmin, loginUser, registerAdmin } from '../lib/api'
 import { createWalletRegistration, hashPassword } from '../lib/auth'
 import { saveStoredUser } from '../lib/session'
 
@@ -68,6 +68,22 @@ async function ensureDemoAdminSession(normalizedEmail, password, passwordHash) {
   throw lastError || new Error('Unable to provision a demo admin account on this backend.')
 }
 
+async function buildSessionUser(user) {
+  if (!user || user.role === 'admin') {
+    return user
+  }
+
+  try {
+    const hydratedResponse = await hydrateCurrentUserProfile()
+    return {
+      ...user,
+      ...hydratedResponse?.data,
+    }
+  } catch {
+    return user
+  }
+}
+
 export default function SignIn() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -93,7 +109,7 @@ export default function SignIn() {
 
       try {
         const response = await loginUser(payload)
-        const user = response?.data?.user
+        const user = await buildSessionUser(response?.data?.user)
 
         saveStoredUser(user)
         navigate(user?.role === 'admin' ? '/admin' : '/dashboard')

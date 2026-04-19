@@ -18,7 +18,7 @@ export function getDashboardProducts() {
       key: 'life',
       route: 'proposal-life',
       templateId: normalizeTemplateId(import.meta.env.VITE_TEMPLATE_ID_LIFE),
-      templateMatchers: ['life', 'health', 'critical illness'],
+      templateMatchers: ['life', 'health', 'critical illness', 'medical', 'care'],
       fallbackName: 'Life Insurance',
       fallbackFeatures: [
         'Uses the life proposal form in this dashboard',
@@ -30,7 +30,7 @@ export function getDashboardProducts() {
       key: 'travel',
       route: 'proposal-travel',
       templateId: normalizeTemplateId(import.meta.env.VITE_TEMPLATE_ID_TRAVEL),
-      templateMatchers: ['travel', 'trip'],
+      templateMatchers: ['travel', 'trip', 'holiday', 'vacation', 'journey'],
       fallbackName: 'Travel Insurance',
       fallbackFeatures: [
         'Uses the travel proposal form in this dashboard',
@@ -42,7 +42,7 @@ export function getDashboardProducts() {
       key: 'motor',
       route: 'proposal-motor',
       templateId: normalizeTemplateId(import.meta.env.VITE_TEMPLATE_ID_MOTOR),
-      templateMatchers: ['motor', 'vehicle', 'auto', 'car'],
+      templateMatchers: ['motor', 'vehicle', 'auto', 'car', 'bike', 'transport'],
       fallbackName: 'Motor Insurance',
       fallbackFeatures: [
         'Uses the motor proposal form in this dashboard',

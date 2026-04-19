@@ -90,5 +90,5 @@ export function createPolicyFromProposal(proposalId, payload) {
   return apiRequest(`/api/policy/${proposalId}`, {
     method: 'POST',
     body: JSON.stringify(payload),
-  })
+  }).then((response) => response?.data ?? null)
 }

@@ -8,6 +8,7 @@ import policyRoutes from "@routes/policy-routes";
 import templateRoutes from "@routes/policy-template-routes";
 import proposalRoutes from "@routes/proposal-routes";
 import userRoutes from "@routes/user-routes";
+import paymentRoutes from "@routes/payment-routes";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -46,6 +47,7 @@ app.use("/api/template", templateRoutes);
 app.use("/api/proposal", authenticate, proposalRoutes);
 app.use("/api/policy", authenticate, policyRoutes);
 app.use("/api/user", authenticate, userRoutes);
+app.use("/api", paymentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPolicyFromProposal, fetchAdminProposals, rejectProposal } from '../../lib/adminApi'
+import { trackApprovedPolicy } from '../../lib/approved-policy-store'
 import { buildProposalSignature, loadTrackedProposals, updateTrackedProposalStatus } from '../../lib/proposal-store'
 
 function formatDate(value) {
@@ -156,9 +157,15 @@ export default function AdminPolicyProposals() {
     setActionMessage('')
 
     try {
-      await createPolicyFromProposal(selectedApplication.proposalId, {
+      const createdPolicy = await createPolicyFromProposal(selectedApplication.proposalId, {
         premium: premiumValue,
         deductable: deductableValue,
+      })
+      trackApprovedPolicy({
+        ownerEmail: selectedApplication.ownerEmail,
+        proposalId: selectedApplication.proposalId,
+        proposal: selectedApplication,
+        policy: createdPolicy,
       })
       updateTrackedProposalStatus({ id: selectedApplication.proposalId, status: 'approved' })
       await loadApplications()

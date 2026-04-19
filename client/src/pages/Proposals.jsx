@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
+import { findApprovedPolicyForProposal } from '../lib/approved-policy-store'
+import { formatCurrency, formatDate, titleCase } from '../lib/formatters'
+import StripeCheckoutModal from './Stripecheckoutmodal'
 import './Proposals.css'
-import { formatDate } from '../lib/formatters'
 
 const HeartIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -136,7 +138,7 @@ function EmptyDetail({ message, onNavigate }) {
   )
 }
 
-function ProposalDetail({ proposal }) {
+function ProposalDetail({ proposal, payablePolicy, paymentMessage, onOpenCheckout }) {
   const visual = getProposalVisual(proposal)
   const isApproved = proposal.status === 'approved'
   const isRejected = proposal.status === 'rejected'
@@ -200,14 +202,45 @@ function ProposalDetail({ proposal }) {
         </div>
       )}
 
-      {isApproved && (
+      {isApproved && payablePolicy && (
         <div className="proposals__approved-box">
           <div className="proposals__approved-box-header">
             <span className="proposals__approved-check"><CheckIcon size={16} /></span>
-            <p className="proposals__approved-box-title">Approved, But Not Purchasable Here</p>
+            <p className="proposals__approved-box-title">Approved And Ready For Stripe Checkout</p>
           </div>
           <p className="proposals__approved-box-sub">
-            Admin approval is visible, but the backend does not expose a user policy feed or a way to discover the policy ID required by `/api/payments/initiate/:policyId`.
+            This browser has a tracked policy record from the admin approval flow, so the client can attempt payment initiation with the backend using policy ID `{payablePolicy.policyId}`.
+          </p>
+
+          <div className="proposals__info-grid proposals__info-grid--2">
+            <div className="proposals__info-cell proposals__info-cell--filled">
+              <p className="proposals__info-label">Policy Premium</p>
+              <p className="proposals__info-value">{formatCurrency(payablePolicy.premium)}</p>
+            </div>
+            <div className="proposals__info-cell proposals__info-cell--filled">
+              <p className="proposals__info-label">Payment Type</p>
+              <p className="proposals__info-value">{titleCase(payablePolicy.paymentType || 'stripe payment')}</p>
+            </div>
+          </div>
+
+          {paymentMessage && (
+            <p className="proposals__approved-box-sub">{paymentMessage}</p>
+          )}
+
+          <button className="proposals__purchase-btn" onClick={onOpenCheckout}>
+            Pay With Stripe
+          </button>
+        </div>
+      )}
+
+      {isApproved && !payablePolicy && (
+        <div className="proposals__approved-box">
+          <div className="proposals__approved-box-header">
+            <span className="proposals__approved-check"><CheckIcon size={16} /></span>
+            <p className="proposals__approved-box-title">Approved, But Not Yet Payable In This Browser</p>
+          </div>
+          <p className="proposals__approved-box-sub">
+            The proposal is approved, but this client still needs a tracked policy ID from the admin approval flow before it can attempt Stripe payment initiation. That mapping is only available when the policy was minted through this frontend on the same origin.
           </p>
         </div>
       )}
@@ -238,9 +271,15 @@ export default function Proposals({
   onRefresh,
 }) {
   const [selectedKey, setSelectedKey] = useState(null)
+  const [checkoutPolicy, setCheckoutPolicy] = useState(null)
+  const [paymentMessage, setPaymentMessage] = useState('')
   const selected = proposals.find((proposal) => proposal.key === selectedKey) || null
   const pendingCount = proposals.filter((proposal) => proposal.status === 'pending').length
   const approvedCount = proposals.filter((proposal) => proposal.status === 'approved').length
+  const payablePolicy = useMemo(
+    () => (selected ? findApprovedPolicyForProposal(selected, user?.email) : null),
+    [selected, user?.email],
+  )
 
   useEffect(() => {
     if (!proposals.length) {
@@ -252,6 +291,11 @@ export default function Proposals({
       setSelectedKey(proposals[0].key)
     }
   }, [proposals, selectedKey])
+
+  useEffect(() => {
+    setCheckoutPolicy(null)
+    setPaymentMessage('')
+  }, [selectedKey])
 
   return (
     <div className="layout">
@@ -305,10 +349,28 @@ export default function Proposals({
                 onNavigate={onNavigate}
               />
             )}
-            {selected && <ProposalDetail proposal={selected} />}
+            {selected && (
+              <ProposalDetail
+                proposal={selected}
+                payablePolicy={payablePolicy}
+                paymentMessage={paymentMessage}
+                onOpenCheckout={() => setCheckoutPolicy(payablePolicy)}
+              />
+            )}
           </div>
         </main>
       </div>
+
+      {checkoutPolicy && (
+        <StripeCheckoutModal
+          policy={checkoutPolicy}
+          user={user}
+          onClose={() => setCheckoutPolicy(null)}
+          onSuccess={() => {
+            setPaymentMessage('Stripe confirmed the payment on the client. Final backend policy state depends on webhook confirmation.')
+          }}
+        />
+      )}
     </div>
   )
 }

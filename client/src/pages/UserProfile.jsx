@@ -3,44 +3,21 @@ import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import './UserProfile.css'
 import { formatDate, titleCase } from '../lib/formatters'
+import { buildProfileFormState, buildProfileUpdatePayload, normalizeProfileFieldValue } from '../lib/profile'
 import { getInitials } from '../lib/session'
 
-function buildFormState(user) {
-  return {
-    fullName: user?.fullName || '',
-    cid: user?.cid || '',
-    email: user?.email || '',
-    contactNumber: user?.contactNumber || '',
-    dob: user?.dob ? String(user.dob).slice(0, 10) : '',
-    gender: user?.gender || '',
-    maritalStatus: user?.maritalStatus || '',
-    occupation: user?.occupation || '',
-    address: user?.address || '',
-  }
-}
+function getSaveErrorMessage(error) {
+  const validationDetails = error?.data?.error?.details
 
-function buildPayload(form) {
-  const payload = {}
-
-  const setIfPresent = (key, value) => {
-    if (typeof value === 'string' && value.trim()) {
-      payload[key] = value.trim()
-    }
+  if (Array.isArray(validationDetails) && validationDetails.length > 0) {
+    return validationDetails[0]?.message || error.message
   }
 
-  setIfPresent('fullName', form.fullName)
-  setIfPresent('cid', form.cid)
-  setIfPresent('contactNumber', form.contactNumber)
-  setIfPresent('gender', form.gender)
-  setIfPresent('maritalStatus', form.maritalStatus)
-  setIfPresent('occupation', form.occupation)
-  setIfPresent('address', form.address)
-
-  if (form.dob) {
-    payload.dob = form.dob
+  if (error?.message === 'Validation error') {
+    return 'The server rejected one of the profile values. Recheck CID, contact number, gender, and marital status.'
   }
 
-  return payload
+  return error?.message || 'Could not save your profile.'
 }
 
 function ProfileField({
@@ -69,14 +46,14 @@ function ProfileField({
 }
 
 function PersonalTab({ user, onSaveProfile }) {
-  const [form, setForm] = useState(() => buildFormState(user))
+  const [form, setForm] = useState(() => buildProfileFormState(user))
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    setForm(buildFormState(user))
+    setForm(buildProfileFormState(user))
     setDirty(false)
     setSaved(false)
     setError('')
@@ -90,27 +67,40 @@ function PersonalTab({ user, onSaveProfile }) {
   }
 
   const handleReset = () => {
-    setForm(buildFormState(user))
+    setForm(buildProfileFormState(user))
     setDirty(false)
     setSaved(false)
     setError('')
   }
 
   const handleSave = async () => {
-    if (form.contactNumber && !/^\d{8}$/.test(form.contactNumber)) {
-      setError('Contact number must be exactly 8 digits.')
+    const normalizedForm = buildProfileFormState(form)
+    const initialForm = buildProfileFormState(user)
+
+    if (normalizedForm.contactNumber && !/^(17|77)\d{6}$/.test(normalizedForm.contactNumber)) {
+      setError('Contact number must be 8 digits and start with 17 or 77.')
       return
     }
 
-    if (form.cid && form.cid.length !== 11) {
-      setError('CID must be exactly 11 characters.')
+    if (normalizedForm.cid && !/^[A-Za-z0-9]{11}$/.test(normalizedForm.cid)) {
+      setError('CID must be exactly 11 alphanumeric characters.')
       return
     }
 
-    const payload = buildPayload(form)
+    if (form.gender && !normalizeProfileFieldValue('gender', form.gender)) {
+      setError('Select a valid gender.')
+      return
+    }
+
+    if (form.maritalStatus && !normalizeProfileFieldValue('maritalStatus', form.maritalStatus)) {
+      setError('Select a valid marital status.')
+      return
+    }
+
+    const payload = buildProfileUpdatePayload(normalizedForm, initialForm)
 
     if (!Object.keys(payload).length) {
-      setError('There are no backend-supported fields to save yet.')
+      setError('There are no valid profile changes to save.')
       return
     }
 
@@ -122,7 +112,7 @@ function PersonalTab({ user, onSaveProfile }) {
       setSaved(true)
       setError('')
     } catch (saveError) {
-      setError(saveError.message)
+      setError(getSaveErrorMessage(saveError))
     } finally {
       setSaving(false)
     }

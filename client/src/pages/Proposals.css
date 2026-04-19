@@ -62,6 +62,21 @@
   border-color: #bbf7d0;
 }
 
+.proposals__refresh-btn {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.proposals__refresh-btn:hover {
+  background: #f8fafc;
+}
+
 /* ─── Two-column body ─────────────────────────────────────── */
 .proposals__body {
   display: grid;
@@ -190,6 +205,12 @@
   border: 1px solid #bbf7d0;
 }
 
+.proposals__badge--rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 /* ─── Detail panel (shared shell) ────────────────────────── */
 .proposals__detail {
   background: #ffffff;
@@ -233,6 +254,22 @@
   color: #94a3b8;
   margin: 6px 0 0;
   max-width: 300px;
+}
+
+.proposals__empty-action {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.proposals__empty-action:hover {
+  background: #1e293b;
 }
 
 /* ─── Detail header ───────────────────────────────────────── */
@@ -334,6 +371,13 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
+.proposals__integration-note,
+.proposals__list-helper {
+  font-size: 0.84rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
 /* ─── Pending: under review box ───────────────────────────── */
 .proposals__under-review {
   border: 1.5px solid #fde68a;
@@ -401,6 +445,18 @@
   flex-shrink: 0;
 }
 
+.proposals__rejected-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #b91c1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .proposals__approved-box-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -413,6 +469,16 @@
   color: #64748b;
   margin: 0;
   line-height: 1.5;
+}
+
+.proposals__rejected-box {
+  border: 1.5px solid #fecaca;
+  background: #fef2f2;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .proposals__premium-value {

@@ -93,36 +93,55 @@ async function initiateRecurringPayment(stripeCustomerId: string, policy: Policy
   const subscription = await stripe.subscriptions.create({
     customer: stripeCustomerId,
     items: [{ price: policy.stripePriceId }],
-    // payment_behavior: "default_incomplete" means Stripe creates
-    // the subscription but waits for payment before activating it.
-    // Without this, Stripe tries to charge immediately and may
-    // activate even before the user completes the payment UI.
     payment_behavior: "default_incomplete",
-    // expand: ["latest_invoice.payment_intent"] tells Stripe to
-    // include the nested PaymentIntent in the response so we can
-    // get the client_secret without a second API call.
+    payment_settings: {
+      payment_method_types: ["card"],
+    },
     expand: ["latest_invoice.payment_intent"],
     metadata: {
       policyId: policy.id,
       userId: policy.userId,
     },
   }) as unknown as Stripe.Subscription & {
-    latest_invoice: Stripe.Invoice & {
-      payment_intent: Stripe.PaymentIntent;
-    };
+    latest_invoice: Stripe.Invoice | string | null;
   };
 
-  const invoice = subscription.latest_invoice;
+  const invoice = await resolveStripeInvoice(subscription.latest_invoice);
+  const paymentIntent = await resolveStripePaymentIntent(invoice.payment_intent);
 
-  if (typeof invoice === "string" || !invoice) {
-    throw new AppError(ERROR_CODES.INTERNAL_ERROR, "Failed to get invoice from subscription", 500);
-  }
-
-  const paymentIntent = invoice.payment_intent;
-
-  if (typeof paymentIntent === "string" || !paymentIntent || !paymentIntent.client_secret) {
+  if (!paymentIntent?.client_secret) {
     throw new AppError(ERROR_CODES.INTERNAL_ERROR, "Failed to create subscription payment", 500);
   }
 
   return { clientSecret: paymentIntent.client_secret, type: "subscription" };
+}
+
+async function resolveStripeInvoice(invoice: Stripe.Invoice | string | null): Promise<Stripe.Invoice> {
+  if (!invoice) {
+    throw new AppError(ERROR_CODES.INTERNAL_ERROR, "Failed to get invoice from subscription", 500);
+  }
+
+  if (typeof invoice === "string") {
+    return stripe.invoices.retrieve(invoice, { expand: ["payment_intent"] });
+  }
+
+  if (!invoice.payment_intent && typeof invoice.payment_intent !== "string") {
+    return stripe.invoices.retrieve(invoice.id, { expand: ["payment_intent"] });
+  }
+
+  return invoice;
+}
+
+async function resolveStripePaymentIntent(
+  paymentIntent: Stripe.PaymentIntent | string | null | undefined,
+): Promise<Stripe.PaymentIntent | null> {
+  if (!paymentIntent) {
+    return null;
+  }
+
+  if (typeof paymentIntent === "string") {
+    return stripe.paymentIntents.retrieve(paymentIntent);
+  }
+
+  return paymentIntent;
 }

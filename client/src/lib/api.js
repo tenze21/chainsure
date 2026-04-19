@@ -117,6 +117,10 @@ export function updateUserProfile(payload) {
   })
 }
 
+export function hydrateCurrentUserProfile() {
+  return updateUserProfile({})
+}
+
 export function submitProposal(templateId, attributes) {
   return apiRequest(`/api/proposal/${templateId}`, {
     method: 'POST',
@@ -128,4 +132,37 @@ export function logoutUser() {
   return apiRequest('/api/auth/logout', {
     method: 'POST',
   })
+}
+
+export async function initiatePolicyPayment(policyId) {
+  const candidatePaths = [
+    `/api/payments/initiate/${policyId}`,
+    `/api/payment/payments/initiate/${policyId}`,
+    `/api/payment/initiate/${policyId}`,
+    `/payments/initiate/${policyId}`,
+  ]
+
+  let lastError = null
+
+  for (const path of candidatePaths) {
+    try {
+      const response = await apiRequest(path, {
+        method: 'POST',
+      })
+
+      return response?.data || null
+    } catch (error) {
+      lastError = error
+
+      if (error?.status !== 404) {
+        throw error
+      }
+    }
+  }
+
+  throw new ApiError(
+    'This server branch does not expose a reachable Stripe payment initiation route yet.',
+    lastError?.status || 404,
+    lastError?.data || null,
+  )
 }

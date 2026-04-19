@@ -53,9 +53,12 @@ function getCurrentPageLabel(pathname) {
 function DashboardRouter() {
   const navigate = useNavigate()
   const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
+  const selectedTemplateId = searchParams.get('templateId')
   const {
     user,
     products,
+    templates,
     catalogLoading,
     catalogError,
     profileReady,
@@ -69,6 +72,11 @@ function DashboardRouter() {
   } = useDashboardData()
 
   const handleNavigate = (page) => {
+    if (typeof page === 'string' && page.startsWith('/')) {
+      navigate(page)
+      return
+    }
+
     const path = DASHBOARD_PATHS[page] || DASHBOARD_PATHS.overview
     navigate(path)
   }
@@ -109,6 +117,7 @@ function DashboardRouter() {
           <Marketplace
             {...commonPageProps}
             products={products}
+            templates={templates}
             catalogLoading={catalogLoading}
             catalogError={catalogError}
             profileReady={profileReady}
@@ -168,7 +177,7 @@ function DashboardRouter() {
             onNavigate={handleNavigate}
             user={user}
             product={findProduct(products, 'travel')}
-            templateId={findProduct(products, 'travel')?.template?.id || findProduct(products, 'travel')?.templateId}
+            templateId={selectedTemplateId || findProduct(products, 'travel')?.template?.id || findProduct(products, 'travel')?.templateId}
             missingProfileFields={missingProfileFields}
             onProposalSubmitted={refreshProposals}
           />
@@ -182,7 +191,7 @@ function DashboardRouter() {
             onNavigate={handleNavigate}
             user={user}
             product={findProduct(products, 'motor')}
-            templateId={findProduct(products, 'motor')?.template?.id || findProduct(products, 'motor')?.templateId}
+            templateId={selectedTemplateId || findProduct(products, 'motor')?.template?.id || findProduct(products, 'motor')?.templateId}
             missingProfileFields={missingProfileFields}
             onProposalSubmitted={refreshProposals}
           />
@@ -196,7 +205,7 @@ function DashboardRouter() {
             onNavigate={handleNavigate}
             user={user}
             product={findProduct(products, 'life')}
-            templateId={findProduct(products, 'life')?.template?.id || findProduct(products, 'life')?.templateId}
+            templateId={selectedTemplateId || findProduct(products, 'life')?.template?.id || findProduct(products, 'life')?.templateId}
             missingProfileFields={missingProfileFields}
             onProposalSubmitted={refreshProposals}
           />

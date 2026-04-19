@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { getTemplateById, getTemplates, getUserProposals, logoutUser, updateUserProfile } from '../lib/api'
+import { useEffect, useRef, useState } from 'react'
+import { getTemplateById, getTemplates, getUserProposals, hydrateCurrentUserProfile, logoutUser, updateUserProfile } from '../lib/api'
 import { getDashboardProducts } from '../lib/dashboard-config'
-import { getMissingProfileFields, isProfileReady } from '../lib/profile'
+import { buildProfileFormState, getMissingProfileFields, isProfileReady } from '../lib/profile'
 import { buildProposalSignature, loadTrackedProposals } from '../lib/proposal-store'
 import { clearStoredUser, loadStoredUser, saveStoredUser } from '../lib/session'
 
@@ -12,15 +12,7 @@ function normalizeUser(user) {
 
   return {
     ...user,
-    fullName: user.fullName || user.full_name || '',
-    email: user.email || '',
-    cid: user.cid || '',
-    contactNumber: user.contactNumber || user.contact_number || '',
-    occupation: user.occupation || '',
-    dob: user.dob || '',
-    gender: user.gender || '',
-    maritalStatus: user.maritalStatus || user.marital_status || '',
-    address: user.address || '',
+    ...buildProfileFormState(user),
     walletAddress: user.walletAddress || user.wallet_address || '',
   }
 }
@@ -29,6 +21,13 @@ function buildTemplateSearchSource(template) {
   return [
     template?.name,
     template?.category?.name,
+    template?.categoryName,
+    template?.description,
+    template?.coverageDetails,
+    template?.eligibility,
+    template?.limitations,
+    template?.paymentType,
+    template?.billingCycle,
   ]
     .filter(Boolean)
     .join(' ')
@@ -76,11 +75,13 @@ function normalizeProposal(proposal, index, trackedProposalMap) {
 export default function useDashboardData() {
   const [user, setUser] = useState(() => normalizeUser(loadStoredUser()))
   const [products, setProducts] = useState(() => getDashboardProducts())
+  const [templates, setTemplates] = useState([])
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState('')
   const [proposals, setProposals] = useState([])
   const [proposalsLoading, setProposalsLoading] = useState(true)
   const [proposalsError, setProposalsError] = useState('')
+  const hydratedUserIdsRef = useRef(new Set())
 
   useEffect(() => {
     let active = true
@@ -92,9 +93,13 @@ export default function useDashboardData() {
       try {
         const response = await getTemplates()
         templates = response?.data?.templates || []
+        if (active) {
+          setTemplates(templates)
+        }
       } catch (error) {
         if (active) {
           setProducts(configuredProducts.map((product) => ({ ...product, template: null, templateStatus: 'error', templateError: error.message })))
+          setTemplates([])
           setCatalogLoading(false)
           setCatalogError(error.message)
         }
@@ -170,6 +175,46 @@ export default function useDashboardData() {
     refreshProposals()
   }, [user?.email])
 
+  useEffect(() => {
+    if (!user?.id || user.role === 'admin') {
+      return
+    }
+
+    if (getMissingProfileFields(user).length === 0) {
+      hydratedUserIdsRef.current.delete(user.id)
+      return
+    }
+
+    if (hydratedUserIdsRef.current.has(user.id)) {
+      return
+    }
+
+    let active = true
+    hydratedUserIdsRef.current.add(user.id)
+
+    hydrateCurrentUserProfile()
+      .then((response) => {
+        if (!active || !response?.data) {
+          return
+        }
+
+        const hydratedUser = normalizeUser({
+          ...user,
+          ...response.data,
+        })
+
+        setUser(hydratedUser)
+        saveStoredUser(hydratedUser)
+      })
+      .catch(() => {
+        // Keep the current local snapshot when the backend profile hydration fails.
+      })
+
+    return () => {
+      active = false
+    }
+  }, [user])
+
   async function refreshProposals() {
     if (!user?.email) {
       setProposals([])
@@ -225,6 +270,7 @@ export default function useDashboardData() {
 
     clearStoredUser()
     setUser(null)
+    setTemplates([])
     setProposals([])
     setProposalsError('Sign in through the auth flow to load proposal activity for this dashboard.')
   }
@@ -239,6 +285,7 @@ export default function useDashboardData() {
       }
     },
     products,
+    templates,
     catalogLoading,
     catalogError,
     profileReady: isProfileReady(user),
