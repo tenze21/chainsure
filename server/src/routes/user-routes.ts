@@ -5,7 +5,7 @@ import { Router } from "express";
 const router: Router = Router();
 
 router.get("/admin", admin, userController.getUsers);
-router.patch("/update", userController.updateProfile);
+router.route("/").get(userController.getUserDetails).patch(userController.updateProfile);
 router.patch("/:id/status", admin, userController.updateUserStatus);
 
 export default router;
