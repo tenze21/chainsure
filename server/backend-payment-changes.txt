@@ -1,0 +1,33 @@
+Backend payment changes made on 2026-04-21
+
+Changed files
+1. server/src/app.ts
+   - Imported the payment routes.
+   - Mounted the Stripe webhook routes on /api before the global JSON parser.
+   - Mounted the payment initiate routes on /api with the normal API stack.
+
+2. server/src/routes/payment-routes.ts
+   - Split the webhook route into a dedicated exported router named paymentWebhookRoutes.
+   - Kept the authenticated payment initiation route on the default router.
+
+3. server/src/services/payment-service.ts
+   - Updated recurring subscription payment creation to use Stripe's current
+     invoice confirmation_secret flow.
+   - Added a fallback to the older expanded latest_invoice.payment_intent shape.
+   - Added subscription payment settings to save the default payment method.
+   - Enabled flexible billing mode for recurring subscriptions.
+
+Why these changes were needed
+- The frontend was calling POST /api/payments/initiate/:policyId.
+- The backend route existed, but it was never mounted in app.ts, so it always returned 404.
+- Stripe webhooks require the raw request body. Mounting the webhook router before express.json() preserves the raw body for signature verification.
+- The recurring subscription code was reading latest_invoice.payment_intent.client_secret,
+  but newer Stripe API versions expose the client secret on
+  latest_invoice.confirmation_secret.client_secret.
+
+Routes affected
+- POST /api/payments/initiate/:policyId
+- POST /api/webhooks/stripe
+
+Files added
+- server/backend-payment-changes.txt

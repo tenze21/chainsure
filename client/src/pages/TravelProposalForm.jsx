@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './ProposalForm.css'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+import { submitProposal } from '../lib/api'
+import { trackSubmittedProposal } from '../lib/proposal-store'
 
 const TRAVEL_PURPOSES = ['Business', 'Vacation', 'Sports', 'Adventure', 'Pilgrimage', 'Pleasure', 'Others(Specify)']
 
@@ -27,10 +27,11 @@ function SuccessScreen({ onBack }) {
   )
 }
 
-export default function TravelProposalForm({ onBack, onNavigate, templateId }) {
+export default function TravelProposalForm({ onBack, onNavigate, templateId, user, product, missingProfileFields = [], onProposalSubmitted }) {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [declared, setDeclared] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [purposes, setPurposes] = useState([])
   const [specifyText, setSpecifyText] = useState('')
   const [form, setForm] = useState({
@@ -48,11 +49,21 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId }) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
   const handleSubmit = async () => {
-    if (!templateId) {
-      alert('Missing policy template. Return to the marketplace and open this form again.')
+    if (missingProfileFields.length > 0) {
+      setSubmitError(`Complete your profile before submitting. Missing: ${missingProfileFields.join(', ')}.`)
       return
     }
-    if (!declared) { alert('Please accept the declaration before submitting.'); return }
+
+    if (!templateId) {
+      setSubmitError('Missing policy template. Return to the marketplace and open this form again.')
+      return
+    }
+    if (!declared) {
+      setSubmitError('Please accept the declaration before submitting.')
+      return
+    }
+
+    setSubmitError('')
     setLoading(true)
     try {
       const attributes = {
@@ -65,25 +76,16 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId }) {
         healthCondition: form.healthCondition,
         declared: 'true',
       }
-      const res = await fetch(`${API_BASE}/api/proposal/${templateId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ attributes }),
+      const response = await submitProposal(templateId, attributes)
+      trackSubmittedProposal({
+        ownerEmail: user?.email,
+        template: product?.template,
+        proposalWithAttributes: response?.data?.proposalWithAttributes,
       })
-      if (res.ok) {
-        setSubmitted(true)
-      } else {
-        let msg = 'Submission failed. Please try again.'
-        try {
-          const data = await res.json()
-          msg = data?.error?.message || data?.message || msg
-        } catch (_) {}
-        alert(msg)
-      }
+      await onProposalSubmitted?.()
+      setSubmitted(true)
     } catch (err) {
-      console.warn('API not reachable:', err.message)
-      alert(`Could not connect to the server (${API_BASE}). Check that the server is running and VITE_API_URL is correct.`)
+      setSubmitError(err.message || 'Submission failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -115,6 +117,12 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId }) {
         <div className="proposal-form__notice">
           <strong>IMPORTANT:—</strong>The purpose of this Proposal Form is to provide the Company with all the material information that is likely to influence the assessment of your Proposal. When filling the form you should complete all questions fully. Where you are in doubt as to whether a particular piece of information is material, you should include it. Failure to disclose all facts may invalidate the cover under your Policy.
         </div>
+
+        {submitError && (
+          <div className="proposal-form__notice" style={{ borderColor: '#fecaca', backgroundColor: '#fef2f2', color: '#b91c1c' }}>
+            {submitError}
+          </div>
+        )}
 
         {/* Travel Purpose */}
         <div className="form-section">

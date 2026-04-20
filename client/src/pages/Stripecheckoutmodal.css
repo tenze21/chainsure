@@ -1,0 +1,345 @@
+/* ─────────────────────────────────────────────────────────────
+   Stripe Checkout Modal
+───────────────────────────────────────────────────────────── */
+
+/* Overlay */
+.stripe-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+/* Modal shell */
+.stripe-modal {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 860px;
+  min-height: 480px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+
+/* Close button */
+.stripe-modal__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  z-index: 10;
+}
+
+.stripe-modal__close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ─── Left panel ─────────────────────────────────────────── */
+.stripe-modal__left {
+  width: 340px;
+  flex-shrink: 0;
+  padding: 48px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.stripe-modal__merchant {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.stripe-modal__total {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 4px 0 20px;
+}
+
+.stripe-modal__line-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.stripe-modal__line-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.stripe-modal__item-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.stripe-modal__item-qty {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 2px 0 0;
+}
+
+.stripe-modal__item-price {
+  text-align: right;
+}
+
+.stripe-modal__item-price p {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0f172a;
+  margin: 0;
+}
+
+.stripe-modal__item-each {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 2px 0 0 !important;
+}
+
+.stripe-modal__footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.stripe-modal__powered {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.stripe-modal__powered strong {
+  color: #64748b;
+}
+
+.stripe-modal__link {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-decoration: none;
+}
+
+.stripe-modal__link:hover {
+  color: #475569;
+  text-decoration: underline;
+}
+
+/* ─── Right panel ────────────────────────────────────────── */
+.stripe-modal__right {
+  flex: 1;
+  padding: 48px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #ffffff;
+}
+
+/* Google Pay button */
+.stripe-modal__gpay {
+  width: 100%;
+  padding: 13px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 0.01em;
+  transition: background 0.15s;
+}
+
+.stripe-modal__gpay:hover {
+  background: #1e293b;
+}
+
+.stripe-modal__gpay span {
+  font-family: 'Product Sans', Arial, sans-serif;
+  font-size: 0.95rem;
+}
+
+/* Divider */
+.stripe-modal__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.stripe-modal__divider::before,
+.stripe-modal__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+/* Field groups */
+.stripe-modal__field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stripe-modal__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Inputs */
+.stripe-modal__input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.stripe-modal__input::placeholder {
+  color: #94a3b8;
+}
+
+.stripe-modal__input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* Card number field (top of card group) */
+.stripe-modal__card-fields {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.stripe-modal__card-fields .stripe-modal__input {
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.stripe-modal__card-fields .stripe-modal__input:focus {
+  box-shadow: none;
+  border-color: #d1d5db;
+  background: #f8fafc;
+}
+
+.stripe-modal__card-row {
+  display: flex;
+}
+
+.stripe-modal__input--expiry {
+  border-right: 1px solid #d1d5db !important;
+  border-radius: 0 !important;
+  border-bottom: none !important;
+}
+
+.stripe-modal__input--cvc {
+  border-radius: 0 !important;
+  border-bottom: none !important;
+}
+
+/* Pay button */
+.stripe-modal__pay-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 13px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.15s;
+}
+
+.stripe-modal__pay-btn:hover:not(:disabled) {
+  background: #1e293b;
+}
+
+.stripe-modal__pay-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.stripe-modal__pay-btn--loading {
+  background: #334155;
+}
+
+/* Spinner */
+.stripe-modal__spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: stripe-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes stripe-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 680px) {
+  .stripe-modal {
+    flex-direction: column;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .stripe-modal__left {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 32px 24px 24px;
+  }
+
+  .stripe-modal__right {
+    padding: 24px;
+  }
+}

@@ -93,22 +93,31 @@ async function initiateRecurringPayment(stripeCustomerId: string, policy: Policy
   const subscription = await stripe.subscriptions.create({
     customer: stripeCustomerId,
     items: [{ price: policy.stripePriceId }],
+    payment_settings: {
+      save_default_payment_method: "on_subscription",
+    },
+    billing_mode: {
+      type: "flexible",
+    },
     // payment_behavior: "default_incomplete" means Stripe creates
     // the subscription but waits for payment before activating it.
     // Without this, Stripe tries to charge immediately and may
     // activate even before the user completes the payment UI.
     payment_behavior: "default_incomplete",
-    // expand: ["latest_invoice.payment_intent"] tells Stripe to
-    // include the nested PaymentIntent in the response so we can
-    // get the client_secret without a second API call.
-    expand: ["latest_invoice.payment_intent"],
+    // Newer Stripe API versions expose the client secret on the invoice
+    // confirmation_secret. Keep the older payment_intent expansion as a
+    // fallback for backwards compatibility.
+    expand: ["latest_invoice.confirmation_secret", "latest_invoice.payment_intent"],
     metadata: {
       policyId: policy.id,
       userId: policy.userId,
     },
   }) as unknown as Stripe.Subscription & {
     latest_invoice: Stripe.Invoice & {
-      payment_intent: Stripe.PaymentIntent;
+      confirmation_secret?: {
+        client_secret?: string | null;
+      } | null;
+      payment_intent?: Stripe.PaymentIntent | string | null;
     };
   };
 
@@ -118,11 +127,20 @@ async function initiateRecurringPayment(stripeCustomerId: string, policy: Policy
     throw new AppError(ERROR_CODES.INTERNAL_ERROR, "Failed to get invoice from subscription", 500);
   }
 
+  const confirmationSecret = invoice.confirmation_secret?.client_secret;
   const paymentIntent = invoice.payment_intent;
+  const paymentIntentSecret = (
+    paymentIntent
+    && typeof paymentIntent !== "string"
+    && "client_secret" in paymentIntent
+  )
+    ? paymentIntent.client_secret
+    : null;
+  const clientSecret = confirmationSecret || paymentIntentSecret;
 
-  if (typeof paymentIntent === "string" || !paymentIntent || !paymentIntent.client_secret) {
+  if (!clientSecret) {
     throw new AppError(ERROR_CODES.INTERNAL_ERROR, "Failed to create subscription payment", 500);
   }
 
-  return { clientSecret: paymentIntent.client_secret, type: "subscription" };
+  return { clientSecret, type: "subscription" };
 }

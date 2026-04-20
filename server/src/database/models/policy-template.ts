@@ -101,5 +101,4 @@ PolicyTemplate.init(
 );
 
 import type { Category } from "./category";
-import type { Policy } from "./policy";
 import type { Proposal } from "./proposal";
