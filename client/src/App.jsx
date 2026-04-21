@@ -7,6 +7,7 @@ import SignUp from './pages/SignUp'
 import ForgotPassword from './pages/ForgotPassword'
 import AccountCreated from './pages/AccountCreated'
 import About from './pages/About'
+import PublicPolicies from './pages/PublicPolicies'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminClaimsReview from './pages/admin/AdminClaimsReview'
 import AdminCustomMinting from './pages/admin/AdminCustomMinting'
@@ -16,13 +17,14 @@ import AdminRevocation from './pages/admin/AdminRevocation'
 import AdminUsers from './pages/admin/AdminUsers'
 import Overview from './pages/Overview'
 import Marketplace from './pages/Marketplace'
+import ProductPolicies from './pages/ProductPolicies'
 import Policies from './pages/Policies'
 import Claims from './pages/Claims'
 import Proposals from './pages/Proposals'
 import UserProfile from './pages/UserProfile'
-import TravelProposalForm from './pages/TravelProposalForm'
+import PropertyProposalForm from './pages/PropertyProposalForm'
 import MotorProposalForm from './pages/MotorProposalForm'
-import LifeProposalForm from './pages/LifeProposalForm'
+import HealthProposalForm from './pages/HealthProposalForm'
 import useDashboardData from './hooks/useDashboardData'
 
 const DASHBOARD_PATHS = {
@@ -32,9 +34,9 @@ const DASHBOARD_PATHS = {
   claims: '/dashboard/claims',
   proposals: '/dashboard/proposals',
   profile: '/dashboard/profile',
-  'proposal-travel': '/dashboard/proposals/travel',
+  'proposal-property': '/dashboard/proposals/property',
   'proposal-motor': '/dashboard/proposals/motor',
-  'proposal-life': '/dashboard/proposals/life',
+  'proposal-health': '/dashboard/proposals/health',
 }
 
 function findProduct(products, key) {
@@ -99,6 +101,11 @@ function DashboardRouter() {
   } = useDashboardData()
 
   const handleNavigate = (page, options = {}) => {
+    if (page === 'product-policies' && options.productKey) {
+      navigate(`/dashboard/marketplace/${encodeURIComponent(options.productKey)}`)
+      return
+    }
+
     const path = DASHBOARD_PATHS[page] || DASHBOARD_PATHS.overview
     const search = options.templateId ? `?templateId=${encodeURIComponent(options.templateId)}` : ''
     navigate(`${path}${search}`)
@@ -151,6 +158,18 @@ function DashboardRouter() {
         )}
       />
       <Route
+        path="marketplace/:productKey"
+        element={(
+          <ProductPolicies
+            {...commonPageProps}
+            products={products}
+            templates={templates}
+            catalogLoading={catalogLoading}
+            profileReady={profileReady}
+          />
+        )}
+      />
+      <Route
         path="policies"
         element={(
           <Policies
@@ -195,9 +214,9 @@ function DashboardRouter() {
         )}
       />
       <Route
-        path="proposals/travel"
+        path="proposals/property"
         element={(
-          <TravelProposalForm
+          <PropertyProposalForm
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
             user={user}
@@ -223,9 +242,9 @@ function DashboardRouter() {
         )}
       />
       <Route
-        path="proposals/life"
+        path="proposals/health"
         element={(
-          <LifeProposalForm
+          <HealthProposalForm
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
             user={user}
@@ -236,6 +255,8 @@ function DashboardRouter() {
           />
         )}
       />
+      <Route path="proposals/travel" element={<Navigate to="/dashboard/proposals/property" replace />} />
+      <Route path="proposals/life" element={<Navigate to="/dashboard/proposals/health" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )
@@ -253,6 +274,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/account-created" element={<AccountCreated />} />
         <Route path="/about" element={<About />} />
+        <Route path="/browse-policies" element={<PublicPolicies />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="templates" element={<AdminPolicyTemplates />} />

@@ -59,8 +59,8 @@ export default function AdminPolicyProposals() {
   const [premium, setPremium] = useState('')
   const [deductable, setDeductable] = useState('')
 
-  async function loadApplications() {
-    const items = await fetchAdminProposals()
+  async function loadApplications(options = {}) {
+    const items = await fetchAdminProposals(options)
     const mergedItems = buildActionableApplications(items)
 
     setApplications(mergedItems)
@@ -124,7 +124,7 @@ export default function AdminPolicyProposals() {
     try {
       await rejectProposal(selectedApplication.proposalId)
       updateTrackedProposalStatus({ id: selectedApplication.proposalId, status: 'rejected' })
-      await loadApplications()
+      await loadApplications({ forceRefresh: true })
       setActionMessage('Proposal rejected successfully.')
     } catch (rejectError) {
       setActionError(rejectError?.message || 'Failed to reject proposal.')
@@ -169,7 +169,7 @@ export default function AdminPolicyProposals() {
       })
 
       updateTrackedProposalStatus({ id: selectedApplication.proposalId, status: 'approved' })
-      await loadApplications()
+      await loadApplications({ forceRefresh: true })
       setActionMessage(
         createdPolicy?.id
           ? `Policy created successfully. Policy ID ${createdPolicy.id} is ready for payment.`

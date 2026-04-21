@@ -1,8 +1,111 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import { getTemplates } from '../lib/api'
+import { loadStoredUser } from '../lib/session'
 
 export default function HomePage() {
+  const navigate = useNavigate()
+  const [templates, setTemplates] = useState([])
+  const [templatesLoading, setTemplatesLoading] = useState(true)
+  const [templatesError, setTemplatesError] = useState('')
+  const [selectedProduct, setSelectedProduct] = useState(null)
+
+  const products = useMemo(() => ([
+    {
+      id: 1,
+      title: 'Health Insurance',
+      categoryName: 'Health Insurance',
+      features: ['Family protection', 'Tax benefits', 'Cash value growth', 'Flexible terms'],
+      popular: false,
+      icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+    },
+    {
+      id: 2,
+      title: 'Property Insurance',
+      categoryName: 'Property Insurance',
+      features: ['Fire & damage coverage', 'Theft protection', 'Natural disaster coverage', '24/7 assistance'],
+      popular: true,
+      icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0h.5a2.5 2.5 0 002.5-2.5V3.935M12 12v2.945a2 2 0 01-.055 4.055M12 12V9.5A2.5 2.5 0 109.5 12',
+    },
+    {
+      id: 3,
+      title: 'Motor Insurance',
+      categoryName: 'Vehicle Insurance',
+      features: ['Third-party liability', 'Comprehensive coverage', 'Instant claims', 'No-claims bonus'],
+      popular: false,
+      icon: 'M8 17h8m-8 0a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2zm0 0h2m-2 0v-4m0 4v4m0-4h6m-6 0v-4m0 4v4',
+    },
+  ]), [])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadTemplates() {
+      try {
+        const response = await getTemplates()
+        if (!active) {
+          return
+        }
+
+        setTemplates(response?.data?.templates || [])
+        setTemplatesError('')
+      } catch (error) {
+        if (!active) {
+          return
+        }
+        setTemplates([])
+        setTemplatesError(error?.message || 'Failed to load policy templates.')
+      } finally {
+        if (active) {
+          setTemplatesLoading(false)
+        }
+      }
+    }
+
+    loadTemplates()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    function handleEscape(event) {
+      if (event.key === 'Escape') {
+        setSelectedProduct(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [])
+
+  const selectedProductConfig = products.find((product) => product.title === selectedProduct?.title) || null
+  const selectedTemplates = templates.filter(
+    (template) => template?.category?.name?.toLowerCase() === selectedProductConfig?.categoryName?.toLowerCase(),
+  )
+  const isModalOpen = Boolean(selectedProduct)
+  const isAuthenticated = Boolean(loadStoredUser()?.email || loadStoredUser()?.id)
+
+  function openPoliciesModal(product) {
+    setSelectedProduct(product)
+  }
+
+  function closePoliciesModal() {
+    setSelectedProduct(null)
+  }
+
+  function handlePurchasePolicy(templateId) {
+    if (!isAuthenticated) {
+      navigate('/signin')
+      return
+    }
+
+    navigate(`/dashboard/marketplace?templateId=${encodeURIComponent(templateId)}`)
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -24,7 +127,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
-              <Link to="/#products" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors font-semibold text-lg">
+              <Link to="/browse-policies" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors font-semibold text-lg">
                 Browse Policies
               </Link>
             </div>
@@ -67,11 +170,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { id: 1, title: 'Life Insurance', features: ['Family protection', 'Tax benefits', 'Cash value growth', 'Flexible terms'], popular: false, icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
-                { id: 2, title: 'Travel Insurance', features: ['Trip cancellation', 'Medical coverage', 'Lost luggage', '24/7 assistance'], popular: true, icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0h.5a2.5 2.5 0 002.5-2.5V3.935M12 12v2.945a2 2 0 01-.055 4.055M12 12V9.5A2.5 2.5 0 109.5 12' },
-                { id: 3, title: 'Motor Insurance', features: ['Third-party liability', 'Comprehensive coverage', 'Instant claims', 'No-claims bonus'], popular: false, icon: 'M8 17h8m-8 0a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2zm0 0h2m-2 0v-4m0 4v4m0-4h6m-6 0v-4m0 4v4' },
-              ].map((product) => (
+              {products.map((product) => (
                 <div key={product.id} className={`rounded-xl p-8 border-2 transition-all relative ${product.popular ? 'border-teal-500 shadow-lg bg-white' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                   {product.popular && (
                     <span className="absolute top-4 right-4 px-3 py-1 bg-teal-500 text-white text-sm font-medium rounded-full">
@@ -92,9 +191,13 @@ export default function HomePage() {
                       </li>
                     ))}
                   </ul>
-                  <Link to="/signup" className={`inline-flex items-center justify-center w-full py-3 rounded-lg font-medium transition-colors ${product.popular ? 'bg-[#0f1729] text-white hover:bg-[#1e293b]' : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300'}`}>
-                    View Details
-                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => openPoliciesModal(product)}
+                    className={`inline-flex items-center justify-center w-full py-3 rounded-lg font-medium transition-colors ${product.popular ? 'bg-[#0f1729] text-white hover:bg-[#1e293b]' : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300'}`}
+                  >
+                    View Policies
+                  </button>
                 </div>
               ))}
             </div>
@@ -184,6 +287,83 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/60"
+          onClick={closePoliciesModal}
+        >
+          <div
+            className="w-full max-w-4xl bg-white rounded-2xl border border-gray-200 shadow-xl max-h-[85vh] overflow-hidden"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-gray-200">
+              <div>
+                <h3 className="text-2xl font-semibold text-gray-900">
+                  {selectedProduct?.title} Policies
+                </h3>
+                <p className="mt-1 text-gray-600">
+                  Select a policy template to continue with purchase.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closePoliciesModal}
+                className="px-3 py-1.5 rounded-lg text-gray-600 hover:bg-gray-100"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[calc(85vh-170px)]">
+              {templatesLoading && (
+                <p className="text-gray-600">Loading policy templates...</p>
+              )}
+
+              {!templatesLoading && templatesError && (
+                <p className="text-red-600">{templatesError}</p>
+              )}
+
+              {!templatesLoading && !templatesError && selectedTemplates.length === 0 && (
+                <p className="text-gray-600">No templates found for this product yet.</p>
+              )}
+
+              {!templatesLoading && !templatesError && selectedTemplates.length > 0 && (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {selectedTemplates.map((template) => (
+                    <div key={template.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                      <h4 className="text-gray-900 font-semibold">{template.name}</h4>
+                      <p className="mt-2 text-sm text-gray-600">{template.description}</p>
+                      <button
+                        type="button"
+                        onClick={() => handlePurchasePolicy(template.id)}
+                        className="mt-4 inline-flex items-center justify-center w-full py-2.5 bg-[#0f1729] text-white rounded-lg hover:bg-[#1e293b] transition-colors font-medium"
+                      >
+                        Purchase Policy
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {!isAuthenticated && (
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-sm text-gray-600">
+                  You need an account to purchase a policy.
+                </p>
+                <div className="flex items-center gap-3">
+                  <Link to="/signin" className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-white">
+                    Sign In
+                  </Link>
+                  <Link to="/signup" className="px-4 py-2 bg-[#0f1729] text-white rounded-lg hover:bg-[#1e293b]">
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   )

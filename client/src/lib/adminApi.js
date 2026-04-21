@@ -61,8 +61,11 @@ export async function updateTemplate(id, payload) {
   return normalizeTemplate(unwrapItem(response, 'updatedTemplate'))
 }
 
-export async function fetchAdminProposals() {
-  const response = await apiRequest('/api/proposal/admin', { cacheTtlMs: 30 * 1000 })
+export async function fetchAdminProposals(options = {}) {
+  const response = await apiRequest('/api/proposal/admin', {
+    cacheTtlMs: 0,
+    ...options,
+  })
   return unwrapList(response, 'userProposals')
 }
 
