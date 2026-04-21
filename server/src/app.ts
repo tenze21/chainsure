@@ -5,7 +5,7 @@ import { errorHandler, notFound } from "@middlewares/error-handler";
 import { pinoLogger } from "@middlewares/pino-logger";
 import { apiLimiter } from "@middlewares/rate-limit-middleware";
 import authRoutes from "@routes/auth-routes";
-import paymentRoutes, { paymentWebhookRoutes } from "@routes/payment-routes";
+import paymentRoutes from "@routes/payment-routes";
 import policyRoutes from "@routes/policy-routes";
 import templateRoutes from "@routes/policy-template-routes";
 import proposalRoutes from "@routes/proposal-routes";
@@ -34,12 +34,9 @@ app.use(cors({
   origin: env.CORS_ORIGIN,
   credentials: true,
 }));
-
-// Stripe needs the raw request body for signature verification, so this
-// webhook must be mounted before the global JSON parser.
-app.use("/api", paymentWebhookRoutes);
-
 app.use(cookieParser());
+
+app.use("/api/stripe", paymentRoutes);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -58,7 +55,6 @@ app.use("/api/template", templateRoutes);
 app.use("/api/proposal", authenticate, proposalRoutes);
 app.use("/api/policy", authenticate, policyRoutes);
 app.use("/api/user", authenticate, userRoutes);
-app.use("/api", paymentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

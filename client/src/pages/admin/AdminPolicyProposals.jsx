@@ -347,7 +347,7 @@ export default function AdminPolicyProposals() {
                   onClick={handleApproveAndMint}
                   className={`px-4 py-2 text-sm rounded-lg ${actionLoading || !selectedApplication.isActionable || selectedApplication.status !== 'pending' ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-[#0f1729] text-white hover:bg-[#1e293b]'}`}
                 >
-                  {actionLoading ? 'Working...' : 'Approve & Mint'}
+                  {actionLoading ? 'Working...' : 'Approve'}
                 </button>
               </div>
             </div>

@@ -57,7 +57,7 @@ export default function Marketplace({
   profileReady,
   missingProfileFields,
 }) {
-  const connectedCount = products.filter((product) => product.templateStatus === 'ready').length
+  // const connectedCount = products.filter((product) => product.templateStatus === 'ready').length
   const missingFieldsLabel = missingProfileFields.join(', ')
 
   return (
@@ -69,13 +69,13 @@ export default function Marketplace({
           <div className="marketplace__header">
             <div>
               <h1 className="marketplace__title">Insurance Marketplace</h1>
-              <p className="marketplace__subtitle">
+              {/* <p className="marketplace__subtitle">
                 Each card below points to one client-side proposal form and one backend template ID.
-              </p>
+              </p> */}
             </div>
-            <button className="marketplace__filter-btn" disabled>
+            {/* <button className="marketplace__filter-btn" disabled>
               {connectedCount}/{products.length} connected
-            </button>
+            </button> */}
           </div>
 
           {!profileReady && (
@@ -118,7 +118,7 @@ export default function Marketplace({
                     ? 'Complete Profile'
                     : getButtonLabel(product, catalogLoading)}
                 </button>
-                {product.templateStatus === 'ready' && product.templateSource === 'auto' && (
+                {/* {product.templateStatus === 'ready' && product.templateSource === 'auto' && (
                   <p className="product-card__note">Matched automatically from the live backend template list.</p>
                 )}
                 {product.templateStatus === 'error' && (
@@ -126,7 +126,7 @@ export default function Marketplace({
                 )}
                 {product.templateStatus === 'missing' && (
                   <p className="product-card__note">No matching backend template exists for this form yet.</p>
-                )}
+                )} */}
               </div>
             ))}
           </div>
