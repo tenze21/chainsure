@@ -271,7 +271,7 @@ export default function AdminPolicyTemplates() {
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Policy Templates</h1>
-          <p className="text-gray-500 text-sm mt-1">Create and manage insurance product templates from the live backend.</p>
+          <p className="text-gray-500 text-sm mt-1">Create and manage insurance product templates.</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -300,7 +300,7 @@ export default function AdminPolicyTemplates() {
       </div>
 
       <div className="mb-6 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-        Template create, list, and update are live. Delete is not exposed by the current server, so it is intentionally omitted here.
+        Create, list, and update are available. Delete is currently unavailable.
       </div>
 
       {loading ? (

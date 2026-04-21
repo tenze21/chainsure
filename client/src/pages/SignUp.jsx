@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerUser, updateUserProfile } from '../lib/api'
-import { createWalletRegistration, normalizeDob } from '../lib/auth'
+import { createWalletRegistration } from '../lib/auth'
 import { saveStoredUser } from '../lib/session'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const DOB_REGEX = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/
 
 function getProfileSetupErrorMessage(error) {
   const message = error?.message || 'Profile details could not be saved.'
@@ -27,10 +26,8 @@ export default function SignUp() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
-    nin: '',
+    cid: '',
     email: '',
-    dob: '',
-    gender: '',
     password: '',
     confirmPassword: ''
   })
@@ -44,20 +41,13 @@ export default function SignUp() {
         if (!value.trim()) return 'Full name is required'
         if (value.trim().length < 2) return 'Full name must be at least 2 characters'
         return ''
-      case 'nin':
+      case 'cid':
         if (!value.trim()) return 'CID is required'
         if (value.trim().length !== 11) return 'CID must be 11 characters'
         return ''
       case 'email':
         if (!value.trim()) return 'Email is required'
         if (!EMAIL_REGEX.test(value)) return 'Please enter a valid email address'
-        return ''
-      case 'dob':
-        if (!value.trim()) return 'Date of birth is required'
-        if (!DOB_REGEX.test(value.trim())) return 'Please use DD/MM/YYYY format'
-        return ''
-      case 'gender':
-        if (!value) return 'Please select your gender'
         return ''
       case 'password':
         if (!value) return 'Password is required'
@@ -83,10 +73,10 @@ export default function SignUp() {
   }
 
   const isFormValid = () => {
-    const required = ['fullName', 'nin', 'email', 'dob', 'gender', 'password', 'confirmPassword']
+    const required = ['fullName', 'cid', 'email', 'password', 'confirmPassword']
     if (!required.every((key) => formData[key]?.trim())) return false
     if (!EMAIL_REGEX.test(formData.email)) return false
-    if (!DOB_REGEX.test(formData.dob.trim())) return false
+    if (formData.cid.trim().length !== 11) return false
     if (formData.password.length < 8) return false
     if (formData.password !== formData.confirmPassword) return false
     return true
@@ -118,7 +108,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setTouched({ fullName: true, nin: true, email: true, dob: true, gender: true, password: true, confirmPassword: true })
+    setTouched({ fullName: true, cid: true, email: true, password: true, confirmPassword: true })
     if (!validateForm()) return
 
     setSubmitting(true)
@@ -138,9 +128,7 @@ export default function SignUp() {
 
       try {
         const profileResponse = await updateUserProfile({
-          cid: formData.nin.trim(),
-          dob: normalizeDob(formData.dob),
-          gender: formData.gender,
+          cid: formData.cid.trim(),
         })
 
         userSnapshot = {
@@ -218,16 +206,16 @@ export default function SignUp() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
                 </span>
                 <input
-                  name="nin"
+                  name="cid"
                   type="text"
                   placeholder="Enter your CID"
-                  value={formData.nin}
+                  value={formData.cid}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729] ${errors.nin ? 'border-red-500' : 'border-gray-200'}`}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729] ${errors.cid ? 'border-red-500' : 'border-gray-200'}`}
                 />
               </div>
-              {errors.nin && <p className="mt-1 text-sm text-red-500">{errors.nin}</p>}
+              {errors.cid && <p className="mt-1 text-sm text-red-500">{errors.cid}</p>}
             </div>
             <div>
               <label className="block text-sm text-gray-500 mb-1">Email</label>
@@ -246,45 +234,6 @@ export default function SignUp() {
                 />
               </div>
               {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-500 mb-1">Date of Birth</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                </span>
-                <input
-                  name="dob"
-                  type="text"
-                  placeholder="DD/MM/YYYY"
-                  value={formData.dob}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729] ${errors.dob ? 'border-red-500' : 'border-gray-200'}`}
-                />
-              </div>
-              {errors.dob && <p className="mt-1 text-sm text-red-500">{errors.dob}</p>}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-500 mb-1">Gender</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                </span>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729] appearance-none bg-white ${errors.gender ? 'border-red-500 text-gray-500' : 'border-gray-200 text-gray-500'}`}
-                >
-                  <option value="">Select your gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              {errors.gender && <p className="mt-1 text-sm text-red-500">{errors.gender}</p>}
             </div>
             <div>
               <label className="block text-sm text-gray-500 mb-1">Password</label>

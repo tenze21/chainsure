@@ -54,9 +54,9 @@ export default function AdminDashboard() {
 
     return [
       { title: 'Policy Templates', value: templates.length, hint: `${categories.size} categories`, href: '/admin/templates' },
-      { title: 'Total Proposals', value: proposals.length, hint: 'Loaded from /api/proposal/admin', href: '/admin/proposals' },
+      { title: 'Total Proposals', value: proposals.length, hint: 'All submitted applications', href: '/admin/proposals' },
       { title: 'Pending Review', value: pending, hint: 'Waiting for admin action', href: '/admin/proposals' },
-      { title: 'Approved Proposals', value: approved, hint: 'Converted by /api/policy/:proposalId', href: '/admin/proposals' },
+      { title: 'Approved Proposals', value: approved, hint: 'Ready for policy creation', href: '/admin/proposals' },
     ]
   }, [proposals, templates])
 
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
     <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Overview of the live admin data available on this backend snapshot.</p>
+        <p className="text-gray-500 text-sm mt-1">Overview of proposal and product activity.</p>
       </div>
 
       {error && (
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-semibold text-gray-900">Recent Proposal Activity</h2>
-              <p className="text-xs text-gray-500 mt-1">Live data from the admin proposal feed.</p>
+              <p className="text-xs text-gray-500 mt-1">Latest submitted applications.</p>
             </div>
             <Link to="/admin/proposals" className="text-sm text-[#0f1729] hover:underline">View All</Link>
           </div>
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-semibold text-gray-900">Template Coverage</h2>
-              <p className="text-xs text-gray-500 mt-1">Live template inventory by category.</p>
+              <p className="text-xs text-gray-500 mt-1">Product inventory by category.</p>
             </div>
             <Link to="/admin/templates" className="text-sm text-[#0f1729] hover:underline">Manage</Link>
           </div>
@@ -155,9 +155,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          <div className="mt-6 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-            Claims, revocation, and user administration still depend on server routes that do not exist in this branch, so those pages remain sample-driven.
-          </div>
         </div>
       </div>
     </>

@@ -17,10 +17,10 @@ export default function ForgotPassword() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-[#0f1729] mb-1">Forgot Password</h1>
-          <p className="text-gray-500 text-sm mb-6">Password reset is not exposed by the current backend.</p>
+          <p className="text-gray-500 text-sm mb-6">Password reset is not available yet.</p>
           <div className="space-y-4">
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-              This branch has working sign-in, sign-up, logout, proposal submission, and profile updates, but it does not have a reset-password route on the server. This page is intentionally informational only.
+              Please contact support if you need help accessing your account.
             </div>
             <Link to="/signin" className="block w-full py-3 bg-[#0f1729] text-white font-medium rounded-lg hover:bg-[#1e293b] transition-colors text-center">
               Return to Sign In

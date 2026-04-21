@@ -9,7 +9,7 @@ const QUICK_LINKS = [
   {
     id: 'browse',
     title: 'Browse Policies',
-    subtitle: 'Open the configured proposal forms',
+    subtitle: 'Explore available insurance products',
     icon: (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>),
     color: '#E0FAF4',
     iconColor: '#00C8A0',
@@ -17,7 +17,7 @@ const QUICK_LINKS = [
   {
     id: 'claim',
     title: 'Claims Status',
-    subtitle: 'Check what is blocked on the backend',
+    subtitle: 'Track submitted claim reviews',
     icon: (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="11" x2="12" y2="17" /><line x1="9" y1="14" x2="15" y2="14" /></svg>),
     color: '#FEF9EC',
     iconColor: '#F59E0B',
@@ -25,7 +25,7 @@ const QUICK_LINKS = [
   {
     id: 'proposals',
     title: 'Proposal Activity',
-    subtitle: 'View the live application summaries',
+    subtitle: 'View your application summaries',
     icon: (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></svg>),
     color: '#EDE9FE',
     iconColor: '#7C3AED',
@@ -82,7 +82,7 @@ export default function Overview({
 }) {
   const firstName = getFirstName(user?.fullName)
   const recentProposals = proposals.slice(0, 3)
-  const connectedTemplates = products.filter((product) => product.templateStatus === 'ready').length
+  const availableProducts = products.filter((product) => product.templateStatus === 'ready').length
   const pendingCount = proposals.filter((proposal) => proposal.status === 'pending').length
 
   return (
@@ -94,7 +94,7 @@ export default function Overview({
           <div className="overview__header">
             <h1 className="overview__title">Good morning, {firstName}</h1>
             <p className="overview__subtitle">
-              {proposalsError || 'This branch can load live proposal activity and template metadata without changing the server.'}
+              {proposalsError || 'Track your proposals, policies, and claims from one place.'}
             </p>
             {!profileReady && (
               <p className="overview__subtitle">
@@ -107,17 +107,17 @@ export default function Overview({
             <div className="stat-card">
               <p className="stat-card__label">Submitted Proposals</p>
               <p className="stat-card__value stat-card__value--teal">{proposalsLoading ? '...' : proposals.length}</p>
-              <p className="stat-card__note">Loaded from `GET /api/proposal/user`</p>
+              <p className="stat-card__note">Applications submitted by you</p>
             </div>
             <div className="stat-card">
-              <p className="stat-card__label">Connected Templates</p>
-              <p className="stat-card__value stat-card__value--dark">{connectedTemplates}</p>
-              <p className="stat-card__note">Resolved from live backend templates where possible</p>
+              <p className="stat-card__label">Available Products</p>
+              <p className="stat-card__value stat-card__value--dark">{availableProducts}</p>
+              <p className="stat-card__note">Products ready for application</p>
             </div>
             <div className="stat-card">
               <p className="stat-card__label">Pending Review</p>
               <p className="stat-card__value stat-card__value--amber">{proposalsLoading ? '...' : pendingCount}</p>
-              <p className="stat-card__note">Policies and claims still need backend read routes</p>
+              <p className="stat-card__note">Applications awaiting decision</p>
             </div>
           </div>
 
@@ -133,7 +133,7 @@ export default function Overview({
               </button>
             </div>
 
-            {proposalsLoading && <p className="panel__helper">Loading your proposal summaries from the backend.</p>}
+            {proposalsLoading && <p className="panel__helper">Loading your proposal summaries.</p>}
             {!proposalsLoading && proposalsError && <p className="panel__helper">{proposalsError}</p>}
             {!proposalsLoading && !proposalsError && !recentProposals.length && (
               <p className="panel__helper">No proposals have been submitted yet. Use the marketplace to open one of the configured forms.</p>

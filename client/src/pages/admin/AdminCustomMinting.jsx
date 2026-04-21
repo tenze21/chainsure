@@ -39,14 +39,14 @@ export default function AdminCustomMinting() {
         id: `MNT-${Math.floor(Math.random() * 900 + 100)}`,
         name: formData.policyName,
         holderCid: formData.holderCid,
-        coverageAmount: formData.coverageAmount || '—',
-        premiumAmount: formData.premiumAmount || '—',
+        coverageAmount: formData.coverageAmount || '-',
+        premiumAmount: formData.premiumAmount || '-',
         status: 'Drafted',
       },
       ...previous,
     ])
     setFormData(initialForm)
-    setMessage('Draft created. Minting stays local until the backend exposes a custom policy endpoint.')
+    setMessage('Draft created. Manual minting is not available yet.')
   }
 
   return (
@@ -57,7 +57,7 @@ export default function AdminCustomMinting() {
       </div>
 
       <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-        The current backend exposes policy creation only from an existing proposal ID. Manual minting is not available yet, so this screen stores drafts locally.
+        Manual policy minting is not available yet. You can save drafts for later review.
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6">

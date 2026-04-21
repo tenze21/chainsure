@@ -166,7 +166,7 @@ export async function apiRequest(path, options = {}) {
       })
     } catch {
       throw new ApiError(
-        `Could not reach ${API_BASE}. Check VITE_API_URL and the server CORS origin.`,
+        'Could not connect to the service. Please check that the application is running.',
         0,
       )
     }

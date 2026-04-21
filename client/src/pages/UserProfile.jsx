@@ -214,7 +214,7 @@ function PersonalTab({ user, onSaveProfile }) {
     const payload = buildPayload(form, user)
 
     if (!Object.keys(payload).length) {
-      setError('There are no changed backend-supported fields to save.')
+      setError('There are no profile changes to save.')
       return
     }
 
@@ -235,7 +235,7 @@ function PersonalTab({ user, onSaveProfile }) {
   return (
     <div className="pf-card">
       <div className="profile-inline-note">
-        Only fields supported by `PATCH /api/user` are editable here. Email, wallet data, and emergency contacts are not exposed by the current profile API.
+        Update the personal details used for proposal eligibility. Email and wallet details are managed by your account.
       </div>
 
       <div className="pf-card__section">
@@ -279,7 +279,7 @@ function PersonalTab({ user, onSaveProfile }) {
       {error && <div className="profile-inline-error">{error}</div>}
 
       <div className="pf-card__actions">
-        {saved && <span className="save-success">Changes saved to the backend</span>}
+        {saved && <span className="save-success">Changes saved</span>}
         <button className="pf-btn pf-btn--outline" onClick={handleReset} disabled={!dirty || saving}>
           Reset
         </button>
@@ -294,15 +294,15 @@ function PersonalTab({ user, onSaveProfile }) {
 function PoliciesTab({ proposals, onNavigate }) {
   return (
     <div className="pf-card">
-      <h3 className="pf-card__section-title" style={{ marginBottom: 16 }}>Policy Read API Status</h3>
+      <h3 className="pf-card__section-title" style={{ marginBottom: 16 }}>Policy Activity</h3>
       <div className="profile-inline-note">
-        This backend snapshot does not expose a user `GET /api/policy` endpoint. The closest live data available here is proposal status.
+        Approved proposals and policy updates will appear here when they are available.
       </div>
 
       <div className="pf-policy-list">
         {proposals.length === 0 && (
           <div className="profile-empty-state">
-            No live proposal activity is available for this session yet.
+            No proposal activity is available yet.
           </div>
         )}
 
@@ -353,7 +353,7 @@ function SecurityTab({ user, onSignOut }) {
         <div className="sec-row">
           <div>
             <p className="sec-row__title">Email Verification</p>
-            <p className="sec-row__sub">Read from the stored auth response.</p>
+            <p className="sec-row__sub">Current verification status for your account.</p>
           </div>
           <span className="sec-enabled-badge">{user?.emailVerified ? 'Verified' : 'Unverified'}</span>
         </div>
@@ -362,7 +362,7 @@ function SecurityTab({ user, onSignOut }) {
         <div className="sec-row">
           <div>
             <p className="sec-row__title">Password Changes</p>
-            <p className="sec-row__sub">No `change-password` route exists on this server branch.</p>
+            <p className="sec-row__sub">Password changes are not available yet.</p>
           </div>
           <button className="pf-btn pf-btn--outline pf-btn--sm" disabled>
             Unavailable
@@ -373,7 +373,7 @@ function SecurityTab({ user, onSignOut }) {
         <div className="sec-row">
           <div>
             <p className="sec-row__title">Current Session</p>
-            <p className="sec-row__sub">Signing out clears the stored user snapshot and requests `/api/auth/logout`.</p>
+            <p className="sec-row__sub">Sign out when you are finished using this device.</p>
           </div>
           <button className="pf-btn pf-btn--outline pf-btn--sm" onClick={onSignOut}>
             Sign Out
@@ -382,7 +382,7 @@ function SecurityTab({ user, onSignOut }) {
       </div>
 
       <div className="pf-card">
-        <h3 className="pf-card__section-title" style={{ marginBottom: 18 }}>Wallet Snapshot</h3>
+        <h3 className="pf-card__section-title" style={{ marginBottom: 18 }}>Wallet Details</h3>
         <div className="wallet-row">
           <span className="wallet-row__label">Wallet Address</span>
           <div className="wallet-row__val">
@@ -437,7 +437,7 @@ export default function UserProfile({
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                       <polyline points="22,6 12,13 2,6" />
                     </svg>
-                    {user?.email || 'Profile identity comes from the stored login response'}
+                    {user?.email || 'No email saved yet'}
                   </span>
                   <span className="profile-hero__meta-item">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -459,7 +459,7 @@ export default function UserProfile({
           <div className="profile-body">
             <div className="profile-stats">
               {[
-                { label: 'Connected Templates', value: connectedTemplates, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> },
+                { label: 'Available Products', value: connectedTemplates, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> },
                 { label: 'Approved Proposals', value: approvedCount, icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg> },
                 { label: 'Member Since', value: user?.createdAt ? formatDate(user.createdAt, { month: 'short', year: 'numeric' }) : 'Unavailable', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> },
               ].map((stat) => (

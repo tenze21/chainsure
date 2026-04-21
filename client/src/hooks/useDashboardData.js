@@ -128,6 +128,7 @@ function saveCachedProposalSummaries(ownerEmail, proposals) {
 export default function useDashboardData() {
   const [user, setUser] = useState(() => normalizeUser(loadStoredUser()))
   const [products, setProducts] = useState(() => getDashboardProducts())
+  const [templates, setTemplates] = useState([])
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState('')
   const [proposals, setProposals] = useState([])
@@ -174,6 +175,7 @@ export default function useDashboardData() {
         templates = response?.data?.templates || []
       } catch (error) {
         if (active) {
+          setTemplates([])
           setProducts(configuredProducts.map((product) => ({ ...product, template: null, templateStatus: 'error', templateError: error.message })))
           setCatalogLoading(false)
           setCatalogError(error.message)
@@ -225,6 +227,7 @@ export default function useDashboardData() {
         return
       }
 
+      setTemplates(templates)
       const readyCount = resolvedProducts.filter((product) => product.templateStatus === 'ready').length
       const missingCount = resolvedProducts.filter((product) => product.templateStatus === 'missing').length
 
@@ -232,9 +235,9 @@ export default function useDashboardData() {
       setCatalogLoading(false)
       setCatalogError(
         readyCount === 0
-          ? 'No compatible dashboard templates were found in the backend.'
+          ? 'No insurance products are available yet.'
           : missingCount > 0
-            ? `${missingCount} dashboard form${missingCount === 1 ? ' is' : 's are'} still unavailable because no matching backend template was found.`
+            ? `${missingCount} product${missingCount === 1 ? ' is' : 's are'} not ready for applications yet.`
             : '',
       )
     }
@@ -310,13 +313,13 @@ export default function useDashboardData() {
         setProposalsError('Sign in through the auth flow to load proposal activity for this dashboard.')
       } else if (error.status === 429 && cachedFallback.length > 0) {
         setProposals(cachedFallback)
-        setProposalsError('The backend rate limit was reached. Showing the last successful proposal snapshot cached in this browser.')
+        setProposalsError('Too many requests. Showing the last saved proposal summaries for now.')
       } else if (error.status === 429 && trackedFallback.length > 0) {
         setProposals(trackedFallback)
-        setProposalsError('The backend rate limit was reached. Showing the proposals tracked in this browser until the API window resets.')
+        setProposalsError('Too many requests. Showing saved proposals until refresh is available again.')
       } else if (error.status === 429) {
         setProposals((previous) => previous)
-        setProposalsError('The backend rate limit was reached. Wait for the API window to reset, then refresh again.')
+        setProposalsError('Too many requests. Please wait a moment, then refresh again.')
       } else {
         setProposals([])
         setProposalsError(error.message)
@@ -347,7 +350,7 @@ export default function useDashboardData() {
     try {
       await logoutUser()
     } catch {
-      // Clearing local state is still useful when the backend is offline.
+      // Clearing local state is still useful if the service is unavailable.
     }
 
     clearStoredUser()
@@ -366,6 +369,7 @@ export default function useDashboardData() {
       }
     },
     products,
+    templates,
     catalogLoading,
     catalogError,
     profileReady: isProfileReady(user),

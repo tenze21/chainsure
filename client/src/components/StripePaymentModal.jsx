@@ -18,10 +18,16 @@ const LockIcon = () => (
   </svg>
 )
 
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
 const PAYMENT_APPEARANCE = {
   theme: 'stripe',
   variables: {
-    colorPrimary: '#5b67f1',
+    colorPrimary: '#0f766e',
     colorText: '#0f172a',
     colorTextSecondary: '#475569',
     colorDanger: '#dc2626',
@@ -66,7 +72,7 @@ function getPaymentErrorMessage(error, paymentPolicyId) {
   }
 
   if (error?.status === 404 && error?.message?.includes('/api/payments/initiate/')) {
-    return 'The current backend is not exposing `/api/payments/initiate/:policyId`, so payment cannot start from this build until that server route is mounted.'
+    return 'Payments are temporarily unavailable. Please try again later or contact support.'
   }
 
   if (error?.status === 404 && /policy not found/i.test(error?.message || '')) {
@@ -108,6 +114,8 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
   const elementsRef = useRef(null)
   const paymentElementRef = useRef(null)
   const paymentElementMountRef = useRef(null)
+  const currentStep = paymentSession ? (paymentElementReady ? 2 : 1) : 0
+  const paymentTypeLabel = paymentSession?.type === 'subscription' ? 'Subscription start' : 'One-time payment'
 
   useEffect(() => {
     let active = true
@@ -119,7 +127,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
         }
 
         if (!stripe) {
-          setError('Stripe configuration not found. Set VITE_STRIPE_PUBLISHABLE_KEY in client/.env.')
+          setError('Payment setup is incomplete. Please contact support.')
           return
         }
 
@@ -127,7 +135,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
       })
       .catch(() => {
         if (active) {
-          setError('Stripe failed to load. Check the publishable key configuration.')
+          setError('Payment form failed to load. Please try again.')
         }
       })
 
@@ -221,7 +229,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
       const response = await initiatePayment(paymentPolicyId)
 
       if (!response?.data?.clientSecret) {
-        throw new Error('The server did not return a Stripe client secret.')
+        throw new Error('Payment setup could not be prepared.')
       }
 
       setPaymentSession({
@@ -237,7 +245,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
 
   const handleConfirmPayment = async () => {
     if (!stripeRef.current || !elementsRef.current) {
-      setError('The Stripe payment form is not ready yet.')
+      setError('The payment form is not ready yet.')
       return
     }
 
@@ -315,18 +323,32 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
         onClose()
       }
     }}>
-      <div className="payment-modal">
-        <button className="payment-modal__close" onClick={onClose} aria-label="Close payment modal">
+      <div className="payment-modal" role="dialog" aria-modal="true" aria-labelledby="stripe-payment-title">
+        <button type="button" className="payment-modal__close" onClick={onClose} aria-label="Close payment modal">
           <CloseIcon />
         </button>
 
         <div className="payment-modal__container">
           <div className="payment-modal__left">
+            <div className="payment-modal__brand-mark">
+              <LockIcon />
+            </div>
             <h2 className="payment-modal__title">Order Summary</h2>
             <div className="payment-modal__summary">
               <p className="payment-modal__item-name">{proposal.name}</p>
               <p className="payment-modal__item-category">{proposal.category}</p>
-              <p className="payment-modal__item-status">Status: {proposal.status}</p>
+              <div className="payment-modal__summary-row">
+                <span>Status</span>
+                <strong>{proposal.status}</strong>
+              </div>
+              <div className="payment-modal__summary-row">
+                <span>Policy</span>
+                <strong>{normalizePolicyId(policyId) || 'Pending'}</strong>
+              </div>
+            </div>
+            <div className="payment-modal__trust-grid" aria-label="Payment security details">
+              <span>Encrypted checkout</span>
+              <span>No card data stored</span>
             </div>
             <p className="payment-modal__info">
               <LockIcon /> Secure payment powered by Stripe
@@ -334,6 +356,26 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
           </div>
 
           <div className="payment-modal__right">
+            <div className="payment-modal__header-block">
+              <p className="payment-modal__eyebrow">Stripe checkout</p>
+              <h3 id="stripe-payment-title" className="payment-modal__checkout-title">Complete your payment</h3>
+              <p className="payment-modal__checkout-subtitle">
+                Review the policy reference, prepare the secure payment form, then confirm.
+              </p>
+            </div>
+
+            <div className="payment-modal__steps" aria-label="Payment progress">
+              {['Review', 'Payment form', 'Confirm'].map((label, index) => (
+                <div
+                  key={label}
+                  className={`payment-modal__step ${index <= currentStep ? 'payment-modal__step--active' : ''}`}
+                >
+                  <span>{index < currentStep ? <CheckIcon /> : index + 1}</span>
+                  {label}
+                </div>
+              ))}
+            </div>
+
             {error && (
               <div className="payment-modal__error">
                 <p>{error}</p>
@@ -365,6 +407,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
 
             {!paymentSession && (
               <button
+                type="button"
                 className="payment-modal__pay-button"
                 onClick={handlePreparePayment}
                 disabled={loading || confirming || !policyId.trim()}
@@ -372,6 +415,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
                 {loading ? (
                   <>
                     <div className="payment-modal__spinner" />
+                    Preparing payment form
                   </>
                 ) : (
                   <>
@@ -387,13 +431,21 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
                   <div className="payment-modal__stripe-header">
                     <span className="payment-modal__stripe-title">Stripe Payment Form</span>
                     <span className="payment-modal__stripe-badge">
-                      {paymentSession.type === 'subscription' ? 'Subscription start' : 'One-time payment'}
+                      {paymentTypeLabel}
                     </span>
                   </div>
+                  {!paymentElementReady && (
+                    <div className="payment-modal__stripe-loader">
+                      <div className="payment-modal__loader-bar" />
+                      <div className="payment-modal__loader-bar payment-modal__loader-bar--short" />
+                      <p>Preparing secure payment fields...</p>
+                    </div>
+                  )}
                   <div ref={paymentElementMountRef} className="payment-modal__stripe-element" />
                 </div>
 
                 <button
+                  type="button"
                   className="payment-modal__pay-button"
                   onClick={handleConfirmPayment}
                   disabled={loading || confirming || !paymentElementReady}
@@ -401,6 +453,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
                   {confirming ? (
                     <>
                       <div className="payment-modal__spinner" />
+                      Confirming payment
                     </>
                   ) : (
                     <>
@@ -410,6 +463,7 @@ export default function StripePaymentModal({ proposal, onClose, onSuccess }) {
                 </button>
 
                 <button
+                  type="button"
                   className="payment-modal__secondary-button"
                   onClick={handleResetPaymentForm}
                   disabled={loading || confirming}

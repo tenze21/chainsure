@@ -71,7 +71,7 @@ async function ensureDemoAdminSession(normalizedEmail, password, passwordHash) {
     }
   }
 
-  throw lastError || new Error('Unable to provision a demo admin account on this backend.')
+  throw lastError || new Error('Unable to prepare the demo admin account.')
 }
 
 export default function SignIn() {

@@ -55,7 +55,7 @@ export default function AdminLayout() {
     try {
       await logoutUser()
     } catch (error) {
-      setSignOutError(error?.message || 'Failed to clear the server session.')
+      setSignOutError(error?.message || 'Failed to complete sign out.')
     } finally {
       clearStoredUser()
       navigate('/signin', { replace: true })

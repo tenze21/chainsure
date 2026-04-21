@@ -68,14 +68,14 @@ export async function fetchAdminProposals() {
 
 export async function fetchAdminUsers() {
   throw new ApiError(
-    'This backend branch does not expose `GET /api/user/admin`, so the admin user list is unavailable from the client alone.',
+    'Admin user management is not available yet.',
     404,
   )
 }
 
 export async function updateAdminUserStatus(userId, status) {
   throw new ApiError(
-    'This backend branch does not expose `PATCH /api/user/:id/status`, so user status changes are unavailable from the client alone.',
+    'Admin user status changes are not available yet.',
     404,
   )
 }

@@ -172,7 +172,7 @@ export default function AdminPolicyProposals() {
       await loadApplications()
       setActionMessage(
         createdPolicy?.id
-          ? `Policy created successfully. Policy ID ${createdPolicy.id} is now tracked locally for payment.`
+          ? `Policy created successfully. Policy ID ${createdPolicy.id} is ready for payment.`
           : 'Policy created and proposal approved successfully.',
       )
     } catch (approveError) {
@@ -187,7 +187,7 @@ export default function AdminPolicyProposals() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Policy Proposals</h1>
-          <p className="text-gray-500 text-sm mt-1">Review the live admin proposal feed from the backend.</p>
+          <p className="text-gray-500 text-sm mt-1">Review submitted policy applications.</p>
         </div>
         <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
           {pendingCount} Pending Review
@@ -202,8 +202,8 @@ export default function AdminPolicyProposals() {
 
       <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700">
         {actionableCount > 0
-          ? `${actionableCount} pending proposal${actionableCount === 1 ? ' is' : 's are'} actionable from this browser session. Older proposals without tracked IDs remain read-only because the backend admin feed does not return proposal IDs.`
-          : 'The backend admin feed still omits proposal IDs. Admin actions are available only for proposals that this frontend previously submitted and tracked locally.'}
+          ? `${actionableCount} pending proposal${actionableCount === 1 ? ' is' : 's are'} ready for admin action. Some older records may remain read-only.`
+          : 'Admin actions are available only for proposals with complete review details.'}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
@@ -259,11 +259,11 @@ export default function AdminPolicyProposals() {
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="text-xs text-gray-500">Proposal ID</div>
-                  <div className="font-medium text-gray-900 break-all">{selectedApplication.proposalId || 'Unavailable from backend feed'}</div>
+                  <div className="font-medium text-gray-900 break-all">{selectedApplication.proposalId || 'Unavailable'}</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-xs text-gray-500">Tracking State</div>
-                  <div className="font-medium text-gray-900">{selectedApplication.isActionable ? 'Tracked locally' : 'Summary only'}</div>
+                  <div className="text-xs text-gray-500">Review State</div>
+                  <div className="font-medium text-gray-900">{selectedApplication.isActionable ? 'Ready for action' : 'Summary only'}</div>
                 </div>
               </div>
 
@@ -283,9 +283,9 @@ export default function AdminPolicyProposals() {
 
               {!selectedApplication.isActionable && (
                 <div className="mb-6">
-                  <div className="text-xs text-gray-500 mb-1">Backend Status</div>
+                  <div className="text-xs text-gray-500 mb-1">Review Status</div>
                   <div className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">
-                    This record came from `GET /api/proposal/admin`. The backend feed does not include proposal IDs or attribute payloads, so this specific proposal cannot be actioned from the client alone.
+                    This proposal is read-only because complete review details are not available.
                   </div>
                 </div>
               )}

@@ -131,7 +131,7 @@ function EmptyDetail({ message, onNavigate }) {
       <div className="proposals__empty-icon">
         <FileIcon />
       </div>
-      <p className="proposals__empty-title">No Live Proposal Detail Available</p>
+      <p className="proposals__empty-title">No Proposal Detail Available</p>
       <p className="proposals__empty-sub">{message}</p>
       <button className="proposals__empty-action" onClick={() => onNavigate('marketplace')}>
         Browse Marketplace
@@ -166,19 +166,12 @@ function ProposalDetail({ proposal, onPayClick }) {
 
       <div className="proposals__info-grid proposals__info-grid--2">
         <div className="proposals__info-cell proposals__info-cell--filled">
-          <p className="proposals__info-label">Template Name</p>
+          <p className="proposals__info-label">Plan Name</p>
           <p className="proposals__info-value">{proposal.name}</p>
         </div>
         <div className="proposals__info-cell proposals__info-cell--filled">
           <p className="proposals__info-label">Category</p>
           <p className="proposals__info-value">{proposal.category}</p>
-        </div>
-      </div>
-
-      <div className="proposals__section">
-        <p className="proposals__section-title">Backend Contract On This Branch</p>
-        <div className="proposals__integration-note">
-          The current `GET /api/proposal/user` response only returns status, template name, category, and created date. Proposal details shown below are recovered only for submissions made from this client session, where the create response returned the proposal metadata once.
         </div>
       </div>
 
@@ -203,7 +196,7 @@ function ProposalDetail({ proposal, onPayClick }) {
           </div>
           <p className="proposals__under-review-title">Application Under Review</p>
           <p className="proposals__under-review-text">
-            The proposal is live and coming from the backend. Status updates are real, while older submissions without stored IDs will stay summary-only on this branch.
+            Your proposal is being reviewed. Status updates will appear here.
           </p>
         </div>
       )}
@@ -219,12 +212,12 @@ function ProposalDetail({ proposal, onPayClick }) {
           </p>
           <p className="proposals__approved-box-note">
             {proposal.policyId
-              ? `Tracked policy ID: ${proposal.policyId}`
-              : 'Use the issued policy ID for payment. Proposal IDs from the summary feed will not work here.'}
+              ? `Policy reference: ${proposal.policyId}`
+              : 'Your policy reference is not available yet.'}
           </p>
           {hasPaymentProgress && (
             <p className="proposals__approved-box-note">
-              Local payment progress: {proposal.policyStatus.replace(/_/g, ' ')}
+              Payment progress: {proposal.policyStatus.replace(/_/g, ' ')}
             </p>
           )}
           {canProceedToPayment && (
@@ -236,7 +229,7 @@ function ProposalDetail({ proposal, onPayClick }) {
           )}
           {isPaymentProcessing && (
             <p className="proposals__approved-box-note">
-              Payment has been submitted and is still processing. Wait for backend confirmation before trying again.
+              Payment has been submitted and is still processing.
             </p>
           )}
           {isPaymentConfirmed && (
@@ -254,7 +247,7 @@ function ProposalDetail({ proposal, onPayClick }) {
             <p className="proposals__approved-box-title">Rejected By Admin</p>
           </div>
           <p className="proposals__approved-box-sub">
-            The rejection status is live from the backend. This branch does not expose a rejection note or proposal detail payload from the summary endpoint.
+            This proposal was not approved. Contact support if you need more details.
           </p>
         </div>
       )}
@@ -295,9 +288,9 @@ export default function Proposals({
     }
 
     if (paymentStatus === 'succeeded' || paymentStatus === 'requires_capture') {
-      setPaymentNotice('Payment confirmed in Stripe. Policy activation can take a moment while the backend finalizes it.')
+      setPaymentNotice('Payment confirmed. Policy activation can take a moment.')
     } else if (paymentStatus === 'processing') {
-      setPaymentNotice('Payment is processing. The backend may take a moment to reflect the updated policy status.')
+      setPaymentNotice('Payment is processing. Your policy status will update shortly.')
     }
 
     onRefresh?.()
@@ -339,7 +332,7 @@ export default function Proposals({
             })
           }
 
-          setPaymentNotice('Payment confirmed in Stripe. Policy activation can take a moment while the backend finalizes it.')
+          setPaymentNotice('Payment confirmed. Policy activation can take a moment.')
           onRefresh?.()
         } else if (paymentIntent?.status === 'processing') {
           if (policyId) {
@@ -349,10 +342,10 @@ export default function Proposals({
             })
           }
 
-          setPaymentNotice('Payment is processing. The backend may take a moment to reflect the updated policy status.')
+          setPaymentNotice('Payment is processing. Your policy status will update shortly.')
           onRefresh?.()
         } else if (paymentIntent?.status) {
-          setPaymentNotice(`Payment status: ${paymentIntent.status}. If the backend webhook is configured, the policy status will update after Stripe finishes processing.`)
+          setPaymentNotice(`Payment status: ${paymentIntent.status}. Your policy status will update after processing completes.`)
         }
       } finally {
         params.delete('payment')
@@ -393,7 +386,7 @@ export default function Proposals({
           <div className="proposals__header">
             <div>
               <h1 className="proposals__title">My Proposals</h1>
-              <p className="proposals__subtitle">Live summaries from the backend proposal endpoint.</p>
+              <p className="proposals__subtitle">Review your submitted applications.</p>
             </div>
             <div className="proposals__badges">
               <button className="proposals__refresh-btn" onClick={onRefresh} disabled={proposalsLoading}>
@@ -422,10 +415,10 @@ export default function Proposals({
             <div className="proposals__list">
               <p className="proposals__list-label">Application Summaries</p>
 
-              {proposalsLoading && <p className="proposals__list-helper">Loading backend proposal data.</p>}
+              {proposalsLoading && <p className="proposals__list-helper">Loading proposal data.</p>}
               {!proposalsLoading && proposalsError && <p className="proposals__list-helper">{proposalsError}</p>}
               {!proposalsLoading && !proposalsError && !proposals.length && (
-                <p className="proposals__list-helper">No proposals found for the current session.</p>
+                <p className="proposals__list-helper">No proposals found yet.</p>
               )}
 
               {!proposalsLoading && !proposalsError && proposals.map((proposal) => (
@@ -440,7 +433,7 @@ export default function Proposals({
 
             {!selected && (
               <EmptyDetail
-                message={proposalsError || 'Open the marketplace and submit a proposal to start seeing live summaries here.'}
+                message={proposalsError || 'Open the marketplace and submit a proposal to start seeing summaries here.'}
                 onNavigate={onNavigate}
               />
             )}

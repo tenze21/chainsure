@@ -14,7 +14,7 @@ export default function Policies({
 }) {
   const approvedCount = proposals.filter((proposal) => proposal.status === 'approved').length
   const pendingCount = proposals.filter((proposal) => proposal.status === 'pending').length
-  const connectedTemplates = products.filter((product) => product.templateStatus === 'ready').length
+  const availableProducts = products.filter((product) => product.templateStatus === 'ready').length
   const trackedPolicies = proposals.filter((proposal) => proposal.policyId)
 
   return (
@@ -25,13 +25,13 @@ export default function Policies({
         <main className="policies">
           <div className="policies__header">
             <h1 className="policies__title">Your Policies</h1>
-            <p className="policies__subtitle">This page is constrained by the current backend contract.</p>
+            <p className="policies__subtitle">Review policy records created from your approved proposals.</p>
           </div>
 
           <section className="policies__unsupported-card">
-            <h2 className="policies__unsupported-title">No User Policy Feed Exists On This Branch</h2>
+            <h2 className="policies__unsupported-title">Policy Records</h2>
             <p className="policies__unsupported-text">
-              The server exposes policy creation and payment initiation, but it does not expose a user-facing `GET /api/policy` route. Without that route, the dashboard cannot list issued policies or resolve the policy IDs needed for payment from the client alone.
+              Approved proposals and locally tracked policy records appear here when they are available.
             </p>
 
             <div className="policies__unsupported-stats">
@@ -44,8 +44,8 @@ export default function Policies({
                 <span className="policy-stat-card__value">{proposalsLoading ? '...' : pendingCount}</span>
               </div>
               <div className="policy-stat-card">
-                <span className="policy-stat-card__label">Connected Templates</span>
-                <span className="policy-stat-card__value">{connectedTemplates}</span>
+                <span className="policy-stat-card__label">Available Products</span>
+                <span className="policy-stat-card__value">{availableProducts}</span>
               </div>
             </div>
 
@@ -73,7 +73,7 @@ export default function Policies({
                     </div>
                     <div className="policy-detail-card__body">
                       <div className="policy-detail-card__field">
-                        <span className="policy-detail-card__label">Tracked Policy ID</span>
+                        <span className="policy-detail-card__label">Policy Reference</span>
                         <span className="policy-detail-card__value">{proposal.policyId}</span>
                       </div>
                     </div>

@@ -41,6 +41,35 @@ function findProduct(products, key) {
   return products.find((product) => product.key === key) || null
 }
 
+function findTemplateById(templates, templateId) {
+  if (!templateId) {
+    return null
+  }
+
+  return templates.find((template) => template.id === templateId) || null
+}
+
+function getSelectedTemplateId(location) {
+  return new URLSearchParams(location.search).get('templateId') || ''
+}
+
+function resolveFormProduct(products, templates, key, templateId) {
+  const product = findProduct(products, key)
+  const selectedTemplate = findTemplateById(templates, templateId)
+
+  if (!selectedTemplate) {
+    return product
+  }
+
+  return {
+    ...product,
+    template: selectedTemplate,
+    templateId: selectedTemplate.id,
+    templateStatus: 'ready',
+    templateSource: 'selected',
+  }
+}
+
 function getCurrentPageLabel(pathname) {
   if (pathname.startsWith('/dashboard/marketplace')) return 'Marketplace'
   if (pathname.startsWith('/dashboard/policies')) return 'Policies'
@@ -56,6 +85,7 @@ function DashboardRouter() {
   const {
     user,
     products,
+    templates,
     catalogLoading,
     catalogError,
     profileReady,
@@ -68,9 +98,10 @@ function DashboardRouter() {
     signOut,
   } = useDashboardData()
 
-  const handleNavigate = (page) => {
+  const handleNavigate = (page, options = {}) => {
     const path = DASHBOARD_PATHS[page] || DASHBOARD_PATHS.overview
-    navigate(path)
+    const search = options.templateId ? `?templateId=${encodeURIComponent(options.templateId)}` : ''
+    navigate(`${path}${search}`)
   }
 
   const commonPageProps = {
@@ -86,6 +117,8 @@ function DashboardRouter() {
   if (!user) {
     return <Navigate to="/signin" replace />
   }
+
+  const selectedTemplateId = getSelectedTemplateId(location)
 
   return (
     <Routes>
@@ -109,6 +142,7 @@ function DashboardRouter() {
           <Marketplace
             {...commonPageProps}
             products={products}
+            templates={templates}
             catalogLoading={catalogLoading}
             catalogError={catalogError}
             profileReady={profileReady}
@@ -167,8 +201,8 @@ function DashboardRouter() {
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
             user={user}
-            product={findProduct(products, 'travel')}
-            templateId={findProduct(products, 'travel')?.template?.id || findProduct(products, 'travel')?.templateId}
+            product={resolveFormProduct(products, templates, 'travel', selectedTemplateId)}
+            templateId={resolveFormProduct(products, templates, 'travel', selectedTemplateId)?.template?.id || resolveFormProduct(products, templates, 'travel', selectedTemplateId)?.templateId}
             missingProfileFields={missingProfileFields}
             onProposalSubmitted={refreshProposals}
           />
@@ -181,8 +215,8 @@ function DashboardRouter() {
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
             user={user}
-            product={findProduct(products, 'motor')}
-            templateId={findProduct(products, 'motor')?.template?.id || findProduct(products, 'motor')?.templateId}
+            product={resolveFormProduct(products, templates, 'motor', selectedTemplateId)}
+            templateId={resolveFormProduct(products, templates, 'motor', selectedTemplateId)?.template?.id || resolveFormProduct(products, templates, 'motor', selectedTemplateId)?.templateId}
             missingProfileFields={missingProfileFields}
             onProposalSubmitted={refreshProposals}
           />
@@ -195,8 +229,8 @@ function DashboardRouter() {
             onBack={() => navigate('/dashboard/marketplace')}
             onNavigate={handleNavigate}
             user={user}
-            product={findProduct(products, 'life')}
-            templateId={findProduct(products, 'life')?.template?.id || findProduct(products, 'life')?.templateId}
+            product={resolveFormProduct(products, templates, 'life', selectedTemplateId)}
+            templateId={resolveFormProduct(products, templates, 'life', selectedTemplateId)?.template?.id || resolveFormProduct(products, templates, 'life', selectedTemplateId)?.templateId}
             missingProfileFields={missingProfileFields}
             onProposalSubmitted={refreshProposals}
           />

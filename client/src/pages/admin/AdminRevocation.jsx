@@ -46,7 +46,7 @@ export default function AdminRevocation() {
       </div>
 
       <div className="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-        Revocation endpoints are not available in the backend yet. Showing sample policies.
+        Policy revocation is not available yet. Showing sample policies.
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
@@ -96,7 +96,7 @@ export default function AdminRevocation() {
           <div className="bg-white rounded-xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Revoke Policy {selectedPolicy.id}</h2>
-              <button onClick={() => { setSelectedPolicy(null); setNotes('') }} className="text-gray-400 hover:text-gray-600">×</button>
+              <button onClick={() => { setSelectedPolicy(null); setNotes('') }} className="text-gray-400 hover:text-gray-600">x</button>
             </div>
             <textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Provide the revocation reason" />
             <div className="flex items-center justify-end gap-2 mt-4">

@@ -21,9 +21,9 @@ export function getDashboardProducts() {
       templateMatchers: ['life', 'health', 'critical illness'],
       fallbackName: 'Life Insurance',
       fallbackFeatures: [
-        'Uses the life proposal form in this dashboard',
-        'Connect with VITE_TEMPLATE_ID_LIFE',
-        'Best fit for health or life-style underwriting flows',
+        'Health and life coverage options',
+        'Recurring payment support',
+        'Best fit for personal protection plans',
       ],
     },
     {
@@ -33,9 +33,9 @@ export function getDashboardProducts() {
       templateMatchers: ['travel', 'trip'],
       fallbackName: 'Travel Insurance',
       fallbackFeatures: [
-        'Uses the travel proposal form in this dashboard',
-        'Connect with VITE_TEMPLATE_ID_TRAVEL',
-        'Requires a matching backend template ID',
+        'Travel coverage for registered customers',
+        'Trip and destination details required',
+        'Application setup is not available yet',
       ],
     },
     {
@@ -45,9 +45,9 @@ export function getDashboardProducts() {
       templateMatchers: ['motor', 'vehicle', 'auto', 'car'],
       fallbackName: 'Motor Insurance',
       fallbackFeatures: [
-        'Uses the motor proposal form in this dashboard',
-        'Connect with VITE_TEMPLATE_ID_MOTOR',
-        'Best fit for vehicle underwriting flows',
+        'Vehicle insurance application',
+        'Recurring payment support',
+        'Best fit for vehicle coverage plans',
       ],
     },
   ]
