@@ -129,10 +129,6 @@ export default function Marketplace({
   profileReady,
   missingProfileFields,
 }) {
-<<<<<<< HEAD
-=======
-  // const connectedCount = products.filter((product) => product.templateStatus === 'ready').length
->>>>>>> e0e9fd6366f1770b8ca990d71d22699eb191eb2e
   const missingFieldsLabel = missingProfileFields.join(', ')
   const liveTemplates = Array.isArray(templates) ? templates : []
   const liveTemplateCount = liveTemplates.length
@@ -149,7 +145,6 @@ export default function Marketplace({
           <div className="marketplace__header">
             <div>
               <h1 className="marketplace__title">Insurance Marketplace</h1>
-<<<<<<< HEAD
               <p className="marketplace__subtitle">
                 Choose a product and open its proposal form.
               </p>
@@ -161,15 +156,6 @@ export default function Marketplace({
                   ? `${formReadyCount}/${liveTemplateCount} available`
                   : `${connectedCount}/${products.length} available`}
             </button>
-=======
-              {/* <p className="marketplace__subtitle">
-                Each card below points to one client-side proposal form and one backend template ID.
-              </p> */}
-            </div>
-            {/* <button className="marketplace__filter-btn" disabled>
-              {connectedCount}/{products.length} connected
-            </button> */}
->>>>>>> e0e9fd6366f1770b8ca990d71d22699eb191eb2e
           </div>
 
           {!profileReady && (
@@ -185,7 +171,6 @@ export default function Marketplace({
                 const route = getTemplateRoute(template)
                 const canOpen = Boolean(route)
 
-<<<<<<< HEAD
                 return (
                   <div key={template.id} className="product-card">
                     <div className="product-card__icon-wrap">{ICONS[kind] || ICONS.life}</div>
@@ -268,27 +253,6 @@ export default function Marketplace({
                   )}
                 </div>
               ))}
-=======
-                    onNavigate(product.route)
-                  }}
-                  disabled={catalogLoading || product.templateStatus !== 'ready'}
-                >
-                  {!profileReady && product.templateStatus === 'ready'
-                    ? 'Complete Profile'
-                    : getButtonLabel(product, catalogLoading)}
-                </button>
-                {/* {product.templateStatus === 'ready' && product.templateSource === 'auto' && (
-                  <p className="product-card__note">Matched automatically from the live backend template list.</p>
-                )}
-                {product.templateStatus === 'error' && (
-                  <p className="product-card__note">{product.templateError}</p>
-                )}
-                {product.templateStatus === 'missing' && (
-                  <p className="product-card__note">No matching backend template exists for this form yet.</p>
-                )} */}
-              </div>
-            ))}
->>>>>>> e0e9fd6366f1770b8ca990d71d22699eb191eb2e
           </div>
         </main>
       </div>
