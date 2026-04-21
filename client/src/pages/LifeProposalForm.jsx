@@ -132,7 +132,7 @@ export default function LifeProposalForm({ onBack, onNavigate, templateId, user,
             </div>
             <span className="proposal-form__logo-text">ChainSure Private Limited</span>
           </div>
-          <p className="proposal-form__title">Life Insurance Proposal Form</p>
+          <p className="proposal-form__title">Health Insurance Proposal Form</p>
         </div>
 
         <div className="proposal-form__notice">

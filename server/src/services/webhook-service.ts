@@ -1,13 +1,19 @@
 import type Stripe from "stripe";
 import env from "@/config/env";
+import { logger } from "@/config/logger";
 import stripe from "@/config/stripe";
 import { Payment, Policy, Subscription } from "@/database/models/index";
 import { ERROR_CODES } from "@/lib/constants";
 import { AppError } from "@/middlewares/error-handler";
 
 type StripeInvoiceExpanded = Stripe.Invoice & {
-  subscription: string | null;
   amount_paid: number;
+  parent: {
+    type: string;
+    subscription_details: {
+      subscription: string;
+    } | null;
+  } | null;
 };
 
 type StripeSubscriptionItemExpanded = Stripe.SubscriptionItem & {
@@ -120,12 +126,14 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
  * For renewals: just create a new Payment record, update billing dates
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
+  logger.info({ invoiceId: invoice.id }, "handleInvoicePaid called");
   const stripeInvoice = invoice as StripeInvoiceExpanded;
 
-  if (!stripeInvoice.subscription)
-    return;
+  const stripeSubscriptionId = stripeInvoice.parent?.type === "subscription_details" ? stripeInvoice.parent.subscription_details?.subscription : null;
 
-  const stripeSubscriptionId = stripeInvoice.subscription;
+  logger.info({ subscriptionId: stripeSubscriptionId }, "subscription value");
+  if (!stripeSubscriptionId)
+    return;
 
   const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
   const { policyId, userId } = stripeSubscription.metadata;
@@ -211,11 +219,17 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent): Promise
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
   const stripeInvoice = invoice as StripeInvoiceExpanded;
-  if (!stripeInvoice.subscription)
+
+  const subscriptionId = stripeInvoice.parent?.type === "subscription_details"
+    ? stripeInvoice.parent.subscription_details?.subscription
+    : null;
+
+  if (!subscriptionId)
     return;
 
-  const stripeSubscriptionId = stripeInvoice.subscription as string;
-  const subscription = await Subscription.findOne({ where: { stripeSubscriptionId } });
+  const subscription = await Subscription.findOne({
+    where: { stripeSubscriptionId: subscriptionId },
+  });
 
   if (subscription) {
     await subscription.update({ status: "past_due" });

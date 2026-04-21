@@ -291,7 +291,7 @@ export function logoutUser() {
 }
 
 export function initiatePayment(policyId) {
-  return apiRequest(`/api/payments/initiate/${policyId}`, {
+  return apiRequest(`/api/stripe/payments/initiate/${policyId}`, {
     method: 'POST',
   })
 }

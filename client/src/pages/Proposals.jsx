@@ -175,6 +175,16 @@ function ProposalDetail({ proposal, onPayClick }) {
         </div>
       </div>
 
+<<<<<<< HEAD
+=======
+      {/* <div className="proposals__section">
+        <p className="proposals__section-title">Backend Contract On This Branch</p>
+        <div className="proposals__integration-note">
+          The current `GET /api/proposal/user` response only returns status, template name, category, and created date. Proposal details shown below are recovered only for submissions made from this client session, where the create response returned the proposal metadata once.
+        </div>
+      </div> */}
+
+>>>>>>> e0e9fd6366f1770b8ca990d71d22699eb191eb2e
       {proposal.hasTrackedDetails && Object.keys(proposal.attributes).length > 0 && (
         <div className="proposals__section">
           <p className="proposals__section-title">Submitted Details</p>
