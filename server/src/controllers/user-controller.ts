@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { User } from "@database/models";
+import { Policy, User } from "@database/models";
 import { updateProfileSchema } from "@lib/schemas";
 import asyncHandler from "@middlewares/async-handler";
 import { ERROR_CODES } from "@/lib/constants";
@@ -43,5 +43,19 @@ export const getUserDetails = asyncHandler(async (req: Request, res: Response) =
   res.status(200).json({
     success: true,
     data: user,
+  });
+});
+
+/**
+ * @desc Get user policies
+ * @route GET /api/user/policy/
+ * @access Private(User)
+ */
+export const getUserPolicies = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const policies = await Policy.findAll({ where: { userId } });
+  res.status(200).json({
+    success: true,
+    data: { policies },
   });
 });
