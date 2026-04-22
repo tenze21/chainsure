@@ -15,8 +15,8 @@
 
 .payment-modal {
   position: relative;
-  width: min(920px, 100%);
-  max-height: min(92vh, 820px);
+  width: min(1040px, 100%);
+  max-height: calc(100vh - 32px);
   overflow: hidden;
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 28px;
@@ -64,8 +64,8 @@
 
 .payment-modal__container {
   display: grid;
-  grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.15fr);
-  min-height: 560px;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(460px, 1.25fr);
+  min-height: min(720px, calc(100vh - 32px));
 }
 
 .payment-modal__left {
@@ -224,8 +224,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: min(92vh, 820px);
-  padding: 42px 44px;
+  max-height: calc(100vh - 32px);
+  padding: 36px 44px 42px;
   overflow-y: auto;
   background:
     linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
@@ -433,7 +433,7 @@
 
 .payment-modal__stripe-shell {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   padding: 16px;
   border: 1px solid #dbeafe;
   border-radius: 18px;
@@ -470,7 +470,7 @@
 }
 
 .payment-modal__stripe-element {
-  min-height: 186px;
+  min-height: 560px;
 }
 
 .payment-modal__stripe-loader {
