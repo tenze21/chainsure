@@ -17,7 +17,7 @@ export async function mintPolicyNFT(policy: Policy, wallet: Wallet, cid: string)
     args: [
       wallet.walletAddress,
       policy.signature!,
-      `ipfs://${cid}`,
+      `https://${env.PINATA_GATEWAY}/ipfs/${cid}`,
     ],
   });
 
