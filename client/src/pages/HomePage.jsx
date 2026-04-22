@@ -5,12 +5,36 @@ import Footer from '../components/Footer'
 import { getTemplates } from '../lib/api'
 import { loadStoredUser } from '../lib/session'
 
+function formatCurrency(value) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount)) {
+    return 'N/A'
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 2,
+  }).format(amount)
+}
+
+function formatPaymentType(value) {
+  if (!value) {
+    return 'N/A'
+  }
+
+  return String(value)
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
 export default function HomePage() {
   const navigate = useNavigate()
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(true)
   const [templatesError, setTemplatesError] = useState('')
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
 
   const products = useMemo(() => ([
     {
@@ -74,13 +98,17 @@ export default function HomePage() {
   useEffect(() => {
     function handleEscape(event) {
       if (event.key === 'Escape') {
+        if (selectedTemplate) {
+          setSelectedTemplate(null)
+          return
+        }
         setSelectedProduct(null)
       }
     }
 
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
-  }, [])
+  }, [selectedTemplate])
 
   const selectedProductConfig = products.find((product) => product.title === selectedProduct?.title) || null
   const selectedTemplates = templates.filter(
@@ -95,9 +123,14 @@ export default function HomePage() {
 
   function closePoliciesModal() {
     setSelectedProduct(null)
+    setSelectedTemplate(null)
   }
 
   function handlePurchasePolicy(templateId) {
+    if (!templateId) {
+      return
+    }
+
     if (!isAuthenticated) {
       navigate('/signin')
       return
@@ -302,7 +335,7 @@ export default function HomePage() {
                   {selectedProduct?.title} Policies
                 </h3>
                 <p className="mt-1 text-gray-600">
-                  Select a policy template to continue with purchase.
+                  Click a policy template to view full coverage details.
                 </p>
               </div>
               <button
@@ -330,37 +363,91 @@ export default function HomePage() {
               {!templatesLoading && !templatesError && selectedTemplates.length > 0 && (
                 <div className="grid gap-4 md:grid-cols-2">
                   {selectedTemplates.map((template) => (
-                    <div key={template.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <button
+                      key={template.id}
+                      type="button"
+                      onClick={() => setSelectedTemplate(template)}
+                      className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-left transition-all hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                    >
                       <h4 className="text-gray-900 font-semibold">{template.name}</h4>
                       <p className="mt-2 text-sm text-gray-600">{template.description}</p>
-                      <button
-                        type="button"
-                        onClick={() => handlePurchasePolicy(template.id)}
-                        className="mt-4 inline-flex items-center justify-center w-full py-2.5 bg-[#0f1729] text-white rounded-lg hover:bg-[#1e293b] transition-colors font-medium"
-                      >
-                        Purchase Policy
-                      </button>
-                    </div>
+                      <p className="mt-4 text-xs font-medium text-teal-700">Click to view coverage details</p>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {selectedTemplate && (
+        <div
+          className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-[2px] px-4 py-8 overflow-y-auto"
+          onClick={() => setSelectedTemplate(null)}
+        >
+          <div
+            className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="bg-gradient-to-r from-[#0f1729] to-[#134e4a] px-6 py-5 text-white">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-teal-100">Policy Template</p>
+                  <h3 className="text-2xl font-bold mt-1">{selectedTemplate.name}</h3>
+                  <p className="text-sm text-slate-200 mt-1">{selectedTemplate.category?.name || selectedProduct?.title}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedTemplate(null)}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-sm"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
 
-            {!isAuthenticated && (
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <p className="text-sm text-gray-600">
-                  You need an account to purchase a policy.
-                </p>
-                <div className="flex items-center gap-3">
-                  <Link to="/signin" className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-white">
-                    Sign In
-                  </Link>
-                  <Link to="/signup" className="px-4 py-2 bg-[#0f1729] text-white rounded-lg hover:bg-[#1e293b]">
-                    Sign Up
-                  </Link>
+            <div className="p-6 space-y-5">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                  <div className="text-xs text-slate-500 uppercase tracking-wide">Payment Type</div>
+                  <div className="text-base font-semibold text-slate-900 mt-1">{formatPaymentType(selectedTemplate.paymentType)}</div>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                  <div className="text-xs text-slate-500 uppercase tracking-wide">Coverage Amount</div>
+                  <div className="text-base font-semibold text-slate-900 mt-1">{formatCurrency(selectedTemplate.coverageAmount)}</div>
                 </div>
               </div>
-            )}
+
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-slate-900">Coverage Details</h4>
+                <p className="mt-2 text-sm text-slate-700 leading-relaxed">{selectedTemplate.coverageDetails || 'N/A'}</p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-slate-900">Eligibility</h4>
+                <p className="mt-2 text-sm text-slate-700 leading-relaxed">{selectedTemplate.eligibility || 'N/A'}</p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
+                <h4 className="text-sm font-semibold text-slate-900">Limitations</h4>
+                <p className="mt-2 text-sm text-slate-700 leading-relaxed">{selectedTemplate.limitations || 'N/A'}</p>
+              </div>
+
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => handlePurchasePolicy(selectedTemplate.id)}
+                  className="w-full py-3 rounded-lg bg-[#0f1729] text-white hover:bg-[#1e293b] transition-colors font-medium"
+                >
+                  Purchase Policy
+                </button>
+                {!isAuthenticated && (
+                  <p className="mt-2 text-xs text-slate-500 text-center">
+                    You will be redirected to sign in or sign up before purchase.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
