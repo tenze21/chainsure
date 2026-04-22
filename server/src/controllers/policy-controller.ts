@@ -128,3 +128,16 @@ export const createPolicy = asyncHandler(async (req: Request, res: Response) => 
     data: result,
   });
 });
+
+/**
+ * @desc Get all policies
+ * @route GET /api/policy/all
+ * @access Private(Admin)
+ */
+export const getAllPolicies = asyncHandler(async (_req: Request, res: Response) => {
+  const policies = await Policy.findAll({ order: ["name"] });
+  res.status(200).json({
+    success: true,
+    data: { policies },
+  });
+});
