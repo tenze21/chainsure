@@ -108,6 +108,14 @@ export const UpdateTemplateSchema = z.object({
   categoryId: z.string().optional(),
 }).strict();
 
+export const InvalidatePolicySchema = z.object({
+  revocationNote: z.string().min(50, "Invalidation note must be more than 50 characters"),
+});
+
+export const ClaimPolicySchema = z.object({
+  description: z.string().min(50, "Claim description needs to be atleast 50 characters."),
+});
+
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type LoginInput = z.infer<typeof LoginSchema>;
 export type CreateTemplateInput = z.infer<typeof CreateTemplateSchema>;
