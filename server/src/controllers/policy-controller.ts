@@ -40,7 +40,7 @@ export const createPolicy = asyncHandler(async (req: Request, res: Response) => 
   }
 
   /** check if any of the template details required for the policy drafting is missing */
-  if (!proposal.policyTemplate?.name || !proposal.policyTemplate?.category.name || !proposal.policyTemplate.description || !proposal.policyTemplate.paymentType || !proposal.policyTemplate.coverageAmount || !proposal.policyTemplate.coverageDetails || !proposal.policyTemplate.eligibility || !proposal.policyTemplate.limitations || !proposal.policyTemplate.duration) {
+  if (!proposal.policyTemplate?.name || !proposal.policyTemplate?.category.name || !proposal.policyTemplate.description || !proposal.policyTemplate.paymentType || !proposal.policyTemplate.coverageAmount || !proposal.policyTemplate.coverageDetails || !proposal.policyTemplate.eligibility || !proposal.policyTemplate.limitations) {
     throw new AppError(ERROR_CODES.MISSING_REQUIRED_DATA, "Missing template data", 400);
   }
 
