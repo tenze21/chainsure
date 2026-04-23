@@ -1,13 +1,17 @@
 /* eslint-disable jsdoc/check-access */
 import type { Request, Response } from "express";
-import type { Hex } from "viem";
+import type { Hash, Hex } from "viem";
+import { client } from "@config/ethereum-client";
+import { logger } from "@config/logger";
 import { Category, Policy, PolicyTemplate, Proposal, sequelize, User } from "@database/models";
 import { ERROR_CODES } from "@lib/constants";
-import { CreatePolicySchema } from "@lib/schemas";
+import { CreatePolicySchema, InvalidatePolicySchema } from "@lib/schemas";
 import asyncHandler from "@middlewares/async-handler";
 import { AppError } from "@middlewares/error-handler";
 import { createStripeProduct, deleteStripeProduct } from "@services/stripe-service";
 import { buildPolicyHash, signPolicyHash } from "@utils/crypto";
+import env from "@/config/env";
+import { chainsureTokenAbi } from "@/contract/chainsure-token";
 
 /**
  * @desc Create policy
@@ -126,5 +130,52 @@ export const createPolicy = asyncHandler(async (req: Request, res: Response) => 
     success: true,
     message: "Policy created successfully",
     data: result,
+  });
+});
+
+/**
+ * @desc Get all policies
+ * @route GET /api/policy/all
+ * @access Private(Admin)
+ */
+export const getAllPolicies = asyncHandler(async (_req: Request, res: Response) => {
+  const policies = await Policy.findAll({ order: ["name"] });
+  res.status(200).json({
+    success: true,
+    data: { policies },
+  });
+});
+
+/**
+ * @desc Invalidate policy
+ * @route PATCH /api/policy/:policyId
+ * @access Private(Admin)
+ */
+export const invalidatePolicy = asyncHandler(async (req: Request, res: Response) => {
+  const policyId = req.params.policyId as string;
+  /** @dev req.body must have a `revocationNote` field, refer @code{InvalidatePolicySchema} */
+  const validatedData = InvalidatePolicySchema.parse(req.body);
+
+  const policy = await Policy.findOne({ where: { id: policyId } });
+  if (!policy) {
+    throw new AppError(ERROR_CODES.NOT_FOUND, "Policy not found", 404);
+  }
+
+  const { request } = await client.simulateContract({
+    address: env.CONTRACT_ADDRESS,
+    abi: chainsureTokenAbi,
+    functionName: "invalidatePolicy",
+    args: [policy.tokenId!],
+  });
+
+  const hash: Hash = await client.writeContract(request);
+
+  logger.info({ transaction: hash }, "Policy invalidated onchain");
+
+  await policy.update({ ...validatedData, status: "invalidated" });
+
+  res.status(200).json({
+    success: true,
+    message: "Policy revoked successfully",
   });
 });
