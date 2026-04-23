@@ -6,5 +6,6 @@ const router: Router = Router();
 
 router.post("/:proposalId", admin, policyController.createPolicy);
 router.get("/all", admin, policyController.getAllPolicies);
+router.patch("/:policyId", admin, policyController.invalidatePolicy);
 
 export default router;

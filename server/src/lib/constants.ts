@@ -87,6 +87,8 @@ export const ERROR_CODES = {
   PINATA_ERROR: "PINATA_ERROR",
 
   ETHEREUM_ERROR: "ETHEREUM_ERROR",
+
+  REDUNDANT_REQUEST: "REDUNDANT_REQUEST",
 } as const;
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
