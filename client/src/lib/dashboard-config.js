@@ -16,26 +16,26 @@ export function getDashboardProducts() {
   return [
     {
       key: 'life',
-      route: 'proposal-life',
+      route: 'proposal-health',
       templateId: normalizeTemplateId(import.meta.env.VITE_TEMPLATE_ID_LIFE),
       templateMatchers: ['life', 'health', 'critical illness'],
-      fallbackName: 'Life Insurance',
+      fallbackName: 'Health Insurance',
       fallbackFeatures: [
-        'Health and life coverage options',
+        'Health protection coverage options',
         'Recurring payment support',
-        'Best fit for personal protection plans',
+        'Best fit for personal health plans',
       ],
     },
     {
       key: 'travel',
-      route: 'proposal-travel',
+      route: 'proposal-property',
       templateId: normalizeTemplateId(import.meta.env.VITE_TEMPLATE_ID_TRAVEL),
-      templateMatchers: ['travel', 'trip'],
-      fallbackName: 'Travel Insurance',
+      templateMatchers: ['property', 'home', 'landlord', 'premises', 'rental'],
+      fallbackName: 'Property Insurance',
       fallbackFeatures: [
-        'Travel coverage for registered customers',
-        'Trip and destination details required',
-        'Application setup is not available yet',
+        'Property and asset coverage options',
+        'Protection for home and rental scenarios',
+        'Comprehensive premises risk support',
       ],
     },
     {

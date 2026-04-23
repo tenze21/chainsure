@@ -1,4 +1,5 @@
 import React from 'react'
+import { useParams } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import './Marketplace.css'
@@ -12,11 +13,7 @@ const ICONS = {
 }
 
 function buildSearchSource(template) {
-  return [
-    template?.name,
-    template?.category?.name,
-    template?.description,
-  ]
+  return [template?.name, template?.category?.name, template?.description]
     .filter(Boolean)
     .join(' ')
     .toLowerCase()
@@ -24,20 +21,40 @@ function buildSearchSource(template) {
 
 function getTemplateKind(template) {
   const source = buildSearchSource(template)
-
-  if (/(vehicle|motor|auto|car|fleet)/.test(source)) {
-    return 'motor'
-  }
-
-  if (/(travel|trip)/.test(source)) {
-    return 'travel'
-  }
-
-  if (/(property|home|landlord|premises|rental)/.test(source)) {
-    return 'property'
-  }
-
+  if (/(vehicle|motor|auto|car|fleet)/.test(source)) return 'motor'
+  if (/(travel|trip)/.test(source)) return 'travel'
+  if (/(property|home|landlord|premises|rental)/.test(source)) return 'property'
   return 'life'
+}
+
+function matchesProduct(template, product) {
+  if (!product) {
+    return false
+  }
+
+  const source = buildSearchSource(template)
+  const tokenSet = new Set(source.split(/[^a-z0-9]+/).filter(Boolean))
+  const matchers = Array.isArray(product.templateMatchers) ? product.templateMatchers : []
+
+  if (matchers.length > 0) {
+    return matchers.some((matcher) => {
+      const normalizedMatcher = String(matcher).trim().toLowerCase()
+      if (!normalizedMatcher) {
+        return false
+      }
+
+      if (normalizedMatcher.includes(' ')) {
+        return source.includes(normalizedMatcher)
+      }
+
+      // Match full tokens only to avoid false positives like "car" in "care".
+      return tokenSet.has(normalizedMatcher)
+    })
+  }
+
+  // Fallback by inferred template kind when no explicit matcher is configured.
+  const kind = getTemplateKind(template)
+  return (kind === 'property' ? 'travel' : kind) === product.key
 }
 
 function getTemplateFeatures(template) {
@@ -52,23 +69,7 @@ function getTemplateCoverage(template) {
   return `Up to ${formatCurrency(template?.coverageAmount)}`
 }
 
-function getProductFeatures(product) {
-  if (!product.template) {
-    return product.fallbackFeatures
-  }
-
-  return getTemplateFeatures(product.template)
-}
-
-function getProductCoverage(product) {
-  if (!product.template) {
-    return 'Coverage details unavailable'
-  }
-
-  return getTemplateCoverage(product.template)
-}
-
-export default function Marketplace({
+export default function ProductPolicies({
   onNavigate,
   onSignOut,
   user,
@@ -77,13 +78,10 @@ export default function Marketplace({
   templates = [],
   catalogLoading,
   profileReady,
-  missingProfileFields,
 }) {
-  const missingFieldsLabel = missingProfileFields.join(', ')
-  const liveTemplates = Array.isArray(templates) ? templates : []
-  const liveTemplateCount = liveTemplates.length
-  const formReadyCount = liveTemplates.filter((template) => ['life', 'motor', 'travel'].includes(getTemplateKind(template))).length
-  const connectedCount = products.filter((product) => product.templateStatus === 'ready').length
+  const { productKey = '' } = useParams()
+  const selectedProduct = products.find((product) => product.key === productKey) || null
+  const scopedTemplates = (Array.isArray(templates) ? templates : []).filter((template) => matchesProduct(template, selectedProduct))
 
   return (
     <div className="layout">
@@ -93,36 +91,32 @@ export default function Marketplace({
         <main className="marketplace">
           <div className="marketplace__header">
             <div>
-              <h1 className="marketplace__title">Insurance Marketplace</h1>
-              <p className="marketplace__subtitle">
-                Choose a product and open its proposal form.
-              </p>
+              <h1 className="marketplace__title">{selectedProduct?.fallbackName || 'Product'} Policies</h1>
+              <p className="marketplace__subtitle">Showing policies related to this insurance product only.</p>
             </div>
-            <button className="marketplace__filter-btn" disabled>
-              {catalogLoading
-                ? 'Loading products'
-                : liveTemplateCount > 0
-                  ? `${formReadyCount}/${liveTemplateCount} available`
-                  : `${connectedCount}/${products.length} available`}
+            <button className="marketplace__filter-btn" onClick={() => onNavigate('marketplace')}>
+              Back to Products
             </button>
           </div>
 
           {!profileReady && (
             <div className="marketplace__notice">
-              Complete your profile before applying. Missing: {missingFieldsLabel}.
+              Complete your profile before opening proposal forms.
             </div>
           )}
 
           <div className="marketplace__grid">
-            {products.map((product) => {
+            {scopedTemplates.map((template) => {
+              const route = selectedProduct?.route || ''
+              const canOpen = Boolean(route)
               return (
-                <div key={product.key} className="product-card">
-                  <div className="product-card__icon-wrap">{ICONS[product.key] || ICONS.life}</div>
-                  <h3 className="product-card__name">{product.fallbackName}</h3>
-                  <p className="product-card__coverage">{getProductCoverage(product)}</p>
+                <div key={template.id} className="product-card">
+                  <div className="product-card__icon-wrap">{ICONS[productKey === 'travel' ? 'property' : productKey] || ICONS.life}</div>
+                  <h3 className="product-card__name">{template.name}</h3>
+                  <p className="product-card__coverage">{getTemplateCoverage(template)}</p>
                   <ul className="product-card__features">
-                    {getProductFeatures(product).map((feature, index) => (
-                      <li key={`${product.key}-${index}`} className="product-card__feature">
+                    {getTemplateFeatures(template).map((feature, index) => (
+                      <li key={`${template.id}-${index}`} className="product-card__feature">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                           <polyline points="22 4 12 14.01 9 11.01" />
@@ -138,24 +132,20 @@ export default function Marketplace({
                         onNavigate('profile')
                         return
                       }
-                      onNavigate('product-policies', { productKey: product.key })
+                      if (!canOpen) return
+                      onNavigate(route, { templateId: template.id })
                     }}
-                    disabled={catalogLoading || product.templateStatus !== 'ready'}
+                    disabled={catalogLoading || !canOpen}
                   >
-                    {!profileReady && product.templateStatus === 'ready'
-                      ? 'Complete Profile'
-                      : 'View Policies'}
+                    {!profileReady ? 'Complete Profile' : (canOpen ? 'Open Proposal Form' : 'Unavailable')}
                   </button>
-                  {product.templateStatus === 'error' && (
-                    <p className="product-card__note">This product is temporarily unavailable.</p>
-                  )}
-                  {product.templateStatus === 'missing' && (
-                    <p className="product-card__note">Applications are not available for this product yet.</p>
-                  )}
                 </div>
               )
             })}
           </div>
+          {!catalogLoading && scopedTemplates.length === 0 && (
+            <p className="product-card__note">No templates available for this product yet.</p>
+          )}
         </main>
       </div>
     </div>
