@@ -23,7 +23,7 @@ import "@/database/models/index";
   A background job that queries the database for policies with `payment_confirmed`
   status and mints an associted NFT for the policy.
 */
-// startMintingJob();
+startMintingJob();
 
 const app = express();
 

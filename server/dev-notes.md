@@ -81,3 +81,9 @@
 ```
  cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 "isPolicyInvalid(uint256)(bool)" 0
 ```
+
+### Get tokenURI
+
+```
+  cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 "tokenURI(uint256)(string)" 0
+```
