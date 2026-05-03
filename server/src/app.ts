@@ -6,6 +6,7 @@ import { pinoLogger } from "@middlewares/pino-logger";
 import { apiLimiter } from "@middlewares/rate-limit-middleware";
 import authRoutes from "@routes/auth-routes";
 import claimRoutes from "@routes/claim-routes";
+import explorerRoutes from "@routes/explorer-routes";
 import paymentRoutes from "@routes/payment-routes";
 import policyRoutes from "@routes/policy-routes";
 import templateRoutes from "@routes/policy-template-routes";
@@ -59,6 +60,7 @@ app.use("/api/policy", authenticate, policyRoutes);
 app.use("/api/user", authenticate, userRoutes);
 app.use("/api/subscriptions", authenticate, subscriptionRoutes);
 app.use("/api/claim", authenticate, claimRoutes);
+app.use("/api/explorer", explorerRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

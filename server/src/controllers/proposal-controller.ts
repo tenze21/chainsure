@@ -68,6 +68,7 @@ export const getUserProposals = asyncHandler(async (req: Request, res: Response)
 
   const proposals = await Proposal.findAll({
     where: { userId },
+    order: [["createdAt", "DESC"]],
     include: [
       {
         model: PolicyTemplate,
@@ -102,6 +103,7 @@ export const getUserProposals = asyncHandler(async (req: Request, res: Response)
  */
 export const getProposals = asyncHandler(async (_req: Request, res: Response) => {
   const proposals = await Proposal.findAll({
+    order: [["createdAt", "DESC"]],
     include: [
       {
         model: PolicyTemplate,

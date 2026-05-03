@@ -60,7 +60,33 @@
   VEHICLE_INSURANCE_IMAGE_CID=
 ```
 
-3. execute `pnpm dev` to start server.
+4. execute `pnpm dev` to start server.
+
+## Stripe setup
+
+Foward stripe events to local server endpoint in development using the command below
+
+```
+  stripe listen --forward-to localhost:3000/api/stripe/webhooks
+```
+
+**_NOTE: Keep stripe running when testing_**
+
+## Smart contract setup for development
+
+Run an `anvil` node
+
+```
+  anvil
+```
+
+**_NOTE: Make sure you have foundry installed_**
+
+Get into [contract directory](/contract/) and deploy the contract on `anvil`
+
+```
+  make deploy
+```
 
 ## Calling contract functions
 
