@@ -1,6 +1,5 @@
 import type Stripe from "stripe";
 import env from "@/config/env";
-import { logger } from "@/config/logger";
 import stripe from "@/config/stripe";
 import { Payment, Policy, Subscription } from "@/database/models/index";
 import { ERROR_CODES } from "@/lib/constants";
@@ -126,12 +125,10 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
  * For renewals: just create a new Payment record, update billing dates
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice): Promise<void> {
-  logger.info({ invoiceId: invoice.id }, "handleInvoicePaid called");
   const stripeInvoice = invoice as StripeInvoiceExpanded;
 
   const stripeSubscriptionId = stripeInvoice.parent?.type === "subscription_details" ? stripeInvoice.parent.subscription_details?.subscription : null;
 
-  logger.info({ subscriptionId: stripeSubscriptionId }, "subscription value");
   if (!stripeSubscriptionId)
     return;
 

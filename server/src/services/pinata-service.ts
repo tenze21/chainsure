@@ -24,7 +24,7 @@ function buildNFTMetadata(policy: Policy): NFTMetadata {
   return {
     name: `${policy.name} #${policy.id.slice(0, 8).toUpperCase()}`,
     description: policy.description,
-    image: `ipfs://${imageCid}`,
+    image: `https://${env.PINATA_GATEWAY}/ipfs/${imageCid}`,
     attributes: [
       { trait_type: "Policy ID", value: policy.id },
       { trait_type: "Category", value: policy.category },

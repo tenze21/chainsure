@@ -1,32 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerUser, updateUserProfile } from '../lib/api'
+import { registerUser } from '../lib/api'
 import { createWalletRegistration } from '../lib/auth'
 import { saveStoredUser } from '../lib/session'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function getProfileSetupErrorMessage(error) {
-  const message = error?.message || 'Profile details could not be saved.'
-  const stack = String(error?.data?.stack || '')
-
-  if (
-    message === 'Validation error'
-    || /unique/i.test(message)
-    || /unique/i.test(stack)
-    || /cid/i.test(stack)
-  ) {
-    return 'Your account was created, but the CID is already linked to another account. Sign in and update the profile with a different CID, or use the account that already owns that CID.'
-  }
-
-  return `Your account was created, but the profile details could not be saved: ${message}`
-}
-
 export default function SignUp() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
-    cid: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -40,10 +23,6 @@ export default function SignUp() {
       case 'fullName':
         if (!value.trim()) return 'Full name is required'
         if (value.trim().length < 2) return 'Full name must be at least 2 characters'
-        return ''
-      case 'cid':
-        if (!value.trim()) return 'CID is required'
-        if (value.trim().length !== 11) return 'CID must be 11 characters'
         return ''
       case 'email':
         if (!value.trim()) return 'Email is required'
@@ -73,10 +52,9 @@ export default function SignUp() {
   }
 
   const isFormValid = () => {
-    const required = ['fullName', 'cid', 'email', 'password', 'confirmPassword']
+    const required = ['fullName', 'email', 'password', 'confirmPassword']
     if (!required.every((key) => formData[key]?.trim())) return false
     if (!EMAIL_REGEX.test(formData.email)) return false
-    if (formData.cid.trim().length !== 11) return false
     if (formData.password.length < 8) return false
     if (formData.password !== formData.confirmPassword) return false
     return true
@@ -108,7 +86,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setTouched({ fullName: true, cid: true, email: true, password: true, confirmPassword: true })
+    setTouched({ fullName: true, email: true, password: true, confirmPassword: true })
     if (!validateForm()) return
 
     setSubmitting(true)
@@ -124,28 +102,7 @@ export default function SignUp() {
         salt: walletRegistration.salt,
       })
 
-      let userSnapshot = registerResponse?.data?.user
-
-      try {
-        const profileResponse = await updateUserProfile({
-          cid: formData.cid.trim(),
-        })
-
-        userSnapshot = {
-          ...userSnapshot,
-          ...profileResponse?.data,
-        }
-      } catch (profileError) {
-        saveStoredUser(userSnapshot)
-        navigate('/dashboard/profile', {
-          replace: true,
-          state: {
-            profileError: getProfileSetupErrorMessage(profileError),
-          },
-        })
-        return
-      }
-
+      const userSnapshot = registerResponse?.data?.user
       saveStoredUser(userSnapshot)
       navigate('/account-created', { state: { walletAddress: walletRegistration.walletAddress } })
     } catch (submitError) {
@@ -174,7 +131,7 @@ export default function SignUp() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-[#0f1729] mb-1">Create Account</h1>
-          <p className="text-gray-500 text-sm mb-6">Set up your profile</p>
+          <p className="text-gray-500 text-sm mb-6">Set up your account</p>
           <form onSubmit={handleSubmit} className="space-y-4">
             {errors.submit && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
@@ -198,24 +155,6 @@ export default function SignUp() {
                 />
               </div>
               {errors.fullName && <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-500 mb-1">CID</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
-                </span>
-                <input
-                  name="cid"
-                  type="text"
-                  placeholder="Enter your CID"
-                  value={formData.cid}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0f1729]/20 focus:border-[#0f1729] ${errors.cid ? 'border-red-500' : 'border-gray-200'}`}
-                />
-              </div>
-              {errors.cid && <p className="mt-1 text-sm text-red-500">{errors.cid}</p>}
             </div>
             <div>
               <label className="block text-sm text-gray-500 mb-1">Email</label>
