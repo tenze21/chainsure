@@ -82,7 +82,7 @@ export default function Marketplace({
   const missingFieldsLabel = missingProfileFields.join(', ')
   const liveTemplates = Array.isArray(templates) ? templates : []
   const liveTemplateCount = liveTemplates.length
-  const formReadyCount = liveTemplates.filter((template) => ['life', 'motor', 'travel'].includes(getTemplateKind(template))).length
+  const formReadyCount = liveTemplateCount
   const connectedCount = products.filter((product) => product.templateStatus === 'ready').length
 
   return (

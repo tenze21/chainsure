@@ -177,6 +177,7 @@ function DashboardRouter() {
             proposals={proposals}
             proposalsLoading={proposalsLoading}
             products={products}
+            templates={templates}
           />
         )}
       />

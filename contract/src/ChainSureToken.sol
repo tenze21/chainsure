@@ -31,19 +31,21 @@ contract ChainSureToken is ERC721URIStorage, Ownable{
 
     /**
      * @dev Mapping of policy signatures to their respective token IDs.
+     Stores a unique signature for each policy (e.g., hash, ID)
     */
     mapping(uint256 => string) private policySignatures;
 
     /**
      * @dev Mapping to track invalidated policies by their token IDs.
+     false - valid, true - invalid
     */
     mapping(uint256 => bool) private invalidPolicies;
 
-    uint256 private _nextTokenID;
+    uint256 private _nextTokenID; //token counter, Auto-incremented ID for each new policy
 
     constructor() ERC721("Chainsure Policy Token", "CPT") Ownable(msg.sender){
         _nextTokenID=0;
-    }
+    } //sets token name - CHainsure Policy Token, symbol - CPT, and contract owner to the deployer
 
     function issuePolicy(address to, string memory signature, string memory tokenURI) external onlyOwner{
         uint256 tokenId = _nextTokenID++;

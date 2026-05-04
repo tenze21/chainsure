@@ -3,23 +3,18 @@ import './ProposalForm.css'
 import { submitProposal } from '../lib/api'
 import { trackSubmittedProposal } from '../lib/proposal-store'
 
-const TRAVEL_PURPOSES = ['Business', 'Vacation', 'Sports', 'Adventure', 'Pilgrimage', 'Pleasure', 'Others(Specify)']
+const PROPERTY_TYPES = ['House', 'Apartment', 'Commercial', 'Warehouse']
+const CONSTRUCTION_TYPES = ['Concrete', 'Wood', 'Mixed']
+const COVERAGE_TYPES = ['Fire', 'Theft', 'Natural Disaster', 'All Risk']
 
 function SuccessScreen({ onBack }) {
   return (
     <div className="success-screen">
       <div className="success-card">
-        <div className="success-card__icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </div>
+        <div className="success-card__icon">✔</div>
         <p className="success-card__title">Proposal Submitted Successfully</p>
         <p className="success-card__subtitle">It may take a while to verify your proposal</p>
         <button className="success-card__back" onClick={onBack}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-          </svg>
           Back to Dashboard
         </button>
       </div>
@@ -28,62 +23,64 @@ function SuccessScreen({ onBack }) {
 }
 
 export default function TravelProposalForm({ onBack, onNavigate, templateId, user, product, missingProfileFields = [], onProposalSubmitted }) {
+
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [declared, setDeclared] = useState(false)
   const [submitError, setSubmitError] = useState('')
-  const [purposes, setPurposes] = useState([])
-  const [specifyText, setSpecifyText] = useState('')
-  const [form, setForm] = useState({
-    destination: '',
-    travelers: '',
-    departureDate: '',
-    duration: '',
-    healthCondition: '',
-  })
 
-  const togglePurpose = (p) =>
-    setPurposes(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])
+  const [form, setForm] = useState({
+    propertyType: '',
+    address: '',
+    yearBuilt: '',
+    constructionType: '',
+    usage: '',
+    propertyValue: '',
+    contentsValue: '',
+    coverageType: '',
+    securityMeasures: '',
+    previousClaims: '',
+  })
 
   const handleChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
 
   const handleSubmit = async () => {
     if (missingProfileFields.length > 0) {
-      setSubmitError(`Complete your profile before submitting. Missing: ${missingProfileFields.join(', ')}.`)
+      setSubmitError(`Complete your profile before submitting. Missing: ${missingProfileFields.join(', ')}`)
       return
     }
 
     if (!templateId) {
-      setSubmitError('Missing policy template. Return to the marketplace and open this form again.')
+      setSubmitError('Missing policy template.')
       return
     }
+
     if (!declared) {
       setSubmitError('Please accept the declaration before submitting.')
       return
     }
 
-    setSubmitError('')
     setLoading(true)
+    setSubmitError('')
+
     try {
       const attributes = {
-        travelPurpose: purposes.join(', '),
-        specifyOther: specifyText,
-        travelDestination: form.destination,
-        numberOfTravelers: form.travelers,
-        departureDate: form.departureDate,
-        travelDuration: form.duration,
-        healthCondition: form.healthCondition,
+        ...form,
         declared: 'true',
       }
+
       const response = await submitProposal(templateId, attributes)
+
       trackSubmittedProposal({
         ownerEmail: user?.email,
         template: product?.template,
         proposalWithAttributes: response?.data?.proposalWithAttributes,
       })
+
       await onProposalSubmitted?.()
       setSubmitted(true)
+
     } catch (err) {
       setSubmitError(err.message || 'Submission failed. Please try again.')
     } finally {
@@ -95,13 +92,13 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId, use
 
   return (
     <div className="proposal-page">
+
       <button className="proposal-page__back" onClick={onBack}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-        </svg>
+        ←
       </button>
 
       <div className="proposal-form-wrap">
+
         <div className="proposal-form__header">
           <div className="proposal-form__logo">
             <div className="proposal-form__logo-icon">
@@ -115,7 +112,7 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId, use
         </div>
 
         <div className="proposal-form__notice">
-          <strong>IMPORTANT:—</strong>The purpose of this Proposal Form is to provide the Company with all the material information that is likely to influence the assessment of your Proposal. When filling the form you should complete all questions fully. Where you are in doubt as to whether a particular piece of information is material, you should include it. Failure to disclose all facts may invalidate the cover under your Policy.
+          <strong>IMPORTANT:—</strong> Provide complete and accurate details of your property. Failure to disclose material facts may invalidate your policy.
         </div>
 
         {submitError && (
@@ -124,77 +121,96 @@ export default function TravelProposalForm({ onBack, onNavigate, templateId, use
           </div>
         )}
 
-        {/* Travel Purpose */}
+        {/* Property Details */}
         <div className="form-section">
-          <p className="form-section__title">Travel Purpose</p>
-          <div className="checkbox-group">
-            {TRAVEL_PURPOSES.map(p => (
-              <label key={p} className="checkbox-item">
-                <input type="checkbox" checked={purposes.includes(p)} onChange={() => togglePurpose(p)} />
-                {p}
-              </label>
-            ))}
-          </div>
-          <div className="form-field">
-            <label>Specify here</label>
-            <textarea
-              className="form-textarea"
-              style={{ minHeight: 70 }}
-              placeholder="Specify here..."
-              value={specifyText}
-              onChange={e => setSpecifyText(e.target.value)}
-            />
-          </div>
-        </div>
+          <p className="form-section__title">Property Details</p>
 
-        {/* Travel Details */}
-        <div className="form-section">
-          <p className="form-section__title">Travel Details</p>
           <div className="form-grid">
             <div className="form-field">
-              <label>Travel Destination</label>
-              <input className="form-input" name="destination" placeholder="Country, State" value={form.destination} onChange={handleChange} />
+              <label>Property Address</label>
+              <input className="form-input" name="address" value={form.address} onChange={handleChange} />
             </div>
+
             <div className="form-field">
-              <label>Number of Travelers</label>
-              <input className="form-input" name="travelers" type="number" min="1" value={form.travelers} onChange={handleChange} />
+              <label>Property Type</label>
+              <select className="form-input" name="propertyType" value={form.propertyType} onChange={handleChange}>
+                <option value="">Select</option>
+                {PROPERTY_TYPES.map(p => <option key={p}>{p}</option>)}
+              </select>
             </div>
+
             <div className="form-field">
-              <label>Departure Date</label>
-              <input className="form-input" name="departureDate" type="date" value={form.departureDate} onChange={handleChange} />
+              <label>Year Built</label>
+              <input className="form-input" name="yearBuilt" value={form.yearBuilt} onChange={handleChange} />
             </div>
+
             <div className="form-field">
-              <label>Travel Duration</label>
-              <input className="form-input" name="duration" placeholder="Travel duration in days" value={form.duration} onChange={handleChange} />
+              <label>Construction Type</label>
+              <select className="form-input" name="constructionType" value={form.constructionType} onChange={handleChange}>
+                <option value="">Select</option>
+                {CONSTRUCTION_TYPES.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div className="form-field form-field--full">
+              <label>Usage</label>
+              <input className="form-input" name="usage" placeholder="Residential / Rental / Business" value={form.usage} onChange={handleChange} />
             </div>
           </div>
         </div>
 
-        {/* Health Condition */}
+        {/* Coverage */}
         <div className="form-section">
-          <p className="form-section__title">Health Condition</p>
-          <p className="form-section__subtitle">Please specify any preexisting medical conditions that you have.</p>
-          <textarea
-            className="form-textarea"
-            name="healthCondition"
-            value={form.healthCondition}
-            onChange={handleChange}
-            style={{ minHeight: 110 }}
-          />
+          <p className="form-section__title">Coverage Details</p>
+
+          <div className="form-grid">
+            <div className="form-field">
+              <label>Property Value</label>
+              <input className="form-input" name="propertyValue" value={form.propertyValue} onChange={handleChange} />
+            </div>
+
+            <div className="form-field">
+              <label>Contents Value</label>
+              <input className="form-input" name="contentsValue" value={form.contentsValue} onChange={handleChange} />
+            </div>
+
+            <div className="form-field form-field--full">
+              <label>Coverage Type</label>
+              <select className="form-input" name="coverageType" value={form.coverageType} onChange={handleChange}>
+                <option value="">Select</option>
+                {COVERAGE_TYPES.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Risk Info */}
+        <div className="form-section">
+          <p className="form-section__title">Risk Information</p>
+
+          <div className="form-field">
+            <label>Security Measures</label>
+            <textarea className="form-textarea" name="securityMeasures" value={form.securityMeasures} onChange={handleChange} />
+          </div>
+
+          <div className="form-field">
+            <label>Previous Claims History</label>
+            <textarea className="form-textarea" name="previousClaims" value={form.previousClaims} onChange={handleChange} />
+          </div>
         </div>
 
         {/* Declaration */}
         <div className="form-declaration">
           <input type="checkbox" checked={declared} onChange={e => setDeclared(e.target.checked)} />
-          <span>I declare that all information provided is true and accurate to the best of my knowledge. I understand that providing false information may result in denial of coverage or policy cancellation. I consent to the admin reviewing my health details to determine my premium.</span>
+          <span>
+            I declare that all information provided is true and accurate. I understand that false information may lead to policy rejection.
+          </span>
         </div>
 
         <button className="form-submit-btn" onClick={handleSubmit} disabled={loading}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
           {loading ? 'Submitting...' : 'Submit Application'}
         </button>
+
       </div>
     </div>
   )

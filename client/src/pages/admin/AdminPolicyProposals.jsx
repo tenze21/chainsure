@@ -207,7 +207,7 @@ export default function AdminPolicyProposals() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {loading ? (
             <div className="text-sm text-gray-500">Loading proposals...</div>
           ) : applications.length === 0 ? (
