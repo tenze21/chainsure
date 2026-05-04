@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
+import { getUserPolicies } from '../lib/api'
 import './Policies.css'
 
 const ICONS = {
@@ -15,19 +16,29 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? '--' : date.toLocaleDateString()
 }
 
+function formatStatus(value) {
+  if (!value) return 'Pending'
+  return String(value).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 function formatCurrency(value) {
   const amount = Number(value)
   if (!Number.isFinite(amount)) return 'Not available'
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(amount)
 }
 
-function pickAttributes(attributes = {}, ...keys) {
-  for (const key of keys) {
-    if (attributes?.[key] !== undefined && attributes?.[key] !== '') {
-      return attributes[key]
-    }
+function resolveExpiryDate(policy) {
+  if (!policy?.createdAt || !policy?.duration) {
+    return '--'
   }
-  return ''
+
+  const start = new Date(policy.createdAt)
+  if (Number.isNaN(start.getTime())) {
+    return '--'
+  }
+
+  start.setDate(start.getDate() + Number(policy.duration))
+  return formatDate(start.toISOString())
 }
 
 function getPolicyIcon(name = '', category = '') {
@@ -48,70 +59,59 @@ function generatePolicyPDF(policy) {
   URL.revokeObjectURL(url)
 }
 
-export default function Policies({
-  onNavigate,
-  onSignOut,
-  user,
-  currentPageLabel,
-  proposals = [],
-  proposalsLoading = false,
-  templates = [],
-}) {
+export default function Policies({ onNavigate, onSignOut, user, currentPageLabel }) {
   const [selected, setSelected] = useState(null)
-  const liveTemplates = Array.isArray(templates) ? templates : []
-  const policyItems = useMemo(() => {
-    function resolveTemplate(proposal) {
-      const proposalName = String(proposal?.name || '').trim().toLowerCase()
-      const proposalCategory = String(proposal?.category || '').trim().toLowerCase()
+  const [policies, setPolicies] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-      if (proposalName) {
-        const byName = liveTemplates.find((template) => String(template?.name || '').trim().toLowerCase() === proposalName)
-        if (byName) {
-          return byName
+  useEffect(() => {
+    let active = true
+
+    async function loadPolicies() {
+      try {
+        const response = await getUserPolicies({ forceRefresh: true })
+        if (!active) {
+          return
+        }
+        setPolicies(Array.isArray(response?.data?.policies) ? response.data.policies : [])
+        setError('')
+      } catch (loadError) {
+        if (!active) {
+          return
+        }
+        setPolicies([])
+        setError(loadError?.message || 'Failed to load policies.')
+      } finally {
+        if (active) {
+          setLoading(false)
         }
       }
-
-      if (proposalCategory) {
-        return liveTemplates.find((template) => String(template?.category?.name || '').trim().toLowerCase() === proposalCategory) || null
-      }
-
-      return null
     }
 
-    return (Array.isArray(proposals) ? proposals : [])
-      .filter((proposal) => (
-        proposal?.policyId
-        || ['approved', 'payment_confirmed', 'active'].includes(String(proposal?.policyStatus || '').toLowerCase())
-      ))
-      .map((proposal, index) => {
-        const attributes = proposal?.attributes || {}
-        const template = resolveTemplate(proposal)
-        const category = proposal?.category || 'General'
-        const name = proposal?.name || 'Insurance Policy'
-        const premiumRaw = pickAttributes(attributes, 'premium', 'premiumAmount', 'premium_amount')
-        const deductibleRaw = pickAttributes(attributes, 'deductible', 'deductable', 'deductibleAmount', 'deductableAmount')
+    loadPolicies()
 
-        return {
-          id: proposal?.key || proposal?.policyId || `${name}-${index}`,
-          name,
-          policyNumber: proposal?.policyId || `POL-${String(index + 1).padStart(6, '0')}`,
-          status: proposal?.policyStatus
-            ? String(proposal.policyStatus).replace(/_/g, ' ')
-            : (proposal?.status || 'approved'),
-          coverage: formatCurrency(
-            pickAttributes(attributes, 'coverageAmount', 'coverage_amount') || template?.coverageAmount,
-          ),
-          premium: premiumRaw ? `${formatCurrency(premiumRaw)} / period` : 'Pending',
-          expires: pickAttributes(attributes, 'expiryDate', 'expires') || '--',
-          startDate: formatDate(proposal?.createdAt),
-          deductible: deductibleRaw
-            ? formatCurrency(deductibleRaw)
-            : 'Not specified',
-          coverageDetails: String(template?.coverageDetails || '').trim() || 'Details not available',
-          icon: getPolicyIcon(name, category),
-        }
-      })
-  }, [proposals, liveTemplates])
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const policyItems = useMemo(() => (
+    policies.map((policy, index) => ({
+      id: policy?.id || `policy-${index}`,
+      name: policy?.name || 'Insurance Policy',
+      policyNumber: policy?.id || `POL-${String(index + 1).padStart(6, '0')}`,
+      status: formatStatus(policy?.status),
+      coverage: formatCurrency(policy?.coverageAmount),
+      premium: Number.isFinite(Number(policy?.premium)) ? `${formatCurrency(policy.premium)} / period` : 'Pending',
+      expires: resolveExpiryDate(policy),
+      startDate: formatDate(policy?.createdAt),
+      deductible: Number.isFinite(Number(policy?.deductible)) ? formatCurrency(policy.deductible) : 'Not specified',
+      extraLabel: 'Coverage Details',
+      extraValue: policy?.coverageDetails || 'Details not available',
+      icon: getPolicyIcon(policy?.name, policy?.category),
+    }))
+  ), [policies])
 
   const normalizedSelected = selected && policyItems.some((item) => item.id === selected.id) ? selected : null
 
@@ -127,10 +127,12 @@ export default function Policies({
           </div>
           <div className="policies__body">
             <div className="policy-list">
-              {proposalsLoading ? (
-                <div className="policy-detail__empty"><p>Loading policies...</p></div>
+              {loading ? (
+                <div className="policy-list__empty"><p>Loading policies...</p></div>
+              ) : error ? (
+                <div className="policy-list__empty"><p>{error}</p></div>
               ) : policyItems.length === 0 ? (
-                <div className="policy-detail__empty"><p>No policies available yet.</p></div>
+                <div className="policy-list__empty"><p>No policies available yet.</p></div>
               ) : policyItems.map((policy) => (
                 <div key={policy.id} className={`policy-card ${normalizedSelected?.id === policy.id ? 'policy-card--selected' : ''}`} onClick={() => setSelected(policy)}>
                   <div className="policy-card__top">
@@ -178,7 +180,7 @@ export default function Policies({
                     <div className="detail-field"><span className="detail-field__label">Coverage Amount</span><span className="detail-field__value">{normalizedSelected.coverage}</span></div>
                     <div className="detail-field"><span className="detail-field__label">Start Date</span><span className="detail-field__value">{normalizedSelected.startDate}</span></div>
                     <div className="detail-field detail-field--full"><span className="detail-field__label">Deductible</span><span className="detail-field__value">{normalizedSelected.deductible}</span></div>
-                    <div className="detail-field detail-field--full"><span className="detail-field__label">Coverage Details</span><span className="detail-field__value">{normalizedSelected.coverageDetails}</span></div>
+                    <div className="detail-field detail-field--full"><span className="detail-field__label">{normalizedSelected.extraLabel}</span><span className="detail-field__value">{normalizedSelected.extraValue}</span></div>
                   </div>
                   <div className="policy-detail__actions">
                     <button className="detail-btn detail-btn--outline" onClick={() => generatePolicyPDF(normalizedSelected)}>

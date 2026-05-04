@@ -234,6 +234,13 @@ export function getUserProposals(options = {}) {
   })
 }
 
+export function getUserPolicies(options = {}) {
+  return apiRequest('/api/user/policy', {
+    cacheTtlMs: 30 * 1000,
+    ...options,
+  })
+}
+
 export function loginUser(payload) {
   return apiRequest('/api/auth/login', {
     method: 'POST',
@@ -293,5 +300,24 @@ export function logoutUser() {
 export function initiatePayment(policyId) {
   return apiRequest(`/api/stripe/payments/initiate/${policyId}`, {
     method: 'POST',
+  })
+}
+
+export function submitClaim(policyId, payload) {
+  return apiRequest(`/api/claim/${policyId}`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function approveClaim(claimId) {
+  return apiRequest(`/api/claim/approve/${claimId}`, {
+    method: 'PATCH',
+  })
+}
+
+export function rejectClaim(claimId) {
+  return apiRequest(`/api/claim/reject/${claimId}`, {
+    method: 'PATCH',
   })
 }

@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .policies__header {
@@ -31,8 +31,7 @@
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 20px;
-  flex: 1;
-  min-height: 0;
+  align-items: start;
 }
 
 /* Policy list (left) */
@@ -40,7 +39,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  max-height: 100%;
+  max-height: 70vh;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: none;
@@ -49,6 +48,15 @@
 
 .policy-list::-webkit-scrollbar {
   display: none;
+}
+
+.policy-list__empty {
+  border: 1px dashed #d5dee8;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .policy-card {

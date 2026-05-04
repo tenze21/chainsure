@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { loadAllClaims, updateLocalClaim } from '../../lib/claim-store'
+import { approveClaim, rejectClaim } from '../../lib/api'
 import { formatCurrency, formatDate, titleCase } from '../../lib/formatters'
 
 const priorityStyles = {
@@ -32,6 +33,7 @@ export default function AdminClaimsReview() {
   const [activeTab, setActiveTab] = useState('pending')
   const [selectedClaimId, setSelectedClaimId] = useState('')
   const [reviewData, setReviewData] = useState({ priority: 'medium', adminNote: '' })
+  const [actionError, setActionError] = useState('')
 
   function refreshClaims() {
     setClaims(loadAllClaims())
@@ -75,6 +77,7 @@ export default function AdminClaimsReview() {
   }), [claims])
 
   function openReview(claim) {
+    setActionError('')
     setSelectedClaimId(claim.id)
     setReviewData({
       priority: normalizePriority(claim.priority) === 'not assigned' ? 'medium' : normalizePriority(claim.priority),
@@ -83,23 +86,35 @@ export default function AdminClaimsReview() {
   }
 
   function closeReview() {
+    setActionError('')
     setSelectedClaimId('')
     setReviewData({ priority: 'medium', adminNote: '' })
   }
 
-  function persistClaim(status) {
+  async function persistClaim(status) {
     if (!selectedClaim) {
       return
     }
 
-    updateLocalClaim(selectedClaim.id, {
-      priority: reviewData.priority === 'not assigned' ? '' : reviewData.priority,
-      adminNote: reviewData.adminNote,
-      ...(status ? { status } : {}),
-    })
+    try {
+      setActionError('')
+      if (status === 'approved') {
+        await approveClaim(selectedClaim.id)
+      } else if (status === 'rejected') {
+        await rejectClaim(selectedClaim.id)
+      }
 
-    refreshClaims()
-    closeReview()
+      updateLocalClaim(selectedClaim.id, {
+        priority: reviewData.priority === 'not assigned' ? '' : reviewData.priority,
+        adminNote: reviewData.adminNote,
+        ...(status ? { status } : {}),
+      })
+
+      refreshClaims()
+      closeReview()
+    } catch (error) {
+      setActionError(error?.message || 'Unable to update claim status right now.')
+    }
   }
 
   return (
@@ -281,6 +296,12 @@ export default function AdminClaimsReview() {
                 placeholder="Record what was reviewed, what evidence is missing, or why the claim was accepted or rejected."
               />
             </div>
+
+            {actionError ? (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {actionError}
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap items-center justify-end gap-2">
               <button type="button" onClick={closeReview} className="rounded-lg border border-gray-200 px-4 py-2 text-sm">

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
-import { createLocalClaim, loadClaims } from '../lib/claim-store'
+import { submitClaim } from '../lib/api'
 import { formatCurrency, formatDate, titleCase } from '../lib/formatters'
 import './Claims.css'
 
@@ -22,14 +22,6 @@ const DocumentIcon = () => (
     <path d="M16 13H8" />
     <path d="M16 17H8" />
     <path d="M10 9H8" />
-  </svg>
-)
-
-const UploadIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <path d="M7 10l5-5 5 5" />
-    <path d="M12 15V5" />
   </svg>
 )
 
@@ -101,6 +93,38 @@ function getDefaultFormState(policyId = '') {
   }
 }
 
+function formatClaimCode(id) {
+  const cleanId = String(id || '').replace(/-/g, '').slice(-6).toUpperCase()
+  if (!cleanId) {
+    return 'CLM-PENDING'
+  }
+  return `CLM-${cleanId}`
+}
+
+function toClaimViewModel(claim, extra = {}) {
+  if (!claim) {
+    return null
+  }
+
+  return {
+    id: claim.id,
+    claimCode: claim.claimCode || formatClaimCode(claim.id),
+    policyId: claim.policyId || extra.policyId || '',
+    policyName: extra.policyName || 'Issued policy',
+    policyCategory: extra.policyCategory || '',
+    claimType: extra.claimType || '',
+    amount: Number(extra.amount) || 0,
+    incidentDate: extra.incidentDate || '',
+    description: claim.description || extra.description || '',
+    attachments: [],
+    status: claim.status || 'pending',
+    priority: claim.priority || '',
+    adminNote: claim.adminNote || '',
+    createdAt: claim.createdAt || new Date().toISOString(),
+    updatedAt: claim.updatedAt || new Date().toISOString(),
+  }
+}
+
 export default function Claims({
   onNavigate,
   onSignOut,
@@ -112,29 +136,10 @@ export default function Claims({
   const [selectedClaimId, setSelectedClaimId] = useState('')
   const [feedback, setFeedback] = useState({ tone: '', message: '' })
   const [formState, setFormState] = useState(() => getDefaultFormState())
-  const fileInputRef = useRef(null)
 
   const refreshClaims = () => {
-    setClaims(user?.email ? loadClaims(user.email) : [])
+    setClaims((current) => [...current])
   }
-
-  useEffect(() => {
-    refreshClaims()
-  }, [user?.email])
-
-  useEffect(() => {
-    function handleStorage(event) {
-      if (event.key === 'chainsure.claims') {
-        refreshClaims()
-      }
-    }
-
-    window.addEventListener('storage', handleStorage)
-
-    return () => {
-      window.removeEventListener('storage', handleStorage)
-    }
-  }, [user?.email])
 
   const claimsByPolicyId = useMemo(
     () => new Map(claims.map((claim) => [claim.policyId, claim])),
@@ -183,9 +188,6 @@ export default function Claims({
 
   function resetForm(nextPolicyId = claimablePolicies[0]?.policyId || '') {
     setFormState(getDefaultFormState(nextPolicyId))
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
   }
 
   function handleFieldChange(field, value) {
@@ -195,15 +197,7 @@ export default function Claims({
     }))
   }
 
-  function handleAttachmentChange(event) {
-    const attachments = Array.from(event.target.files || []).slice(0, 5)
-    setFormState((current) => ({
-      ...current,
-      attachments,
-    }))
-  }
-
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setFeedback({ tone: '', message: '' })
 
@@ -231,10 +225,20 @@ export default function Claims({
       return
     }
 
+    if (formState.description.trim().length < 50) {
+      setFeedback({
+        tone: 'error',
+        message: 'Claim description must be at least 50 characters.',
+      })
+      return
+    }
+
     try {
-      const nextClaim = createLocalClaim({
-        ownerEmail: user?.email,
-        ownerName: user?.fullName,
+      const response = await submitClaim(selectedPolicy.policyId, {
+        description: formState.description.trim(),
+      })
+      const backendClaim = response?.data?.claim
+      const nextClaim = toClaimViewModel(backendClaim, {
         policyId: selectedPolicy.policyId,
         policyName: selectedPolicy.policyName,
         policyCategory: selectedPolicy.policyCategory,
@@ -242,14 +246,15 @@ export default function Claims({
         amount: formState.amount,
         incidentDate: formState.incidentDate,
         description: formState.description,
-        attachments: formState.attachments,
       })
 
-      refreshClaims()
-      setSelectedClaimId(nextClaim.id)
+      if (nextClaim) {
+        setClaims((current) => [nextClaim, ...current])
+        setSelectedClaimId(nextClaim.id)
+      }
       setFeedback({
         tone: 'success',
-        message: `${nextClaim.claimCode} was submitted and is ready for review.`,
+        message: `${nextClaim?.claimCode || 'Claim'} was submitted and is ready for review.`,
       })
       resetForm(claimablePolicies.find((policy) => policy.policyId !== selectedPolicy.policyId)?.policyId || '')
     } catch (error) {
@@ -397,36 +402,6 @@ export default function Claims({
                         placeholder="Describe the incident, what was damaged, and any immediate actions taken."
                       />
                     </div>
-                  </div>
-
-                  <div className="form-group">
-                    <span className="form-label">Evidence Attachments</span>
-                    <label className="upload-zone" htmlFor="claim-files">
-                      <div className="upload-zone__icon">
-                        <UploadIcon />
-                      </div>
-                      <div className="upload-zone__text">
-                        Add bills, repair estimates, photos, or reports.
-                        <span className="upload-zone__link"> Only file names are stored in this frontend-only build.</span>
-                      </div>
-                      {formState.attachments.length > 0 ? (
-                        <ul className="upload-zone__files">
-                          {formState.attachments.map((file) => (
-                            <li key={`${file.name}-${file.size}`} className="upload-zone__file">
-                              {file.name}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : null}
-                    </label>
-                    <input
-                      id="claim-files"
-                      ref={fileInputRef}
-                      className="claims__file-input"
-                      type="file"
-                      multiple
-                      onChange={handleAttachmentChange}
-                    />
                   </div>
 
                   <div className="submission-actions">
