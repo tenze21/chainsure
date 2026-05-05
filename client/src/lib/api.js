@@ -295,3 +295,10 @@ export function initiatePayment(policyId) {
     method: 'POST',
   })
 }
+
+export function getExplorerToken(tokenId, options = {}) {
+  return apiRequest(`/api/explorer/${encodeURIComponent(tokenId)}`, {
+    cacheTtlMs: 30 * 1000,
+    ...options,
+  })
+}
