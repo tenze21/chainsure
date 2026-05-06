@@ -106,3 +106,17 @@ export const rejectClaim = asyncHandler(async (req: Request, res: Response) => {
     message: "Claim rejected successfully",
   });
 });
+
+/**
+ * @desc Get claims
+ * @route GET /api/claim/
+ * @access Private(Admin)
+ */
+export const getClaims = asyncHandler(async (req: Request, res: Response) => {
+  const claims = await Claim.findAll({ order: [["createdAt", "DESC"]] });
+
+  res.status(200).json({
+    success: true,
+    data: { claims },
+  });
+});
