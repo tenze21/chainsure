@@ -303,21 +303,49 @@ export function initiatePayment(policyId) {
   })
 }
 
+export function getClaims(options = {}) {
+  return apiRequest('/api/claim', {
+    cacheTtlMs: 30 * 1000,
+    ...options,
+  })
+}
+
+export function getUserClaims(options = {}) {
+  return apiRequest('/api/user/claims', {
+    cacheTtlMs: 30 * 1000,
+    ...options,
+  })
+}
+
 export function submitClaim(policyId, payload) {
   return apiRequest(`/api/claim/${policyId}`, {
     method: 'POST',
     body: JSON.stringify(payload),
+  }).then((data) => {
+    invalidateCachedPath('/api/claim')
+    invalidateCachedPath('/api/user/claims')
+    return data
   })
 }
 
-export function approveClaim(claimId) {
+export function approveClaim(claimId, payload = {}) {
   return apiRequest(`/api/claim/approve/${claimId}`, {
     method: 'PATCH',
+    body: JSON.stringify(payload),
+  }).then((data) => {
+    invalidateCachedPath('/api/claim')
+    invalidateCachedPath('/api/user/claims')
+    return data
   })
 }
 
-export function rejectClaim(claimId) {
+export function rejectClaim(claimId, payload = {}) {
   return apiRequest(`/api/claim/reject/${claimId}`, {
     method: 'PATCH',
+    body: JSON.stringify(payload),
+  }).then((data) => {
+    invalidateCachedPath('/api/claim')
+    invalidateCachedPath('/api/user/claims')
+    return data
   })
 }

@@ -42,7 +42,6 @@ export default function HomePage() {
       title: 'Health Insurance',
       categoryName: 'Health Insurance',
       features: ['Family protection', 'Tax benefits', 'Cash value growth', 'Flexible terms'],
-      popular: false,
       icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
     },
     {
@@ -50,7 +49,6 @@ export default function HomePage() {
       title: 'Property Insurance',
       categoryName: 'Property Insurance',
       features: ['Fire & damage coverage', 'Theft protection', 'Natural disaster coverage', '24/7 assistance'],
-      popular: true,
       icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0h.5a2.5 2.5 0 002.5-2.5V3.935M12 12v2.945a2 2 0 01-.055 4.055M12 12V9.5A2.5 2.5 0 109.5 12',
     },
     {
@@ -58,7 +56,6 @@ export default function HomePage() {
       title: 'Motor Insurance',
       categoryName: 'Vehicle Insurance',
       features: ['Third-party liability', 'Comprehensive coverage', 'Instant claims', 'No-claims bonus'],
-      popular: false,
       icon: 'M8 17h8m-8 0a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2zm0 0h2m-2 0v-4m0 4v4m0-4h6m-6 0v-4m0 4v4',
     },
   ]), [])
@@ -204,12 +201,10 @@ export default function HomePage() {
             </div>
             <div className="grid md:grid-cols-3 gap-8">
               {products.map((product) => (
-                <div key={product.id} className={`rounded-xl p-8 border-2 transition-all relative ${product.popular ? 'border-teal-500 shadow-lg bg-white' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                  {product.popular && (
-                    <span className="absolute top-4 right-4 px-3 py-1 bg-teal-500 text-white text-sm font-medium rounded-full">
-                      Popular
-                    </span>
-                  )}
+                <div
+                  key={product.id}
+                  className="rounded-xl p-8 border-2 border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-gray-300 transition-all"
+                >
                   <svg className="w-12 h-12 text-teal-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={product.icon} />
                   </svg>
@@ -227,7 +222,7 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => openPoliciesModal(product)}
-                    className={`inline-flex items-center justify-center w-full py-3 rounded-lg font-medium transition-colors ${product.popular ? 'bg-[#0f1729] text-white hover:bg-[#1e293b]' : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300'}`}
+                    className="inline-flex items-center justify-center w-full py-3 rounded-lg font-medium border-2 border-gray-200 bg-white text-gray-900 transition-colors hover:bg-[#0f1729] hover:border-[#0f1729] hover:text-white"
                   >
                     View Policies
                   </button>

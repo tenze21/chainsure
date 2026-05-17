@@ -306,6 +306,10 @@ textarea.form-control {
   min-height: 110px;
 }
 
+.submission-textarea--large {
+  min-height: 180px;
+}
+
 .claims__file-input {
   display: none;
 }

@@ -1,19 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
-import { submitClaim } from '../lib/api'
-import { formatCurrency, formatDate, titleCase } from '../lib/formatters'
+import { getUserClaims, submitClaim } from '../lib/api'
+import { formatDate, titleCase } from '../lib/formatters'
+import {
+  loadCachedUserClaims,
+  mergeClaimsById,
+  saveCachedUserClaims,
+  upsertCachedUserClaim,
+} from '../lib/user-claims-cache'
 import './Claims.css'
 
 const CLAIM_READY_STATUSES = new Set(['payment_confirmed', 'active'])
-const CLAIM_TYPE_OPTIONS = [
-  'Accident',
-  'Vehicle damage',
-  'Medical expense',
-  'Property loss',
-  'Third-party liability',
-  'Emergency assistance',
-]
 
 const DocumentIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -57,14 +55,6 @@ function getStatusBadgeClass(status) {
   return 'status-badge status-badge--review'
 }
 
-function formatAmount(value) {
-  if (!value) {
-    return 'Amount not provided'
-  }
-
-  return formatCurrency(value)
-}
-
 function normalizeEligiblePolicies(proposals) {
   return [...(Array.isArray(proposals) ? proposals : [])]
     .filter((proposal) => (
@@ -85,11 +75,8 @@ function normalizeEligiblePolicies(proposals) {
 function getDefaultFormState(policyId = '') {
   return {
     policyId,
-    claimType: CLAIM_TYPE_OPTIONS[0],
-    amount: '',
     incidentDate: '',
     description: '',
-    attachments: [],
   }
 }
 
@@ -101,22 +88,32 @@ function formatClaimCode(id) {
   return `CLM-${cleanId}`
 }
 
-function toClaimViewModel(claim, extra = {}) {
+function parseClaimsFromResponse(response) {
+  const claims = response?.data?.claims
+
+  if (Array.isArray(claims)) {
+    return { claims, hasInvalidPayload: false }
+  }
+
+  const hasInvalidPayload = claims != null && typeof claims === 'object'
+  return { claims: [], hasInvalidPayload }
+}
+
+function toClaimViewModel(claim, policyLookup = new Map(), extra = {}) {
   if (!claim) {
     return null
   }
 
+  const linkedPolicy = claim.policy || policyLookup.get(claim.policyId) || null
+
   return {
     id: claim.id,
     claimCode: claim.claimCode || formatClaimCode(claim.id),
-    policyId: claim.policyId || extra.policyId || '',
-    policyName: extra.policyName || 'Issued policy',
-    policyCategory: extra.policyCategory || '',
-    claimType: extra.claimType || '',
-    amount: Number(extra.amount) || 0,
-    incidentDate: extra.incidentDate || '',
+    policyId: claim.policyId || linkedPolicy?.policyId || extra.policyId || '',
+    policyName: linkedPolicy?.name || linkedPolicy?.policyName || extra.policyName || 'Issued policy',
+    policyCategory: linkedPolicy?.category || linkedPolicy?.policyCategory || extra.policyCategory || '',
+    incidentDate: extra.incidentDate || claim.incidentDate || '',
     description: claim.description || extra.description || '',
-    attachments: [],
     status: claim.status || 'pending',
     priority: claim.priority || '',
     adminNote: claim.adminNote || '',
@@ -132,24 +129,86 @@ export default function Claims({
   currentPageLabel,
   proposals = [],
 }) {
-  const [claims, setClaims] = useState([])
+  const [rawClaims, setRawClaims] = useState([])
+  const [claimsLoading, setClaimsLoading] = useState(true)
+  const [claimsError, setClaimsError] = useState('')
   const [selectedClaimId, setSelectedClaimId] = useState('')
   const [feedback, setFeedback] = useState({ tone: '', message: '' })
   const [formState, setFormState] = useState(() => getDefaultFormState())
 
-  const refreshClaims = () => {
-    setClaims((current) => [...current])
-  }
+  const eligiblePolicies = useMemo(
+    () => normalizeEligiblePolicies(proposals),
+    [proposals],
+  )
+
+  const policyLookup = useMemo(
+    () => new Map(eligiblePolicies.map((policy) => [policy.policyId, policy])),
+    [eligiblePolicies],
+  )
+
+  const claims = useMemo(
+    () => rawClaims
+      .map((claim) => toClaimViewModel(claim, policyLookup))
+      .filter(Boolean),
+    [rawClaims, policyLookup],
+  )
 
   const claimsByPolicyId = useMemo(
     () => new Map(claims.map((claim) => [claim.policyId, claim])),
     [claims],
   )
 
-  const eligiblePolicies = useMemo(
-    () => normalizeEligiblePolicies(proposals),
-    [proposals],
-  )
+  const loadClaims = useCallback(async ({ forceRefresh = false } = {}) => {
+    setClaimsLoading(true)
+
+    try {
+      const response = await getUserClaims({ forceRefresh })
+      const { claims: apiClaims, hasInvalidPayload } = parseClaimsFromResponse(response)
+      const cachedClaims = loadCachedUserClaims(user?.id)
+      const mergedClaims = apiClaims.length > 0
+        ? mergeClaimsById(apiClaims, cachedClaims)
+        : cachedClaims
+
+      setRawClaims(mergedClaims)
+
+      if (apiClaims.length > 0) {
+        saveCachedUserClaims(user?.id, mergeClaimsById(apiClaims, []))
+      }
+
+      if (hasInvalidPayload && mergedClaims.length === 0) {
+        setClaimsError('Claims could not be loaded from the server. Try refreshing the page.')
+      } else if (hasInvalidPayload && mergedClaims.length > 0) {
+        setClaimsError('Showing saved claims from this session. Refresh again after the server responds.')
+      } else {
+        setClaimsError('')
+      }
+    } catch (error) {
+      const cachedClaims = loadCachedUserClaims(user?.id)
+      setRawClaims(cachedClaims)
+      setClaimsError(
+        cachedClaims.length > 0
+          ? 'Could not reach the server. Showing claims saved in this browser session.'
+          : error.message || 'Failed to load claims.',
+      )
+    } finally {
+      setClaimsLoading(false)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    loadClaims({ forceRefresh: true })
+  }, [loadClaims])
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        loadClaims({ forceRefresh: true })
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [loadClaims])
 
   const claimablePolicies = useMemo(
     () => eligiblePolicies.filter((policy) => !claimsByPolicyId.has(policy.policyId)),
@@ -238,20 +297,21 @@ export default function Claims({
         description: formState.description.trim(),
       })
       const backendClaim = response?.data?.claim
-      const nextClaim = toClaimViewModel(backendClaim, {
+      const nextClaim = toClaimViewModel(backendClaim, policyLookup, {
         policyId: selectedPolicy.policyId,
         policyName: selectedPolicy.policyName,
         policyCategory: selectedPolicy.policyCategory,
-        claimType: formState.claimType,
-        amount: formState.amount,
         incidentDate: formState.incidentDate,
         description: formState.description,
       })
 
       if (nextClaim) {
-        setClaims((current) => [nextClaim, ...current])
         setSelectedClaimId(nextClaim.id)
+        upsertCachedUserClaim(user?.id, backendClaim || nextClaim)
+        setRawClaims((current) => mergeClaimsById([backendClaim || nextClaim], current))
       }
+
+      await loadClaims({ forceRefresh: true })
       setFeedback({
         tone: 'success',
         message: `${nextClaim?.claimCode || 'Claim'} was submitted and is ready for review.`,
@@ -340,37 +400,6 @@ export default function Claims({
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label" htmlFor="claim-type">Claim Type</label>
-                      <select
-                        id="claim-type"
-                        className="form-control"
-                        value={formState.claimType}
-                        onChange={(event) => handleFieldChange('claimType', event.target.value)}
-                      >
-                        {CLAIM_TYPE_OPTIONS.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label" htmlFor="claim-amount">Estimated Amount</label>
-                      <input
-                        id="claim-amount"
-                        className="form-control"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        inputMode="decimal"
-                        value={formState.amount}
-                        onChange={(event) => handleFieldChange('amount', event.target.value)}
-                        placeholder="0.00"
-                      />
-                    </div>
-
-                    <div className="form-group">
                       <label className="form-label" htmlFor="claim-date">Incident Date</label>
                       <input
                         id="claim-date"
@@ -396,7 +425,8 @@ export default function Claims({
                       <label className="form-label" htmlFor="claim-description">Description</label>
                       <textarea
                         id="claim-description"
-                        className="form-control submission-textarea"
+                        className="form-control submission-textarea submission-textarea--large"
+                        rows={8}
                         value={formState.description}
                         onChange={(event) => handleFieldChange('description', event.target.value)}
                         placeholder="Describe the incident, what was damaged, and any immediate actions taken."
@@ -477,12 +507,23 @@ export default function Claims({
                 <h2 className="claims-card__title">Claim History</h2>
                 <p className="claims-section__sub">Review claim status and admin notes.</p>
               </div>
-              <button className="btn-secondary" onClick={refreshClaims}>
+              <button
+                className="btn-secondary"
+                type="button"
+                onClick={() => loadClaims({ forceRefresh: true })}
+                disabled={claimsLoading}
+              >
                 Refresh
               </button>
             </div>
 
-            {claims.length > 0 ? (
+            {claimsError ? (
+              <div className="claims-feedback claims-feedback--error">{claimsError}</div>
+            ) : null}
+
+            {claimsLoading ? (
+              <div className="claims-empty">Loading claims...</div>
+            ) : claims.length > 0 ? (
               claims.map((claim) => (
                 <button
                   key={claim.id}
@@ -495,14 +536,13 @@ export default function Claims({
                       <DocumentIcon />
                     </div>
                     <div>
-                      <div className="claim-row__type">{claim.claimType || 'Claim'}</div>
+                      <div className="claim-row__type">{claim.policyName || 'Claim'}</div>
                       <div className="claim-row__meta">
                         {claim.claimCode} · {claim.policyName} · Submitted {formatDate(claim.createdAt)}
                       </div>
                     </div>
                   </div>
                   <div className="claim-row__right">
-                    <div className="claim-row__amount">{formatAmount(claim.amount)}</div>
                     <span className={getStatusBadgeClass(claim.status)}>
                       <span className="status-badge__dot" />
                       {formatClaimStatus(claim.status)}
@@ -537,16 +577,12 @@ export default function Claims({
                     <div className="detail-row__value">{formatClaimStatus(selectedClaim.status)}</div>
                   </div>
                   <div className="detail-row">
-                    <div className="detail-row__label">Claim Type</div>
-                    <div className="detail-row__value">{selectedClaim.claimType || 'Unavailable'}</div>
-                  </div>
-                  <div className="detail-row">
-                    <div className="detail-row__label">Estimated Amount</div>
-                    <div className="detail-row__value">{formatAmount(selectedClaim.amount)}</div>
+                    <div className="detail-row__label">Policy Category</div>
+                    <div className="detail-row__value">{selectedClaim.policyCategory || 'Unavailable'}</div>
                   </div>
                   <div className="detail-row">
                     <div className="detail-row__label">Incident Date</div>
-                    <div className="detail-row__value">{formatDate(selectedClaim.incidentDate)}</div>
+                    <div className="detail-row__value">{selectedClaim.incidentDate ? formatDate(selectedClaim.incidentDate) : 'Not recorded'}</div>
                   </div>
                   <div className="detail-row">
                     <div className="detail-row__label">Submitted</div>
@@ -561,19 +597,6 @@ export default function Claims({
                 <div className="claims-modal__section">
                   <div className="claims-modal__label">Description</div>
                   <div className="claims-modal__body">{selectedClaim.description || 'No description provided.'}</div>
-                </div>
-
-                <div className="claims-modal__section">
-                  <div className="claims-modal__label">Attachments</div>
-                  {selectedClaim.attachments?.length ? (
-                    <ul className="claims-modal__attachments">
-                      {selectedClaim.attachments.map((file) => (
-                        <li key={`${file.name}-${file.size}`}>{file.name}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="claims-modal__body">No attachments were added.</div>
-                  )}
                 </div>
 
                 <div className="claims-modal__section">
