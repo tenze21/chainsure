@@ -67,7 +67,7 @@ export const getUserPolicies = asyncHandler(async (req: Request, res: Response) 
 */
 export const getUserClaims = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const claims = Claim.findAll({ where: { userId }, order: [["createdAt", "DESC"]] });
+  const claims = await Claim.findAll({ where: { userId }, order: [["createdAt", "DESC"]] });
   res.status(200).json({
     success: true,
     data: { claims },

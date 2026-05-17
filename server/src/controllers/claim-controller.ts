@@ -4,7 +4,7 @@ import { logger } from "@config/logger";
 import env from "@/config/env";
 import { client } from "@/config/ethereum-client";
 import { chainsureTokenAbi } from "@/contract/chainsure-token";
-import { Claim, Policy, sequelize } from "@/database/models";
+import { Claim, Policy, sequelize, User } from "@/database/models";
 import { ERROR_CODES } from "@/lib/constants";
 import { ClaimPolicySchema } from "@/lib/schemas";
 import asyncHandler from "@/middlewares/async-handler";
@@ -58,23 +58,34 @@ export const approveClaim = asyncHandler(async (req: Request, res: Response) => 
     throw new AppError(ERROR_CODES.NOT_FOUND, "Policy not found for claim", 404);
   }
 
+  const { priority, adminNote } = req.body as { priority?: string; adminNote?: string };
+
   /** @dev update policy and claim status in database */
   await sequelize.transaction(async (t) => {
-    await claim.update({ status: "approved" }, { transaction: t });
+    await claim.update({
+      status: "approved",
+      ...(priority ? { priority } : {}),
+      ...(adminNote !== undefined ? { adminNote: adminNote || null } : {}),
+    }, { transaction: t });
     await policy.update({ status: "claimed" }, { transaction: t });
   });
 
-  /** @dev Invalidate claimed policy on-chain */
-  const { request } = await client.simulateContract({
-    address: env.CONTRACT_ADDRESS,
-    abi: chainsureTokenAbi,
-    functionName: "invalidatePolicy",
-    args: [policy.tokenId!],
-  });
+  /** @dev Invalidate claimed policy on-chain when a token was minted */
+  if (policy.tokenId != null) {
+    const { request } = await client.simulateContract({
+      address: env.CONTRACT_ADDRESS,
+      abi: chainsureTokenAbi,
+      functionName: "invalidatePolicy",
+      args: [BigInt(policy.tokenId)],
+    });
 
-  const hash: Hash = await client.writeContract(request);
+    const hash: Hash = await client.writeContract(request);
 
-  logger.info({ transaction: hash }, "Policy invalidated onchain");
+    logger.info({ transaction: hash }, "Policy invalidated onchain");
+  }
+  else {
+    logger.warn({ policyId: policy.id }, "Skipping on-chain invalidation: policy has no tokenId");
+  }
 
   res.status(200).json({
     success: true,
@@ -99,7 +110,13 @@ export const rejectClaim = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError(ERROR_CODES.NOT_FOUND, "Policy not found for claim", 404);
   }
 
-  await claim.update({ status: "rejected" });
+  const { priority, adminNote } = req.body as { priority?: string; adminNote?: string };
+
+  await claim.update({
+    status: "rejected",
+    ...(priority ? { priority } : {}),
+    ...(adminNote !== undefined ? { adminNote: adminNote || null } : {}),
+  });
 
   res.status(200).json({
     success: true,
@@ -113,7 +130,21 @@ export const rejectClaim = asyncHandler(async (req: Request, res: Response) => {
  * @access Private(Admin)
  */
 export const getClaims = asyncHandler(async (req: Request, res: Response) => {
-  const claims = await Claim.findAll({ order: [["createdAt", "DESC"]] });
+  const claims = await Claim.findAll({
+    include: [
+      {
+        model: User,
+        as: "user",
+        attributes: ["id", "fullName", "email"],
+      },
+      {
+        model: Policy,
+        as: "policy",
+        attributes: ["id", "name", "category", "holderName", "holderEmail"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
+  });
 
   res.status(200).json({
     success: true,
