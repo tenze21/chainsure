@@ -129,7 +129,7 @@ export const rejectClaim = asyncHandler(async (req: Request, res: Response) => {
  * @route GET /api/claim/
  * @access Private(Admin)
  */
-export const getClaims = asyncHandler(async (req: Request, res: Response) => {
+export const getClaims = asyncHandler(async (_req: Request, res: Response) => {
   const claims = await Claim.findAll({
     include: [
       {
