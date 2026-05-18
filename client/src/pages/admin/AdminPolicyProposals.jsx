@@ -19,6 +19,10 @@ function formatStatus(status) {
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 
+function isPendingStatus(status) {
+  return String(status || 'pending').toLowerCase() === 'pending'
+}
+
 function formatAttributeLabel(key) {
   return String(key || '')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -61,7 +65,8 @@ export default function AdminPolicyProposals() {
 
   async function loadApplications(options = {}) {
     const items = await fetchAdminProposals(options)
-    const mergedItems = buildActionableApplications(items)
+    const pendingItems = items.filter((item) => isPendingStatus(item.status))
+    const mergedItems = buildActionableApplications(pendingItems)
 
     setApplications(mergedItems)
     setSelectedIndex((previous) => {
@@ -211,7 +216,7 @@ export default function AdminPolicyProposals() {
           {loading ? (
             <div className="text-sm text-gray-500">Loading proposals...</div>
           ) : applications.length === 0 ? (
-            <div className="text-sm text-gray-500">No proposals have been submitted yet.</div>
+            <div className="text-sm text-gray-500">No pending proposals to review.</div>
           ) : (
             applications.map((application, index) => (
               <button

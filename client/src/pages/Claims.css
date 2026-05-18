@@ -473,8 +473,12 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  width: 100%;
   padding: 18px 24px;
+  border: none;
   border-bottom: 1px solid var(--color-border);
+  text-align: left;
   cursor: pointer;
   background-color: var(--color-white);
   transition: background var(--transition-fast);
@@ -492,6 +496,15 @@ textarea.form-control {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.claim-row__left > div:not(.claim-row__icon) {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
 }
 
 .claim-row__icon {
@@ -510,18 +523,24 @@ textarea.form-control {
   font-weight: 600;
   font-size: 15px;
   color: var(--color-text-primary);
+  text-align: left;
 }
 
 .claim-row__meta {
   font-size: 13px;
   color: var(--color-text-muted);
   margin-top: 2px;
+  text-align: left;
 }
 
 .claim-row__right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
   gap: 14px;
+  text-align: right;
 }
 
 .claim-row__amount {
@@ -772,7 +791,8 @@ textarea.form-control {
 
   .claim-row__right {
     width: 100%;
-    justify-content: space-between;
+    margin-left: 0;
+    justify-content: flex-end;
   }
 
   .modal--detail {

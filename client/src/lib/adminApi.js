@@ -95,3 +95,18 @@ export function createPolicyFromProposal(proposalId, payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export async function fetchAllPolicies(options = {}) {
+  const response = await apiRequest('/api/policy/all', {
+    cacheTtlMs: 0,
+    ...options,
+  })
+  return unwrapList(response, 'policies')
+}
+
+export function revokePolicy(policyId, payload) {
+  return apiRequest(`/api/policy/${policyId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+}
