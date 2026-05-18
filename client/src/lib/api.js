@@ -303,6 +303,13 @@ export function initiatePayment(policyId) {
   })
 }
 
+export function getExplorerToken(tokenId, options = {}) {
+  return apiRequest(`/api/explorer/${encodeURIComponent(tokenId)}`, {
+    cacheTtlMs: 30 * 1000,
+    ...options,
+  })
+}
+
 export function getClaims(options = {}) {
   return apiRequest('/api/claim', {
     cacheTtlMs: 30 * 1000,

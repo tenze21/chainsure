@@ -26,6 +26,7 @@ import PropertyProposalForm from './pages/PropertyProposalForm'
 import MotorProposalForm from './pages/MotorProposalForm'
 import HealthProposalForm from './pages/HealthProposalForm'
 import useDashboardData from './hooks/useDashboardData'
+import ExplorerPage from './pages/Explorer'
 
 const DASHBOARD_PATHS = {
   overview: '/dashboard',
@@ -288,6 +289,7 @@ function App() {
         </Route>
         <Route path="/dashboard/*" element={<DashboardRouter />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/explorer" element={<ExplorerPage />} />
       </Routes>
     </BrowserRouter>
   )

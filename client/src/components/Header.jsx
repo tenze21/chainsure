@@ -13,7 +13,7 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-8">
           <Link to="/#products" className="text-gray-600 hover:text-gray-900 transition-colors">Products</Link>
           <Link to="/#how-it-works" className="text-gray-600 hover:text-gray-900 transition-colors">How it Works</Link>
-          <Link to="/#verify" className="text-gray-600 hover:text-gray-900 transition-colors">Verify Policy</Link>
+          <Link to="/explorer" className="text-gray-600 hover:text-gray-900 transition-colors">Explorer</Link>
           <Link to="/about" className="text-gray-600 hover:text-gray-900 transition-colors">About</Link>
         </div>
         <div className="flex items-center gap-4">
