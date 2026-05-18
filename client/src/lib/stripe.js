@@ -33,31 +33,33 @@ function loadStripeScript() {
 
 export async function getStripeClient() {
   const publishableKey = (
-    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-    || import.meta.env.VITE_STRIPE_PUBLIC_KEY
-    || __CHAINSURE_STRIPE_PUBLISHABLE_KEY__
-    || ''
-  ).trim()
+    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ''
+  ).trim();
 
   if (!publishableKey) {
     throw new Error(
-      'Stripe Elements needs a Stripe publishable key (`pk_test_...` or `pk_live_...`). `server/.env.development` currently has `STRIPE_SECRET_KEY` and blockchain `PUBLIC_KEY`, but no Stripe publishable key. Add `VITE_STRIPE_PUBLISHABLE_KEY` to `client/.env`, or `STRIPE_PUBLISHABLE_KEY` to `server/.env.development`, then restart Vite.',
-    )
+      'Stripe publishable key is not configured. ' +
+      'Add VITE_STRIPE_PUBLISHABLE_KEY=pk_test_... to client/.env'
+    );
   }
 
   if (!/^pk_(test|live)_/.test(publishableKey)) {
     throw new Error(
-      'The configured Stripe browser key is invalid. Use a Stripe publishable key starting with `pk_test_` or `pk_live_`.',
-    )
+      'Invalid Stripe publishable key format. Must start with pk_test_ or pk_live_'
+    );
   }
 
-  const StripeConstructor = await loadStripeScript()
-
+  const StripeConstructor = await loadStripeScript();
   if (typeof StripeConstructor !== 'function') {
-    throw new Error('Stripe.js loaded, but the Stripe client could not be initialized.')
+    throw new Error('Stripe.js failed to load');
   }
 
-  const stripe = StripeConstructor(publishableKey)
+  const stripe = StripeConstructor(publishableKey);
+  if (!stripe) {
+    throw new Error('Failed to initialize Stripe');
+  }
+
+  return stripe;
 
   if (!stripe) {
     throw new Error('Stripe could not be initialized with the current publishable key.')

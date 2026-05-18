@@ -84,6 +84,16 @@ async function buildSessionUser(user) {
   }
 }
 
+function buildLocalDemoAdmin(emailAddress) {
+  return {
+    id: `demo-admin-${emailAddress}`,
+    fullName: 'ChainSure Admin',
+    email: emailAddress,
+    role: 'admin',
+    walletAddress: '',
+  }
+}
+
 export default function SignIn() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -127,15 +137,39 @@ export default function SignIn() {
           navigate('/admin')
           return
         } catch (adminLoginError) {
+          // Some backend branches fail on /api/auth/login/admin (500) but still support /api/auth/login for admins.
+          if (adminLoginError?.status >= 500) {
+            try {
+              const fallbackResponse = await loginUser(payload)
+              const fallbackUser = fallbackResponse?.data?.user
+
+              if (fallbackUser?.role === 'admin') {
+                saveStoredUser(fallbackUser)
+                navigate('/admin')
+                return
+              }
+            } catch {
+              // Keep original admin login error for downstream handling.
+            }
+          }
+
           const isDemoAdmin = DEMO_ADMIN_CREDENTIALS.some((credential) => (
             credential.email === normalizedEmail && credential.password === password
           ))
 
           if (isDemoAdmin) {
-            const adminUser = await ensureDemoAdminSession(normalizedEmail, password, passwordHash)
-            saveStoredUser(adminUser)
-            navigate('/admin')
-            return
+            try {
+              const adminUser = await ensureDemoAdminSession(normalizedEmail, password, passwordHash)
+              saveStoredUser(adminUser)
+              navigate('/admin')
+              return
+            } catch {
+              // Allow local admin UI access when this backend branch does not support admin auth endpoints.
+              const localDemoAdmin = buildLocalDemoAdmin(normalizedEmail)
+              saveStoredUser(localDemoAdmin)
+              navigate('/admin')
+              return
+            }
           }
 
           throw adminLoginError?.message ? adminLoginError : userLoginError

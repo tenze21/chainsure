@@ -1,4 +1,7 @@
-export const API_BASE = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_URL || '')
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '')
+
+// In dev, prefer Vite proxy (/api -> backend) to avoid CORS and local network adapter issues.
+export const API_BASE = import.meta.env.DEV ? '' : configuredApiUrl
 
 export class ApiError extends Error {
   constructor(message, status = 0, data = null) {
@@ -51,8 +54,9 @@ export async function apiRequest(path, options = {}) {
       ...rest,
     })
   } catch {
+    const endpointLabel = API_BASE || '/api (via Vite dev proxy)'
     throw new ApiError(
-      `Could not reach ${API_BASE}. Check VITE_API_URL and the server CORS origin.`,
+      `Could not reach ${endpointLabel}. Ensure backend is running and Vite proxy/CORS are configured.`,
       0,
     )
   }
@@ -111,7 +115,7 @@ export function registerAdmin(payload) {
 }
 
 export function updateUserProfile(payload) {
-  return apiRequest('/api/user/update', {
+  return apiRequest('/api/user', {
     method: 'PATCH',
     body: JSON.stringify(payload),
   })
@@ -135,34 +139,17 @@ export function logoutUser() {
 }
 
 export async function initiatePolicyPayment(policyId) {
-  const candidatePaths = [
-    `/api/payments/initiate/${policyId}`,
-    `/api/payment/payments/initiate/${policyId}`,
-    `/api/payment/initiate/${policyId}`,
-    `/payments/initiate/${policyId}`,
-  ]
-
-  let lastError = null
-
-  for (const path of candidatePaths) {
-    try {
-      const response = await apiRequest(path, {
-        method: 'POST',
-      })
-
-      return response?.data || null
-    } catch (error) {
-      lastError = error
-
-      if (error?.status !== 404) {
-        throw error
+  return apiRequest(`/api/payments/initiate/${policyId}`, {
+    method: 'POST',
+  }).then(response => response?.data || null)
+    .catch(error => {
+      if (error?.status === 404) {
+        throw new ApiError(
+          'Payment initiation endpoint not available on this server branch',
+          404,
+          error?.data || null
+        );
       }
-    }
-  }
-
-  throw new ApiError(
-    'This server branch does not expose a reachable Stripe payment initiation route yet.',
-    lastError?.status || 404,
-    lastError?.data || null,
-  )
+      throw error;
+    });
 }

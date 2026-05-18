@@ -50,6 +50,14 @@ export default defineConfig(({ mode }) => {
       __CHAINSURE_STRIPE_PUBLISHABLE_KEY__: JSON.stringify(stripePublishableKey),
     },
     server: {
+      host: '127.0.0.1',
+      port: 5173,
+      strictPort: true,
+      hmr: {
+        host: '127.0.0.1',
+        port: 5173,
+        protocol: 'ws',
+      },
       proxy: {
         '/api': {
           target: 'http://localhost:3000',

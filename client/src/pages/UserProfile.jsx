@@ -121,7 +121,7 @@ function PersonalTab({ user, onSaveProfile }) {
   return (
     <div className="pf-card">
       <div className="profile-inline-note">
-        Only fields supported by `PATCH /api/user/update` are editable here. Email, wallet data, and emergency contacts are not exposed by the current profile API.
+        Only fields supported by `PATCH /api/user` are editable here. Email, wallet data, and emergency contacts are not exposed by the current profile API.
       </div>
 
       <div className="pf-card__section">

@@ -51,11 +51,15 @@ export default function StripeCheckoutModal({ policy, user, onClose, onSuccess }
           return
         }
 
+        if (!paymentSession?.clientSecret) {
+          throw new Error('The backend did not return a Stripe client secret for this policy.')
+        }
+
         stripeRef.current = stripe
-        setPaymentType(paymentSession?.type || '')
+        setPaymentType(paymentSession?.type || 'payment_intent')
 
         const elements = stripe.elements({
-          clientSecret: paymentSession?.clientSecret,
+          clientSecret: paymentSession.clientSecret,
           appearance: {
             theme: 'stripe',
             variables: {
@@ -79,7 +83,11 @@ export default function StripeCheckoutModal({ policy, user, onClose, onSuccess }
         paymentElementRef.current = paymentElement
       } catch (checkoutError) {
         if (active) {
-          setError(checkoutError?.message || 'Could not initialize Stripe checkout.')
+          setError(
+            checkoutError?.data?.error?.message
+            || checkoutError?.message
+            || 'Could not initialize Stripe checkout.',
+          )
         }
       } finally {
         if (active) {

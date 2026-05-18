@@ -151,9 +151,17 @@ export default function AdminPolicyTemplates() {
     setCategoryError('')
 
     try {
-      await createCategory(trimmed)
+      const createdCategory = await createCategory(trimmed)
       const refreshed = await fetchCategories()
-      setCategories(refreshed)
+      const alreadyExists = refreshed.some((category) => (
+        String(category?.name || '').trim().toLowerCase() === trimmed.toLowerCase()
+      ))
+
+      setCategories(
+        alreadyExists
+          ? refreshed
+          : [{ id: createdCategory?.id || `local-${trimmed.toLowerCase()}`, name: trimmed }, ...refreshed],
+      )
       setFormData((previous) => ({ ...previous, category: trimmed }))
       setCategoryDraft('')
     } catch (createError) {

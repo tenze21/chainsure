@@ -1,6 +1,5 @@
 const REQUIRED_PROFILE_FIELDS = [
   { key: 'cid', label: 'CID' },
-  { key: 'occupation', label: 'occupation' },
   { key: 'dob', label: 'date of birth' },
   { key: 'gender', label: 'gender' },
   { key: 'contactNumber', label: 'contact number' },
@@ -15,7 +14,6 @@ const PROFILE_UPDATE_FIELDS = [
   'dob',
   'gender',
   'maritalStatus',
-  'occupation',
   'address',
 ]
 

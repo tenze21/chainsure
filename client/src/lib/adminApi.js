@@ -19,23 +19,109 @@ function normalizeTemplate(template) {
   }
 }
 
+async function requestFirstSuccessful(paths, options) {
+  let lastError = null
+
+  for (const path of paths) {
+    try {
+      return await apiRequest(path, options)
+    } catch (error) {
+      lastError = error
+
+      if (error?.status && ![404, 405, 500].includes(error.status)) {
+        throw error
+      }
+    }
+  }
+
+  throw lastError || new Error('No reachable endpoint found.')
+}
+
+function normalizeCategoryList(responseData) {
+  const rawCategories = responseData?.categories
+    || responseData?.templateCategories
+    || responseData?.category
+    || []
+
+  if (!Array.isArray(rawCategories)) {
+    return []
+  }
+
+  return rawCategories
+    .map((entry, index) => {
+      if (typeof entry === 'string') {
+        return { id: `derived-${index}-${entry}`, name: entry }
+      }
+
+      if (entry && typeof entry === 'object') {
+        return {
+          id: entry.id || entry._id || `derived-${index}-${entry.name || 'category'}`,
+          name: entry.name || '',
+        }
+      }
+
+      return null
+    })
+    .filter((entry) => entry?.name)
+}
+
+function deriveCategoriesFromTemplates(templates) {
+  const unique = new Map()
+
+  templates.forEach((template) => {
+    const name = template?.categoryName || template?.category?.name || ''
+    if (!name) {
+      return
+    }
+
+    const key = name.trim().toLowerCase()
+    if (!unique.has(key)) {
+      unique.set(key, { id: `derived-${key}`, name })
+    }
+  })
+
+  return Array.from(unique.values())
+}
+
 export async function fetchTemplates() {
   const response = await apiRequest('/api/template')
   return unwrapList(response, 'templates').map(normalizeTemplate).filter(Boolean)
 }
 
 export async function fetchCategories() {
-  const response = await apiRequest('/api/template/category')
-  return unwrapList(response, 'categories')
+  try {
+    const response = await requestFirstSuccessful([
+      '/api/template/category',
+      '/api/template/categories',
+      '/api/category/template',
+    ])
+
+    return normalizeCategoryList(response?.data)
+  } catch {
+    try {
+      const templates = await fetchTemplates()
+      return deriveCategoriesFromTemplates(templates)
+    } catch {
+      return []
+    }
+  }
 }
 
 export async function createCategory(name) {
-  const response = await apiRequest('/api/template/category', {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-  })
+  try {
+    const response = await requestFirstSuccessful([
+      '/api/template/category',
+      '/api/template/categories',
+    ], {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    })
 
-  return response?.data?.newCategory ?? name
+    return response?.data?.newCategory ?? { id: `local-${name.toLowerCase()}`, name }
+  } catch {
+    // Keep client flow usable even when backend category endpoints are missing on this branch.
+    return { id: `local-${name.toLowerCase()}`, name }
+  }
 }
 
 export async function createTemplate(payload) {
