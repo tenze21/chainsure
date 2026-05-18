@@ -9,7 +9,7 @@ export const sequelize = new Sequelize({
   database: env.DB_NAME,
   username: env.DB_USER,
   password: env.DB_PASSWORD,
-  logging: env.NODE_ENV === "development" ? console.log : false,
+  logging: false,
   // Connection pool settings
   pool: {
     max: 5, // Maximum number of connections

@@ -13,7 +13,7 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: "postgres",
     seederStorage: "json",
-    logging: console.log,
+    logging: false,
   },
 
   production: {
