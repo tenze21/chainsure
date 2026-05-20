@@ -27,6 +27,8 @@ import MotorProposalForm from './pages/MotorProposalForm'
 import HealthProposalForm from './pages/HealthProposalForm'
 import useDashboardData from './hooks/useDashboardData'
 import ExplorerPage from './pages/Explorer'
+import AdminActivePolicies from './pages/admin/AdminActivePolicies'
+
 
 const DASHBOARD_PATHS = {
   overview: '/dashboard',
@@ -283,6 +285,7 @@ function App() {
           <Route path="minting" element={<AdminCustomMinting />} />
           <Route path="revocation" element={<AdminRevocation />} />
           <Route path="proposals" element={<AdminPolicyProposals />} />
+          <Route path="active-policies" element={<AdminActivePolicies />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
