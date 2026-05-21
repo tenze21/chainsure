@@ -14,7 +14,7 @@ import { initiatePayment } from "@/services/payment-service";
  */
 export const initiate = asyncHandler(async (req: Request, res: Response) => {
   const { policyId } = req.params;
-  const userId = req.user.id;
+  const userId = req.user?.id;
 
   const policy = await Policy.findOne({ where: { id: policyId, userId } });
   if (!policy) {

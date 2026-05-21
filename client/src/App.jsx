@@ -10,7 +10,6 @@ import About from './pages/About'
 import PublicPolicies from './pages/PublicPolicies'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminClaimsReview from './pages/admin/AdminClaimsReview'
-import AdminCustomMinting from './pages/admin/AdminCustomMinting'
 import AdminPolicyProposals from './pages/admin/AdminPolicyProposals'
 import AdminPolicyTemplates from './pages/admin/AdminPolicyTemplates'
 import AdminRevocation from './pages/admin/AdminRevocation'
@@ -27,6 +26,8 @@ import MotorProposalForm from './pages/MotorProposalForm'
 import HealthProposalForm from './pages/HealthProposalForm'
 import useDashboardData from './hooks/useDashboardData'
 import ExplorerPage from './pages/Explorer'
+import AdminActivePolicies from './pages/admin/AdminActivePolicies'
+
 
 const DASHBOARD_PATHS = {
   overview: '/dashboard',
@@ -281,10 +282,9 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="templates" element={<AdminPolicyTemplates />} />
           <Route path="claims" element={<AdminClaimsReview />} />
-          <Route path="minting" element={<AdminCustomMinting />} />
           <Route path="revocation" element={<AdminRevocation />} />
           <Route path="proposals" element={<AdminPolicyProposals />} />
-          <Route path="users" element={<AdminUsers />} />
+          <Route path="active-policies" element={<AdminActivePolicies />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
         <Route path="/dashboard/*" element={<DashboardRouter />} />

@@ -18,7 +18,7 @@ import { AppError } from "@/middlewares/error-handler";
 export const claimPolicy = asyncHandler(async (req: Request, res: Response) => {
   const policyId = req.params.policyId as string;
   const policy = await Policy.findByPk(policyId);
-  const userId = req.user.id;
+  const userId = req.user?.id;
   if (!policy) {
     throw new AppError(ERROR_CODES.NOT_FOUND, "Policy not found", 404);
   }

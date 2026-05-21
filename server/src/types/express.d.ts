@@ -5,27 +5,23 @@
  * to Express types without modifying the library
  */
 
-import type { UserPublicData } from "@password_manager/shared";
-
-declare global {
-  namespace Express {
+declare namespace Express {
+  /**
+   * Add custom properties to Request interface
+   */
+  interface Request {
     /**
-     * Add custom properties to Request interface
+     * Authenticated user (set by auth middleware)
      */
-    interface Request {
-      /**
-       * Authenticated user (set by auth middleware)
-       */
-      user?: UserPublicData;
+    user?: { id: string };
 
-      /**
-       * Rate limit info (set by rate limit middleware)
-       */
-      rateLimit?: {
-        limit: number;
-        remaining: number;
-        reset: Date;
-      };
-    }
+    /**
+     * Rate limit info (set by rate limit middleware)
+     */
+    rateLimit?: {
+      limit: number;
+      remaining: number;
+      reset: Date;
+    };
   }
 }
