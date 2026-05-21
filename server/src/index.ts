@@ -5,7 +5,7 @@ import app from "./app";
 async function startServer() {
   try {
     // test database connection
-    testConnection();
+    await testConnection();
 
     app.listen(env.PORT, () => {
       // eslint-disable-next-line no-console

@@ -32,7 +32,7 @@ module.exports = {
       // ── Health Insurance Templates (4) ──────────────────────────────────
       {
         id: uuidv4(),
-        name: "BasicCare Health Plan",
+        name: "Basic Care Health Plan",
         category_id: categories.health.id,
         description:
           "An affordable entry-level health insurance plan designed for young adults and individuals with low medical risk. Covers routine checkups, emergency visits, and common outpatient procedures with a straightforward claims process.",
@@ -51,7 +51,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        name: "FamilyShield Comprehensive Plan",
+        name: "Family Shield Comprehensive Plan",
         category_id: categories.health.id,
         description:
           "A comprehensive family health insurance plan that extends protection to a policyholder and up to four dependents. Designed to handle both routine medical needs and unexpected major health events for households of all sizes.",
@@ -89,7 +89,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        name: "CriticalGuard Lump Sum Plan",
+        name: "Critical Guard Lump Sum Plan",
         category_id: categories.health.id,
         description:
           "A fixed-benefit critical illness plan that pays out a lump sum upon diagnosis of any covered life-threatening condition. Intended to supplement existing health coverage by providing financial relief for lost income and non-medical expenses during recovery.",
@@ -109,7 +109,7 @@ module.exports = {
       // ── Vehicle Insurance Templates (3) ──────────────────────────────────
       {
         id: uuidv4(),
-        name: "ThirdParty Basic Motor Cover",
+        name: "Third-Party Basic Motor Cover",
         category_id: categories.vehicle.id,
         description:
           "A legally mandated minimum motor insurance plan providing coverage for liability to third parties. Suitable for older vehicles or budget-conscious drivers who need to meet regulatory requirements without paying for comprehensive coverage.",
@@ -128,7 +128,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        name: "ComprehensiveAuto 360 Plan",
+        name: "Comprehensive Auto 360 Plan",
         category_id: categories.vehicle.id,
         description:
           "A full-spectrum vehicle insurance plan offering the broadest protection available for private passenger vehicles. Covers your vehicle, third-party liabilities, and personal accident benefits in a single consolidated policy.",
@@ -147,7 +147,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        name: "CommercialFleet Protect Plan",
+        name: "Commercial Fleet Protect Plan",
         category_id: categories.vehicle.id,
         description:
           "Designed for businesses operating a fleet of commercial vehicles, this plan covers multiple vehicles under a single policy with consolidated premium billing. Ideal for logistics companies, delivery services, and transport operators.",
@@ -168,7 +168,7 @@ module.exports = {
       // ── Property Insurance Templates (3) ──────────────────────────────────
       {
         id: uuidv4(),
-        name: "HomeOwner Essential Plan",
+        name: "Home Owner Essential Plan",
         category_id: categories.property.id,
         description:
           "A foundational home insurance plan for residential property owners. Covers the structure of the home and attached fixtures against common perils, giving homeowners basic financial protection against unexpected damage or loss.",
@@ -187,7 +187,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        name: "LandlordGuard Rental Property Plan",
+        name: "Landlord Guard Rental Property Plan",
         category_id: categories.property.id,
         description:
           "Specifically designed for property owners who rent out residential units. Protects against structural damage, loss of rental income, and liability claims from tenants, ensuring landlords are financially secure even during difficult tenancy situations.",
@@ -206,7 +206,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        name: "BusinessPremises All-Risk Plan",
+        name: "Business Premises All-Risk Plan",
         category_id: categories.property.id,
         description:
           "A broad commercial property insurance plan for business owners who want comprehensive protection for their premises, inventory, and equipment. Covers a wide range of perils under a single all-risk policy to minimize coverage gaps.",
