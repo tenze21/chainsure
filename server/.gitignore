@@ -10,8 +10,6 @@ tsconfig.tsbuildinfo
 .env.*.local
 
 # Logs
-logs/
-*.log
 
 # OS files
 .DS_Store
