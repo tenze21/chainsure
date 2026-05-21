@@ -1,3 +1,5 @@
+import type { Hex } from "viem";
+
 export enum Gender {
   MALE = "male",
   FEMALE = "female",
@@ -117,7 +119,7 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   passwordHash: string;
-  walletAddress: string;
+  walletAddress: Hex;
   encryptedPrivateKey: string;
   salt: string;
 }

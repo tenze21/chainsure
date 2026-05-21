@@ -1,9 +1,7 @@
 import type { PolicySignatureInput } from "@lib/types";
 import type { Hex } from "viem";
-import env from "@config/env";
 import bcrypt from "bcrypt";
 import { encodeAbiParameters, keccak256, toBytes } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 import { account } from "@/config/ethereum-client";
 
 /**

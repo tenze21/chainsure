@@ -1,27 +1,23 @@
-/**
- * Extend Express Request type
- *
- * Declaration merging allows us to add custom properties
- * to Express types without modifying the library
- */
+import type { RequestUserData } from "@/lib/types";
 
-declare namespace Express {
-  /**
-   * Add custom properties to Request interface
-   */
-  interface Request {
-    /**
-     * Authenticated user (set by auth middleware)
-     */
-    user?: { id: string };
+declare global {
+  namespace Express {
+    interface Request {
+      /**
+       * Authenticated user (set by auth middleware)
+       */
+      user?: RequestUserData;
 
-    /**
-     * Rate limit info (set by rate limit middleware)
-     */
-    rateLimit?: {
-      limit: number;
-      remaining: number;
-      reset: Date;
-    };
+      /**
+       * Rate limit info (set by rate limit middleware)
+       */
+      rateLimit?: {
+        limit: number;
+        remaining: number;
+        reset: Date;
+      };
+    }
   }
 }
+
+export {};

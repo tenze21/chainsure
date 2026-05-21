@@ -10,7 +10,7 @@ import { AppError } from "@/middlewares/error-handler";
  * @access Private
  */
 export const createProposal = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const templateId = req.params.templateId as string;
   const { attributes } = req.body;
 
@@ -64,7 +64,7 @@ export const createProposal = asyncHandler(async (req: Request, res: Response) =
  * @access Private
  */
 export const getUserProposals = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const proposals = await Proposal.findAll({
     where: { userId },
@@ -137,7 +137,7 @@ export const getProposals = asyncHandler(async (_req: Request, res: Response) =>
  * @access Private
  */
 export const getProposal = asyncHandler(async (req: Request, res: Response) => {
-  const { userId } = req.user;
+  const userId = req.user!.id;
   const proposalId = req.params.id as string;
 
   const proposal = await Proposal.findOne({

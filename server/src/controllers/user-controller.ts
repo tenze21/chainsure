@@ -13,7 +13,7 @@ import { AppError } from "@/middlewares/error-handler";
 export const updateProfile = asyncHandler(async (req: Request, res: Response) => {
   const validatedData = updateProfileSchema.parse(req.body);
 
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const user = await User.findByPk(userId, { attributes: { exclude: ["passwordHash", "salt", "stripeCustomerId"] } });
 
   if (!user) {
@@ -35,7 +35,7 @@ export const updateProfile = asyncHandler(async (req: Request, res: Response) =>
  * @access Private
  */
 export const getUserDetails = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const user = await User.findByPk(userId, { attributes: { exclude: ["passwordHash", "salt", "stripeCustomerId"] } });
   if (!user) {
     throw new AppError(ERROR_CODES.NOT_FOUND, "User not found", 404);
@@ -52,7 +52,7 @@ export const getUserDetails = asyncHandler(async (req: Request, res: Response) =
  * @access Private(User)
  */
 export const getUserPolicies = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const policies = await Policy.findAll({ where: { userId } });
   res.status(200).json({
     success: true,
@@ -66,7 +66,7 @@ export const getUserPolicies = asyncHandler(async (req: Request, res: Response) 
  * @access Private(User)
 */
 export const getUserClaims = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user!.id;
   const claims = await Claim.findAll({ where: { userId }, order: [["createdAt", "DESC"]] });
   res.status(200).json({
     success: true,

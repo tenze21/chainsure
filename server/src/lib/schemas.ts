@@ -19,7 +19,8 @@ export const WalletAddressSchema = z
   .string()
   .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum wallet address format")
   .toLowerCase()
-  .trim();
+  .trim()
+  .transform(addr => addr as Hex);
 
 export const EthereumAddress = z
   .string()
