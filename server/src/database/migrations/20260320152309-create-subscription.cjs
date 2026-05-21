@@ -36,7 +36,7 @@ module.exports = {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("paid", "pending", "lapsed"),
+        type: Sequelize.ENUM("active", "past_due", "canceled", "pending"),
         allowNull: false,
       },
       next_billing_date: {
