@@ -17,7 +17,7 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
   res.cookie("jwt", authRespose.jwtToken, {
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "none",
     maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
   });
 
@@ -43,7 +43,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res.cookie("jwt", authResponse.jwtToken, {
     httpOnly: true,
     secure: env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "none",
     maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
   });
 
