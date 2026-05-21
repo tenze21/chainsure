@@ -128,7 +128,7 @@ function LoadingState() {
 
 // ── result card ──────────────────────────────────────────────────────────────
 function TokenResult({ tokenId, data }) {
-  const { name, image, owner, attributes } = data;
+  const { name, image, owner, attributes, isInvalid } = data;
 
   const policyId = attr(attributes, "Policy ID");
   const category = attr(attributes, "Category");
@@ -138,113 +138,162 @@ function TokenResult({ tokenId, data }) {
   const duration = attr(attributes, "Duration (days)");
 
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-start animate-fadeIn">
-      {/* NFT image */}
-      <div className="rounded-xl overflow-hidden shadow-md">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-auto object-cover"
-          onError={(e) => {
-            e.currentTarget.src = "https://placehold.co/600x600?text=No+Image";
-          }}
-        />
-      </div>
-
-      {/* details */}
-      <div className="flex flex-col gap-5">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Chainsure Policy Token #{tokenId}
-        </h2>
-
-        {/* NFT Details card */}
-        <div className="rounded-xl border border-gray-200 p-5 bg-white shadow-sm">
-          <p className="font-semibold text-gray-800 mb-4">NFT Details</p>
-          <table className="w-full text-sm">
-            <tbody className="divide-y divide-gray-100">
-              <DetailRow label="Owner" value={<AddrLink addr={owner} />} />
-              <DetailRow
-                label="Contract Address"
-                value={<AddrLink addr={CONTRACT_ADDRESS} />}
-              />
-              <DetailRow
-                label="Creator"
-                value={<AddrLink addr={CREATOR_ADDRESS} />}
-              />
-              <DetailRow
-                label="Token ID"
-                value={
-                  <span className="font-semibold text-gray-800">{tokenId}</span>
-                }
-              />
-              <DetailRow
-                label="Token Standard"
-                value={
-                  <span className="font-semibold text-gray-800">ERC-721</span>
-                }
-              />
-            </tbody>
-          </table>
+    <div>
+      <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-start animate-fadeIn">
+        {/* NFT image */}
+        <div className="rounded-xl overflow-hidden shadow-md lg:col-span-1">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-64 md:h-[340px] lg:h-[360px] object-cover"
+            onError={(e) => {
+              e.currentTarget.src =
+                "https://placehold.co/600x600?text=No+Image";
+            }}
+          />
         </div>
 
-        {/* Policy Details card */}
-        <div className="rounded-xl border border-gray-200 p-5 bg-white shadow-sm">
-          <p className="font-semibold text-gray-800 mb-4">Policy Details</p>
-          <table className="w-full text-sm">
-            <tbody className="divide-y divide-gray-100">
-              <DetailRow
-                label="Policy ID"
-                value={
-                  <span className="font-mono text-gray-700 text-xs">
-                    {policyId}
-                  </span>
-                }
-              />
-              <DetailRow
-                label="Category"
-                value={
-                  <span className="font-semibold text-gray-800">
-                    {category}
-                  </span>
-                }
-              />
-              <DetailRow
-                label="Coverage Amount"
-                value={
-                  <span className="font-semibold text-gray-800">
-                    {Number(coverage).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    })}
-                  </span>
-                }
-              />
-              <DetailRow
-                label="Payment Type"
-                value={
-                  <span className="font-semibold text-gray-800 capitalize">
-                    {paymentType}
-                  </span>
-                }
-              />
-              <DetailRow
-                label="Issue Date"
-                value={
-                  <span className="font-semibold text-gray-800">
-                    {issueDate}
-                  </span>
-                }
-              />
-              <DetailRow
-                label="Duration (Days)"
-                value={
-                  <span className="font-semibold text-gray-800">
-                    {duration}
-                  </span>
-                }
-              />
-            </tbody>
-          </table>
+        {/* details */}
+        <div className="flex flex-col gap-5 lg:col-span-2">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Chainsure Policy Token #{tokenId}
+          </h2>
+
+          {/* NFT Details card */}
+          <div className="rounded-xl border border-gray-200 p-5 bg-white shadow-sm">
+            <p className="font-semibold text-gray-800 mb-4">NFT Details</p>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <DetailRow label="Owner" value={<AddrLink addr={owner} />} />
+                <DetailRow
+                  label="Contract Address"
+                  value={<AddrLink addr={CONTRACT_ADDRESS} />}
+                />
+                <DetailRow
+                  label="Creator"
+                  value={<AddrLink addr={CREATOR_ADDRESS} />}
+                />
+                <DetailRow
+                  label="Token ID"
+                  value={
+                    <span className="font-semibold text-gray-800">
+                      {tokenId}
+                    </span>
+                  }
+                />
+                <DetailRow
+                  label="Token Standard"
+                  value={
+                    <span className="font-semibold text-gray-800">ERC-721</span>
+                  }
+                />
+              </tbody>
+            </table>
+          </div>
+
+          {/* Policy Details card */}
+          <div className="rounded-xl border border-gray-200 p-5 bg-white shadow-sm">
+            <p className="font-semibold text-gray-800 mb-4">Policy Details</p>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <DetailRow
+                  label="Policy ID"
+                  value={
+                    <span className="font-mono text-gray-700 text-xs">
+                      {policyId}
+                    </span>
+                  }
+                />
+                <DetailRow
+                  label="Category"
+                  value={
+                    <span className="font-semibold text-gray-800">
+                      {category}
+                    </span>
+                  }
+                />
+                <DetailRow
+                  label="Coverage Amount"
+                  value={
+                    <span className="font-semibold text-gray-800">
+                      {Number(coverage).toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </span>
+                  }
+                />
+                <DetailRow
+                  label="Payment Type"
+                  value={
+                    <span className="font-semibold text-gray-800 capitalize">
+                      {paymentType}
+                    </span>
+                  }
+                />
+                <DetailRow
+                  label="Issue Date"
+                  value={
+                    <span className="font-semibold text-gray-800">
+                      {issueDate}
+                    </span>
+                  }
+                />
+                <DetailRow
+                  label="Duration (Days)"
+                  value={
+                    <span className="font-semibold text-gray-800">
+                      {duration}
+                    </span>
+                  }
+                />
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div className="mt-6">
+        <div
+          className={`inline-flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium border \
+            ${isInvalid ? "bg-red-50 text-red-700 border-red-100" : "bg-green-50 text-green-700 border-green-100"}`}
+        >
+          {isInvalid ? (
+            <>
+              <svg
+                className="w-4 h-4 flex-shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              <span>Policy NFT invalidated</span>
+              <span className="ml-2 text-xs font-mono text-red-600/80">revoked</span>
+            </>
+          ) : (
+            <>
+              <svg
+                className="w-4 h-4 flex-shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <span>Valid policy NFT</span>
+              <span className="ml-2 text-xs text-gray-500">issued {issueDate}</span>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -325,7 +374,7 @@ export default function ExplorerPage() {
       <Header />
 
       {/* page body */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-6 pt-32 pb-20 flex flex-col gap-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-6 pt-32 pb-20 flex flex-col gap-8">
         <h1 className="text-3xl font-bold text-gray-900 text-center">
           Chainsure Explorer
         </h1>

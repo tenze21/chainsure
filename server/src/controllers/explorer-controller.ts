@@ -26,12 +26,19 @@ export const getNFT = asyncHandler(async (req: Request, res: Response) => {
     args: [tokenId],
   });
 
+  const isInvalid = await client.readContract({
+    address: env.CONTRACT_ADDRESS,
+    abi: chainsureTokenAbi,
+    functionName: "isPolicyInvalid",
+    args: [tokenId],
+  });
+
   const response = await fetch(tokenURI);
   const metadata = await response.text();
   const metadataObj = JSON.parse(metadata);
 
   res.status(200).json({
     sucess: true,
-    data: { ...metadataObj, owner },
+    data: { ...metadataObj, owner, isInvalid },
   });
 });
