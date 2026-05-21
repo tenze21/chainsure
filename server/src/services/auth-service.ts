@@ -155,6 +155,12 @@ export async function registerAdminUser(data: RegisterRequest): Promise<AdminAut
     salt: data.salt,
   });
 
+  await Wallet.create({
+    userId: user.id,
+    walletAddress: data.walletAddress,
+    encryptedPrivateKey: data.encryptedPrivateKey,
+  });
+
   const jwtToken = generateToken(user.id);
 
   const adminData: AdminData = {

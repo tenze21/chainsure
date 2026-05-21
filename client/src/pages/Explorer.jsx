@@ -8,7 +8,7 @@ const CONTRACT_ADDRESS = "0xEe73BEe5644f0Aae106d424C321c4db4CF50Bc45";
 const CREATOR_ADDRESS = "0x2193870DfFbd97c4E86F8791D6b3419b9D9dFf99";
 
 function AddrLink({ addr }) {
-  const etherscan = `https://etherscan.io/address/${addr}`;
+  const etherscan = `https://sepolia.etherscan.io/address/${addr}`;
   return (
     <a
       href={etherscan}
