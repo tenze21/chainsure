@@ -80,6 +80,8 @@ Install the following:
 - Stripe CLI, if testing webhooks locally
 - Access to an Ethereum RPC endpoint, for example Anvil or Sepolia
 
+## Flow chart
+![](/docs/flow_chart.png)
 ## Environment Variables
 
 The server loads `.env.development` by default and `.env.production` when `NODE_ENV=production`.
